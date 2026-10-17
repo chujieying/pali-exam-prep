@@ -82,15 +82,26 @@ ol.virtues .pali{font-size:17px}
 td.q{min-width:5em}
 @media (prefers-reduced-motion:reduce){.quiz .q{transition:none}}
 </style>
+<style>
+.site{margin-inline:-16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.site .brand{font-family:var(--pali);font-weight:700;font-size:18px;color:var(--ink);text-decoration:none;margin-right:auto}
+.site .links{display:flex;gap:6px}
+.site .links a{font-family:var(--ui);font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid transparent}
+.site .links a:hover{color:var(--teal);border-color:var(--rule)}
+.site .links a[aria-current="page"]{color:var(--teal);background:var(--bg);border-color:var(--rule)}
+</style>
 </head>
 <body>
+<nav class="site" aria-label="Site">
+  <a class="brand" href="./">Pali Exam Prep</a>
+  <span class="links"><a href="./" aria-current="page">Charts</a><a href="coach.html">Study Coach</a></span>
+</nav>
 
 <div class="wrap" id="app">
 <header class="top">
   <div class="eyebrow">Buddhism Diploma · Pali</div>
   <h1>Pali Exam Prep</h1>
   <p class="lede">Everything from the whiteboard in one place: the alphabet, three noun declensions, the verb dhāvati in three tenses, and the pūjā formulas and vandanā. Turn on Quiz mode to cover the answers, then tap each one to check yourself.</p>
-  <p class="lede" style="margin-top:8px"><a href="coach.html" style="color:var(--teal);font-weight:600">Open the Study Coach: lessons, memory tricks, flashcards and practice tests →</a></p>
 </header>
 
 <nav class="bar" aria-label="Sections">

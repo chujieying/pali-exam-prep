@@ -110,15 +110,26 @@ td.p{font-family:var(--pali);font-size:16px}
 .miss .pali{font-size:17px}
 @media (prefers-reduced-motion:reduce){.progress i{transition:none}}
 </style>
+<style>
+.site{margin-inline:-16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.site .brand{font-family:var(--pali);font-weight:700;font-size:18px;color:var(--ink);text-decoration:none;margin-right:auto}
+.site .links{display:flex;gap:6px}
+.site .links a{font-family:var(--ui);font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid transparent}
+.site .links a:hover{color:var(--teal);border-color:var(--rule)}
+.site .links a[aria-current="page"]{color:var(--teal);background:var(--bg);border-color:var(--rule)}
+</style>
 </head>
 <body>
+<nav class="site" aria-label="Site">
+  <a class="brand" href="./">Pali Exam Prep</a>
+  <span class="links"><a href="./">Charts</a><a href="coach.html" aria-current="page">Study Coach</a></span>
+</nav>
 
 <div class="wrap">
 <header class="top">
   <div class="eyebrow">Buddhism Diploma · Pali</div>
   <h1>Pali Study Coach</h1>
   <p class="lede">Learn it simply, lock it in with memory tricks, then test yourself. Start with <b>Learn</b>, do <b>Flashcards</b> every day, and finish with a <b>Practice test</b>.</p>
-  <p class="lede" style="margin-top:8px"><a href="./" style="color:var(--teal);font-weight:600">← All charts on one page (Exam Prep)</a></p>
 </header>
 
 <div class="tabs" role="tablist">
