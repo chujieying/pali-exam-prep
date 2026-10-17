@@ -1,0 +1,363 @@
+<title>Pali Exam Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one study column with a sticky section bar; every Pali form is a tap-to-reveal answer in Quiz mode */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#1d2a2e; --muted:#5b6b70; --rule:#d5dedc;
+  --robe:#b8640f; --robe-soft:#f6e7d4; --teal:#1f5c63; --cover:#dfe6e4;
+  --pali:"Gentium Book Plus","Noto Serif",Georgia,serif;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#3a2a17; --teal:#7cc3c9; --cover:#2a383b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#3a2a17; --teal:#7cc3c9; --cover:#2a383b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:36px 20px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--robe);font-weight:600}
+h1{font-family:var(--pali);font-size:clamp(30px,6vw,44px);line-height:1.1;margin:6px 0 10px;text-wrap:balance}
+.lede{color:var(--muted);max-width:62ch;margin:0}
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);padding-block:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+nav.bar a{font-size:13px;font-weight:500;color:var(--ink);text-decoration:none;padding:6px 10px;border-radius:6px;border:1px solid var(--rule);background:var(--surface)}
+nav.bar a:hover{border-color:var(--teal)}
+.quizctl{margin-left:auto;display:flex;gap:8px;align-items:center}
+button{font:inherit;font-size:13px;font-weight:600;cursor:pointer;border-radius:6px;padding:6px 12px;border:1px solid var(--teal);background:var(--surface);color:var(--teal)}
+button[aria-pressed="true"]{background:var(--teal);color:var(--bg)}
+button:focus-visible,nav.bar a:focus-visible,.q:focus-visible{outline:2px solid var(--robe);outline-offset:2px}
+.hint{font-size:12px;color:var(--muted);flex-basis:100%}
+
+section{padding-block:36px 8px;scroll-margin-top:64px}
+h2{font-family:var(--pali);font-size:28px;margin:0 0 4px;text-wrap:balance}
+h2 small{font-family:var(--ui);font-size:13px;font-weight:600;color:var(--robe);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:4px}
+h3{font-family:var(--pali);font-size:21px;margin:28px 0 8px}
+h3 .gloss{font-family:var(--ui);font-size:13px;font-weight:400;color:var(--muted)}
+p{max-width:66ch}
+.pali,td,.chant{font-family:var(--pali)}
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:8px;margin-block:8px}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+thead th{font-family:var(--ui);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+tbody th{font-family:var(--ui);font-size:13px;font-weight:600;color:var(--teal);white-space:nowrap}
+.mark{color:var(--robe);font-weight:700}
+.note{font-size:13px;color:var(--muted);margin-top:6px}
+.tip{background:var(--robe-soft);border-radius:8px;padding:12px 14px;font-size:14px;margin-block:12px;max-width:none}
+.tip strong{color:var(--robe)}
+.answer{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin-block:10px}
+.answer h4{margin:0 0 6px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.answer ol,.answer ul{margin:0;padding-left:20px}
+.answer li{margin-block:4px}
+.cons td{text-align:center;font-size:18px}
+.cons tbody th{text-align:left}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:12px}
+.grid2>*{min-width:0}
+.chant{font-size:17px;line-height:1.7;margin:4px 0 0}
+.chant span{display:block}
+.en{font-family:var(--ui);font-size:13px;color:var(--muted);margin-top:8px}
+.count{font-family:var(--ui);font-size:12px;font-weight:600;color:var(--teal);background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+ol.virtues{padding-left:24px;margin:6px 0}
+ol.virtues li{margin-block:6px}
+ol.virtues .pali{font-size:17px}
+.en-inline{color:var(--muted);font-size:13px}
+.group-label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--robe);margin:12px 0 2px}
+
+/* Quiz mode: answers are covered until tapped */
+.quiz .q{background:var(--cover);color:transparent;border-radius:4px;cursor:pointer;user-select:none;transition:background .15s}
+.quiz .q *{color:transparent!important}
+.quiz .q.shown{background:transparent;color:inherit;cursor:default;user-select:auto}
+.quiz .q.shown *{color:inherit!important}
+.quiz .q.shown .mark{color:var(--robe)!important}
+td.q{min-width:5em}
+@media (prefers-reduced-motion:reduce){.quiz .q{transition:none}}
+</style>
+
+<div class="wrap" id="app">
+<header class="top">
+  <div class="eyebrow">Buddhism Diploma · Pali</div>
+  <h1>Pali Exam Prep</h1>
+  <p class="lede">Everything from the whiteboard in one place: the alphabet, three noun declensions, the verb dhāvati in three tenses, and the pūjā formulas and vandanā. Turn on Quiz mode to cover the answers, then tap each one to check yourself.</p>
+</header>
+
+<nav class="bar" aria-label="Sections">
+  <a href="#alphabet">Alphabet</a>
+  <a href="#declension">Declension</a>
+  <a href="#conjugation">Conjugation</a>
+  <a href="#puja">Pūjā &amp; Vandanā</a>
+  <span class="quizctl">
+    <button id="quizBtn" type="button" aria-pressed="false">Quiz mode</button>
+    <button id="resetBtn" type="button" hidden>Cover all again</button>
+  </span>
+</nav>
+
+<!-- ============ 1. ALPHABET ============ -->
+<section id="alphabet">
+  <h2><small>Part 1</small>The Pali alphabet</h2>
+  <p>Likely exam question: <em>“Briefly explain the Pali alphabet and give its categories.”</em></p>
+
+  <div class="answer">
+    <h4>Model answer</h4>
+    <ol>
+      <li>According to the grammarian <span class="pali">Kaccāyana</span>, the Pali alphabet has <strong class="q">41 letters</strong>.</li>
+      <li>They are <strong class="q">8 vowels (sara) + 33 consonants (byañjana)</strong>.</li>
+      <li>The 8 vowels are short, long or variable (table below).</li>
+      <li>The 33 consonants are 25 grouped consonants in 5 groups, plus 8 ungrouped ones (table below).</li>
+    </ol>
+  </div>
+
+  <h3>The 8 vowels</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Type</th><th>Vowels</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><th>Short (rassa)</th><td class="q">a, i, u</td><td class="q" style="font-family:var(--ui);font-size:14px">One beat</td></tr>
+      <tr><th>Long (dīgha)</th><td class="q">ā, ī, ū</td><td class="q" style="font-family:var(--ui);font-size:14px">Two beats, marked with a bar</td></tr>
+      <tr><th>Variable</th><td class="q">e, o</td><td class="q" style="font-family:var(--ui);font-size:14px">Long by nature, but short before a double consonant</td></tr>
+    </tbody>
+  </table></div>
+  <p class="tip"><strong>Why “variable”?</strong> e and o are normally long, as in <span class="pali">deva, loka</span>. Before a double consonant they are pronounced short, as in <span class="pali">mettā, seṭṭha, sotthi</span>. Because they can be either, they are called variable.</p>
+
+  <h3>The 33 consonants</h3>
+  <p class="note" style="margin-top:0">25 grouped (vagga) consonants, arranged by where they are spoken in the mouth:</p>
+  <div class="tw"><table class="cons">
+    <thead><tr><th>Group</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5 (nasal)</th></tr></thead>
+    <tbody>
+      <tr><th>Guttural · k-group</th><td class="q">k</td><td class="q">kh</td><td class="q">g</td><td class="q">gh</td><td class="q">ṅ</td></tr>
+      <tr><th>Palatal · c-group</th><td class="q">c</td><td class="q">ch</td><td class="q">j</td><td class="q">jh</td><td class="q">ñ</td></tr>
+      <tr><th>Cerebral · ṭ-group</th><td class="q">ṭ</td><td class="q">ṭh</td><td class="q">ḍ</td><td class="q">ḍh</td><td class="q">ṇ</td></tr>
+      <tr><th>Dental · t-group</th><td class="q">t</td><td class="q">th</td><td class="q">d</td><td class="q">dh</td><td class="q">n</td></tr>
+      <tr><th>Labial · p-group</th><td class="q">p</td><td class="q">ph</td><td class="q">b</td><td class="q">bh</td><td class="q">m</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Columns: 1 = unvoiced, 2 = unvoiced + h, 3 = voiced, 4 = voiced + h, 5 = nasal. 5 groups × 5 = 25.</p>
+  <p style="margin-bottom:4px">8 ungrouped (avagga) consonants:</p>
+  <div class="tw"><table class="cons"><tbody><tr>
+    <td class="q">y</td><td class="q">r</td><td class="q">l</td><td class="q">v</td><td class="q">s</td><td class="q">h</td><td class="q">ḷ</td><td class="q">ṁ</td>
+  </tr></tbody></table></div>
+  <p class="tip"><strong>Check the count:</strong> 25 grouped + 8 ungrouped = 33 consonants. 33 + 8 vowels = 41. ṁ is called <span class="pali">niggahīta</span>.</p>
+</section>
+
+<!-- ============ 2. DECLENSION ============ -->
+<section id="declension">
+  <h2><small>Part 2</small>Noun declension</h2>
+  <p>Three model nouns, one for each stem type: masculine <span class="pali">-a</span>, feminine <span class="pali">-ā</span>, neuter <span class="pali">-a</span>. Learn one noun per type and you can decline any noun of that type.</p>
+
+  <h3>Bhūpāla <span class="gloss">king · masculine, -a stem</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Case</th><th>Singular</th><th>Plural</th></tr></thead>
+    <tbody>
+      <tr><th>Nominative</th><td class="q">bhūpāl<span class="mark">o</span></td><td class="q">bhūpāl<span class="mark">ā</span></td></tr>
+      <tr><th>Accusative</th><td class="q">bhūpāl<span class="mark">aṁ</span></td><td class="q">bhūpāl<span class="mark">e</span></td></tr>
+      <tr><th>Instrumental</th><td class="q">bhūpāl<span class="mark">ena</span></td><td class="q">bhūpāl<span class="mark">ebhi</span>, bhūpāl<span class="mark">ehi</span></td></tr>
+      <tr><th>Dative</th><td class="q">bhūpāl<span class="mark">āya</span>, bhūpāl<span class="mark">assa</span></td><td class="q">bhūpāl<span class="mark">ānaṁ</span></td></tr>
+      <tr><th>Ablative</th><td class="q">bhūpāl<span class="mark">ā</span>, bhūpāl<span class="mark">amhā</span>, bhūpāl<span class="mark">asmā</span></td><td class="q">bhūpāl<span class="mark">ebhi</span>, bhūpāl<span class="mark">ehi</span></td></tr>
+      <tr><th>Genitive</th><td class="q">bhūpāl<span class="mark">assa</span></td><td class="q">bhūpāl<span class="mark">ānaṁ</span></td></tr>
+      <tr><th>Locative</th><td class="q">bhūpāl<span class="mark">e</span>, bhūpāl<span class="mark">asmiṁ</span>, bhūpāl<span class="mark">amhi</span></td><td class="q">bhūpāl<span class="mark">esu</span></td></tr>
+      <tr><th>Vocative</th><td class="q">bhūpāl<span class="mark">a</span>, bhūpāl<span class="mark">ā</span></td><td class="q">bhūpāl<span class="mark">ā</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Bhariyā <span class="gloss">wife · feminine, -ā stem</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Case</th><th>Singular</th><th>Plural</th></tr></thead>
+    <tbody>
+      <tr><th>Nominative</th><td class="q">bhariy<span class="mark">ā</span></td><td class="q">bhariy<span class="mark">ā</span>, bhariy<span class="mark">āyo</span></td></tr>
+      <tr><th>Accusative</th><td class="q">bhariy<span class="mark">aṁ</span></td><td class="q">bhariy<span class="mark">ā</span>, bhariy<span class="mark">āyo</span></td></tr>
+      <tr><th>Instrumental</th><td class="q">bhariy<span class="mark">āya</span></td><td class="q">bhariy<span class="mark">ābhi</span>, bhariy<span class="mark">āhi</span></td></tr>
+      <tr><th>Dative</th><td class="q">bhariy<span class="mark">āya</span></td><td class="q">bhariy<span class="mark">ānaṁ</span></td></tr>
+      <tr><th>Ablative</th><td class="q">bhariy<span class="mark">āya</span></td><td class="q">bhariy<span class="mark">ābhi</span>, bhariy<span class="mark">āhi</span></td></tr>
+      <tr><th>Genitive</th><td class="q">bhariy<span class="mark">āya</span></td><td class="q">bhariy<span class="mark">ānaṁ</span></td></tr>
+      <tr><th>Locative</th><td class="q">bhariy<span class="mark">āya</span>, bhariy<span class="mark">āyaṁ</span></td><td class="q">bhariy<span class="mark">āsu</span></td></tr>
+      <tr><th>Vocative</th><td class="q">bhariy<span class="mark">e</span></td><td class="q">bhariy<span class="mark">ā</span>, bhariy<span class="mark">āyo</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="tip"><strong>Shortcut:</strong> in the feminine singular, Ins, Dat, Abl and Gen are all <span class="pali">-āya</span>. Loc adds <span class="pali">-āyaṁ</span>.</p>
+
+  <h3>Paṇṇa <span class="gloss">leaf · neuter, -a stem</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Case</th><th>Singular</th><th>Plural</th></tr></thead>
+    <tbody>
+      <tr><th>Nominative</th><td class="q">paṇṇ<span class="mark">aṁ</span></td><td class="q">paṇṇ<span class="mark">ā</span>, paṇṇ<span class="mark">āni</span></td></tr>
+      <tr><th>Accusative</th><td class="q">paṇṇ<span class="mark">aṁ</span></td><td class="q">paṇṇ<span class="mark">e</span>, paṇṇ<span class="mark">āni</span></td></tr>
+      <tr><th>Instrumental</th><td class="q">paṇṇ<span class="mark">ena</span></td><td class="q">paṇṇ<span class="mark">ebhi</span>, paṇṇ<span class="mark">ehi</span></td></tr>
+      <tr><th>Dative</th><td class="q">paṇṇ<span class="mark">āya</span>, paṇṇ<span class="mark">assa</span></td><td class="q">paṇṇ<span class="mark">ānaṁ</span></td></tr>
+      <tr><th>Ablative</th><td class="q">paṇṇ<span class="mark">ā</span>, paṇṇ<span class="mark">amhā</span>, paṇṇ<span class="mark">asmā</span></td><td class="q">paṇṇ<span class="mark">ebhi</span>, paṇṇ<span class="mark">ehi</span></td></tr>
+      <tr><th>Genitive</th><td class="q">paṇṇ<span class="mark">assa</span></td><td class="q">paṇṇ<span class="mark">ānaṁ</span></td></tr>
+      <tr><th>Locative</th><td class="q">paṇṇ<span class="mark">e</span>, paṇṇ<span class="mark">asmiṁ</span>, paṇṇ<span class="mark">amhi</span></td><td class="q">paṇṇ<span class="mark">esu</span></td></tr>
+      <tr><th>Vocative</th><td class="q">paṇṇ<span class="mark">a</span>, paṇṇ<span class="mark">ā</span></td><td class="q">paṇṇ<span class="mark">āni</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="tip"><strong>Shortcut:</strong> the neuter differs from the masculine only in Nom, Acc and Voc. Ins to Loc are “same as masculine -a”, as the teacher wrote. Nom and Acc singular are both <span class="pali">-aṁ</span>, and the plural can always be <span class="pali">-āni</span>.</p>
+
+  <h3>All endings side by side</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Case</th><th>Masc. sg</th><th>Masc. pl</th><th>Fem. sg</th><th>Fem. pl</th><th>Neut. sg</th><th>Neut. pl</th></tr></thead>
+    <tbody>
+      <tr><th>Nom</th><td class="q">-o</td><td class="q">-ā</td><td class="q">-ā</td><td class="q">-ā, -āyo</td><td class="q">-aṁ</td><td class="q">-ā, -āni</td></tr>
+      <tr><th>Acc</th><td class="q">-aṁ</td><td class="q">-e</td><td class="q">-aṁ</td><td class="q">-ā, -āyo</td><td class="q">-aṁ</td><td class="q">-e, -āni</td></tr>
+      <tr><th>Ins</th><td class="q">-ena</td><td class="q">-ebhi, -ehi</td><td class="q">-āya</td><td class="q">-ābhi, -āhi</td><td class="q">-ena</td><td class="q">-ebhi, -ehi</td></tr>
+      <tr><th>Dat</th><td class="q">-āya, -assa</td><td class="q">-ānaṁ</td><td class="q">-āya</td><td class="q">-ānaṁ</td><td class="q">-āya, -assa</td><td class="q">-ānaṁ</td></tr>
+      <tr><th>Abl</th><td class="q">-ā, -amhā, -asmā</td><td class="q">-ebhi, -ehi</td><td class="q">-āya</td><td class="q">-ābhi, -āhi</td><td class="q">-ā, -amhā, -asmā</td><td class="q">-ebhi, -ehi</td></tr>
+      <tr><th>Gen</th><td class="q">-assa</td><td class="q">-ānaṁ</td><td class="q">-āya</td><td class="q">-ānaṁ</td><td class="q">-assa</td><td class="q">-ānaṁ</td></tr>
+      <tr><th>Loc</th><td class="q">-e, -asmiṁ, -amhi</td><td class="q">-esu</td><td class="q">-āya, -āyaṁ</td><td class="q">-āsu</td><td class="q">-e, -asmiṁ, -amhi</td><td class="q">-esu</td></tr>
+      <tr><th>Voc</th><td class="q">-a, -ā</td><td class="q">-ā</td><td class="q">-e</td><td class="q">-ā, -āyo</td><td class="q">-a, -ā</td><td class="q">-āni</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">The whiteboard was hard to read for a few feminine forms (Acc sg, Loc sg, Voc). The standard Pali forms are used here.</p>
+</section>
+
+<!-- ============ 3. CONJUGATION ============ -->
+<section id="conjugation">
+  <h2><small>Part 3</small>Verb conjugation</h2>
+  <p>Model verb: <span class="pali"><strong>dhāvati</strong></span> “runs”, root <span class="pali"><strong>dhāv</strong></span>. Rows go 3rd person, then 2nd, then 1st, the usual order in Pali grammar.</p>
+
+  <h3>Present tense <span class="gloss">runs</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Person</th><th>Singular</th><th>Plural</th></tr></thead>
+    <tbody>
+      <tr><th>3rd · he / they</th><td class="q">dhāva<span class="mark">ti</span></td><td class="q">dhāva<span class="mark">nti</span></td></tr>
+      <tr><th>2nd · you</th><td class="q">dhāva<span class="mark">si</span></td><td class="q">dhāva<span class="mark">tha</span></td></tr>
+      <tr><th>1st · I / we</th><td class="q">dhāvā<span class="mark">mi</span></td><td class="q">dhāvā<span class="mark">ma</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Future tense <span class="gloss">will run · root + -issa- + present ending</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Person</th><th>Singular</th><th>Plural</th></tr></thead>
+    <tbody>
+      <tr><th>3rd · he / they</th><td class="q">dhāv<span class="mark">issati</span></td><td class="q">dhāv<span class="mark">issanti</span></td></tr>
+      <tr><th>2nd · you</th><td class="q">dhāv<span class="mark">issasi</span></td><td class="q">dhāv<span class="mark">issatha</span></td></tr>
+      <tr><th>1st · I / we</th><td class="q">dhāv<span class="mark">issāmi</span></td><td class="q">dhāv<span class="mark">issāma</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Past tense (aorist) <span class="gloss">ran · the a- prefix is optional</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Person</th><th>Singular</th><th>Plural</th></tr></thead>
+    <tbody>
+      <tr><th>3rd · he / they</th><td class="q">adhāv<span class="mark">i</span>, dhāv<span class="mark">i</span>, adhāv<span class="mark">ī</span>, dhāv<span class="mark">ī</span></td><td class="q">adhāv<span class="mark">iṁsu</span>, dhāv<span class="mark">iṁsu</span>, adhāv<span class="mark">uṁ</span>, dhāv<span class="mark">uṁ</span></td></tr>
+      <tr><th>2nd · you</th><td class="q">adhāv<span class="mark">i</span>, dhāv<span class="mark">i</span>, adhāv<span class="mark">o</span>, dhāv<span class="mark">o</span></td><td class="q">adhāv<span class="mark">ittha</span>, dhāv<span class="mark">ittha</span></td></tr>
+      <tr><th>1st · I / we</th><td class="q">adhāv<span class="mark">iṁ</span>, dhāv<span class="mark">iṁ</span></td><td class="q">adhāv<span class="mark">imhā</span>, dhāv<span class="mark">imhā</span>, adhāv<span class="mark">imha</span>, dhāv<span class="mark">imha</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Verb endings side by side</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Person</th><th>Present sg</th><th>Present pl</th><th>Future sg</th><th>Future pl</th><th>Past sg</th><th>Past pl</th></tr></thead>
+    <tbody>
+      <tr><th>3rd</th><td class="q">-ti</td><td class="q">-nti</td><td class="q">-issati</td><td class="q">-issanti</td><td class="q">-i, -ī</td><td class="q">-iṁsu, -uṁ</td></tr>
+      <tr><th>2nd</th><td class="q">-si</td><td class="q">-tha</td><td class="q">-issasi</td><td class="q">-issatha</td><td class="q">-i, -o</td><td class="q">-ittha</td></tr>
+      <tr><th>1st</th><td class="q">-mi</td><td class="q">-ma</td><td class="q">-issāmi</td><td class="q">-issāma</td><td class="q">-iṁ</td><td class="q">-imhā, -imha</td></tr>
+    </tbody>
+  </table></div>
+  <p class="tip"><strong>Memory hook:</strong> present endings are ti/nti, si/tha, mi/ma. The future is the same with <span class="pali">-issa-</span> in front. In the past, every form can take or drop <span class="pali">a-</span>, and the teacher marked <span class="pali">-iṁsu</span> as the key 3rd person plural ending.</p>
+  <p class="note">The present-tense chart was hidden on the whiteboard photo. The standard forms are used here.</p>
+</section>
+
+<!-- ============ 4. PUJA & VANDANA ============ -->
+<section id="puja">
+  <h2><small>Part 4</small>Pūjā and Vandanā</h2>
+  <p>Likely exam question: <em>“Give the Pali formula when offering: 1) light, 2) food, 3) incense, 4) flowers.”</em> The numbers are the line counts from the whiteboard.</p>
+
+  <div class="grid2">
+    <div class="answer">
+      <h4>1. Light · Padīpa pūjā <span class="count">4 lines</span></h4>
+      <p class="chant q"><span>Ghanasārappadittena</span><span>dīpena tamadhaṁsinā</span><span>Tilokadīpaṁ sambuddhaṁ</span><span>pūjayāmi tamonudaṁ.</span></p>
+      <p class="en">With this lamp burning brightly, destroying darkness, I honour the Buddha, the light of the three worlds, who dispels darkness.</p>
+    </div>
+    <div class="answer">
+      <h4>2. Food · Āhāra pūjā <span class="count">4 lines</span></h4>
+      <p class="chant q"><span>Adhivāsetu no bhante</span><span>bhojanaṁ parikappitaṁ</span><span>Anukampaṁ upādāya</span><span>paṭiggaṇhātu-m-uttamaṁ.</span></p>
+      <p class="en">Venerable Lord, please accept this food we have prepared. Out of compassion, please receive this excellent offering.</p>
+    </div>
+    <div class="answer">
+      <h4>3. Incense · Dhūpa pūjā <span class="count">4 lines</span></h4>
+      <p class="chant q"><span>Gandhasambhārayuttena</span><span>dhūpenāhaṁ sugandhinā</span><span>Pūjaye pūjaneyyaṁ taṁ</span><span>pūjābhājanamuttamaṁ.</span></p>
+      <p class="en">With fragrant incense made of sweet-smelling things, I honour the one worthy of honour, the highest recipient of offerings.</p>
+    </div>
+    <div class="answer">
+      <h4>4. Flowers · Puppha pūjā <span class="count">8 lines</span></h4>
+      <p class="chant q"><span>Vaṇṇa-gandha-guṇopetaṁ</span><span>etaṁ kusumasantatiṁ</span><span>Pūjayāmi munindassa</span><span>sirīpāda-saroruhe.</span><span>Pūjemi buddhaṁ kusumenanena</span><span>puññenametena ca hotu mokkhaṁ</span><span>Pupphaṁ milāyāti yathā idaṁ me</span><span>kāyo tathā yāti vināsabhāvaṁ.</span></p>
+      <p class="en">I offer these flowers, full of colour, scent and beauty, at the lotus feet of the Lord of Sages. I honour the Buddha with these flowers; by this merit may there be liberation. As these flowers fade, so my body moves toward its end.</p>
+    </div>
+  </div>
+
+  <h3>Buddha Vandanā <span class="gloss">Iti pi so…</span></h3>
+  <p class="chant q">Iti pi so bhagavā arahaṁ sammāsambuddho vijjācaraṇasampanno sugato lokavidū anuttaro purisadammasārathi satthā devamanussānaṁ buddho bhagavā ti.</p>
+  <p style="margin-bottom:4px"><strong>The 9 virtues of the Buddha (in Pali)</strong></p>
+  <ol class="virtues">
+    <li><span class="pali q">Arahaṁ</span> <span class="en-inline">the Worthy One, free from all defilements</span></li>
+    <li><span class="pali q">Sammāsambuddho</span> <span class="en-inline">fully enlightened by himself</span></li>
+    <li><span class="pali q">Vijjācaraṇasampanno</span> <span class="en-inline">perfect in knowledge and conduct</span></li>
+    <li><span class="pali q">Sugato</span> <span class="en-inline">the Well-gone One</span></li>
+    <li><span class="pali q">Lokavidū</span> <span class="en-inline">knower of the worlds</span></li>
+    <li><span class="pali q">Anuttaro purisadammasārathi</span> <span class="en-inline">unsurpassed trainer of those who can be tamed</span></li>
+    <li><span class="pali q">Satthā devamanussānaṁ</span> <span class="en-inline">teacher of gods and humans</span></li>
+    <li><span class="pali q">Buddho</span> <span class="en-inline">the Awakened One</span></li>
+    <li><span class="pali q">Bhagavā</span> <span class="en-inline">the Blessed One</span></li>
+  </ol>
+
+  <h3>Dhamma Vandanā <span class="gloss">Svākkhāto… · 6 virtues</span></h3>
+  <p class="chant q">Svākkhāto bhagavatā dhammo sandiṭṭhiko akāliko ehipassiko opanayiko paccattaṁ veditabbo viññūhī ti.</p>
+  <ol class="virtues">
+    <li><span class="pali q">Svākkhāto bhagavatā dhammo</span> <span class="en-inline">well taught by the Blessed One</span></li>
+    <li><span class="pali q">Sandiṭṭhiko</span> <span class="en-inline">seen here and now</span></li>
+    <li><span class="pali q">Akāliko</span> <span class="en-inline">timeless, gives results immediately</span></li>
+    <li><span class="pali q">Ehipassiko</span> <span class="en-inline">inviting one to come and see</span></li>
+    <li><span class="pali q">Opanayiko</span> <span class="en-inline">leading onward to Nibbāna</span></li>
+    <li><span class="pali q">Paccattaṁ veditabbo viññūhi</span> <span class="en-inline">to be realised by the wise, each for themselves</span></li>
+  </ol>
+
+  <h3>Saṅgha Vandanā <span class="gloss">Supaṭipanno… · 9 virtues, grouped 4 + 4 + 1</span></h3>
+  <p class="chant q">Supaṭipanno bhagavato sāvakasaṅgho, ujupaṭipanno bhagavato sāvakasaṅgho, ñāyapaṭipanno bhagavato sāvakasaṅgho, sāmīcipaṭipanno bhagavato sāvakasaṅgho, yadidaṁ cattāri purisayugāni aṭṭha purisapuggalā, esa bhagavato sāvakasaṅgho, āhuneyyo pāhuneyyo dakkhiṇeyyo añjalikaraṇīyo anuttaraṁ puññakkhettaṁ lokassā ti.</p>
+  <div class="group-label">How they practise (4)</div>
+  <ol class="virtues">
+    <li><span class="pali q">Supaṭipanno</span> <span class="en-inline">practising well</span></li>
+    <li><span class="pali q">Ujupaṭipanno</span> <span class="en-inline">practising straightly</span></li>
+    <li><span class="pali q">Ñāyapaṭipanno</span> <span class="en-inline">practising the true way</span></li>
+    <li><span class="pali q">Sāmīcipaṭipanno</span> <span class="en-inline">practising properly</span></li>
+  </ol>
+  <div class="group-label">What they are worthy of (4)</div>
+  <ol class="virtues" start="5">
+    <li><span class="pali q">Āhuneyyo</span> <span class="en-inline">worthy of gifts</span></li>
+    <li><span class="pali q">Pāhuneyyo</span> <span class="en-inline">worthy of hospitality</span></li>
+    <li><span class="pali q">Dakkhiṇeyyo</span> <span class="en-inline">worthy of offerings</span></li>
+    <li><span class="pali q">Añjalikaraṇīyo</span> <span class="en-inline">worthy of respectful salutation</span></li>
+  </ol>
+  <div class="group-label">For the world (1)</div>
+  <ol class="virtues" start="9">
+    <li><span class="pali q">Anuttaraṁ puññakkhettaṁ lokassa</span> <span class="en-inline">the unsurpassed field of merit for the world</span></li>
+  </ol>
+
+  <h3>Sutta to learn</h3>
+  <p><span class="pali"><strong>Karaṇīya Metta Sutta</strong></span>, the discourse on loving-kindness (Sutta Nipāta 1.8, Khuddakapāṭha 9). It opens with <span class="pali q">Karaṇīyam atthakusalena, yanta santaṁ padaṁ abhisamecca…</span> Learn it from your chanting book, since the full text is not on the whiteboard.</p>
+</section>
+</div>
+
+<script>
+(function(){
+  var app=document.getElementById('app'), btn=document.getElementById('quizBtn'), reset=document.getElementById('resetBtn');
+  var qs=app.querySelectorAll('.q');
+  qs.forEach(function(el){
+    el.addEventListener('click',function(){ if(app.classList.contains('quiz')) el.classList.add('shown'); });
+    el.addEventListener('keydown',function(e){ if((e.key==='Enter'||e.key===' ')&&app.classList.contains('quiz')){ e.preventDefault(); el.classList.add('shown'); } });
+  });
+  function setQuiz(on){
+    app.classList.toggle('quiz',on);
+    btn.setAttribute('aria-pressed',on?'true':'false');
+    btn.textContent=on?'Quiz mode on':'Quiz mode';
+    reset.hidden=!on;
+    qs.forEach(function(el){ el.classList.remove('shown'); if(on) el.setAttribute('tabindex','0'); else el.removeAttribute('tabindex'); });
+    try{ localStorage.setItem('paliQuiz',on?'1':'0'); }catch(e){}
+  }
+  btn.addEventListener('click',function(){ setQuiz(!app.classList.contains('quiz')); });
+  reset.addEventListener('click',function(){ qs.forEach(function(el){ el.classList.remove('shown'); }); });
+  var saved=null; try{ saved=localStorage.getItem('paliQuiz'); }catch(e){}
+  if(saved==='1') setQuiz(true);
+})();
+</script>
