@@ -1,0 +1,680 @@
+<title>Pali Study Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: three tabs (Learn, Flashcards, Practice test) in one study column; lessons are short cards with an "explain simply" box and a memory trick */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#1d2a2e; --muted:#5b6b70; --rule:#d5dedc;
+  --robe:#b8640f; --robe-soft:#f8ead8; --teal:#1f5c63; --teal-soft:#e2eeee;
+  --good:#2f7d4a; --good-soft:#e1f1e6; --bad:#b03a2e; --bad-soft:#f7e2df;
+  --pali:"Gentium Book Plus","Noto Serif",Georgia,serif;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#352717; --teal:#7cc3c9; --teal-soft:#1c3336;
+  --good:#7fcf98; --good-soft:#18301f; --bad:#f08a7e; --bad-soft:#3a1d1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#352717; --teal:#7cc3c9; --teal-soft:#1c3336;
+  --good:#7fcf98; --good-soft:#18301f; --bad:#f08a7e; --bad-soft:#3a1d1a; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:0 72px}
+.wrap{max-width:820px;margin:0 auto}
+header.top{padding-block:32px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--robe);font-weight:600}
+h1{font-family:var(--pali);font-size:clamp(30px,6vw,42px);line-height:1.1;margin:6px 0 8px;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.pali{font-family:var(--pali)}
+.end{color:var(--robe);font-weight:700}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);padding-block:10px;display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{flex:1 1 0;min-width:0}
+button{font:inherit;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px;padding:9px 14px;border:1px solid var(--rule);background:var(--surface);color:var(--ink)}
+button:hover{border-color:var(--teal)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--robe);outline-offset:2px}
+.tabs button[aria-selected="true"]{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.primary{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-block:8px 14px}
+.chips button{font-size:13px;padding:6px 12px;border-radius:999px}
+.chips button[aria-pressed="true"]{background:var(--teal-soft);border-color:var(--teal);color:var(--teal)}
+
+/* Learn */
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-block:16px 4px}
+.toc a{font-size:13px;color:var(--teal);text-decoration:none;border:1px solid var(--rule);background:var(--surface);border-radius:999px;padding:4px 10px}
+.lesson{padding-block:30px 6px;scroll-margin-top:70px}
+.lesson h2{font-family:var(--pali);font-size:27px;line-height:1.2;margin:0 0 10px;text-wrap:balance}
+.lesson h2 small{display:block;font-family:var(--ui);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--robe);font-weight:600;margin-bottom:2px}
+.lesson h3{font-size:16px;margin:22px 0 6px}
+.lesson p,.lesson li{max-width:66ch}
+.box{border-radius:10px;padding:14px 16px;margin-block:12px}
+.box .lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.eli5{background:var(--teal-soft)} .eli5 .lbl{color:var(--teal)}
+.trick{background:var(--robe-soft)} .trick .lbl{color:var(--robe)}
+.trick .big{font-family:var(--pali);font-size:20px;line-height:1.4;display:block;margin-block:2px 4px}
+.box p{margin:4px 0}
+.box ul{margin:4px 0;padding-left:20px}
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:10px;margin-block:10px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td,tr:last-child th{border-bottom:0}
+thead th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+tbody th{font-size:13px;font-weight:600;color:var(--teal);white-space:nowrap}
+td.p{font-family:var(--pali);font-size:16px}
+.hook{color:var(--muted);font-size:14px}
+.plan{counter-reset:d;list-style:none;padding:0;margin:8px 0;display:grid;gap:8px}
+.plan li{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;max-width:none}
+.plan b{color:var(--teal)}
+.verse{font-family:var(--pali);font-size:18px;line-height:1.7;margin:6px 0}
+.verse span{display:block}
+.verse em{font-style:normal;color:var(--robe);font-weight:700}
+.vgloss{font-size:14px;color:var(--muted)}
+
+/* Flashcards */
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:14px;min-height:240px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:28px 20px;cursor:pointer;gap:10px;user-select:none}
+.card .tag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--robe);font-weight:600}
+.card .front{font-family:var(--pali);font-size:24px;line-height:1.35;text-wrap:balance}
+.card .back{font-family:var(--pali);font-size:22px;line-height:1.4;color:var(--teal);border-top:1px solid var(--rule);padding-top:12px;width:100%}
+.card .back small{display:block;font-family:var(--ui);font-size:14px;color:var(--muted);margin-top:6px}
+.card .tap{font-size:13px;color:var(--muted)}
+.fcbar{display:flex;gap:8px;margin-top:12px}
+.fcbar button{flex:1}
+.again{border-color:var(--bad);color:var(--bad)}
+.got{border-color:var(--good);color:var(--good)}
+.meta{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.progress{height:6px;background:var(--rule);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.progress i{display:block;height:100%;background:var(--good);width:0;transition:width .2s}
+
+/* Practice */
+.qcard{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.qtag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--robe);font-weight:600}
+.qtext{font-size:18px;margin:6px 0 14px;line-height:1.45}
+.qtext .pali{font-size:21px}
+.opts{display:grid;gap:8px}
+.opts button{text-align:left;font-weight:500;font-size:16px;padding:12px 14px}
+.opts button.pl{font-family:var(--pali);font-size:18px}
+.opts button.right{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.opts button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.opts button:disabled{cursor:default}
+.explain{margin-top:14px;background:var(--robe-soft);border-radius:10px;padding:12px 14px;font-size:15px}
+.explain b{color:var(--robe)}
+.score{font-family:var(--pali);font-size:44px;line-height:1;margin:6px 0}
+.miss{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin-top:8px;font-size:15px}
+.miss .pali{font-size:17px}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Buddhism Diploma · Pali</div>
+  <h1>Pali Study Coach</h1>
+  <p class="lede">Learn it simply, lock it in with memory tricks, then test yourself. Start with <b>Learn</b>, do <b>Flashcards</b> every day, and finish with a <b>Practice test</b>.</p>
+</header>
+
+<div class="tabs" role="tablist">
+  <button role="tab" id="t-learn" aria-selected="true" data-tab="learn">Learn</button>
+  <button role="tab" id="t-cards" aria-selected="false" data-tab="cards">Flashcards</button>
+  <button role="tab" id="t-test" aria-selected="false" data-tab="test">Practice test</button>
+</div>
+
+<!-- ================= LEARN ================= -->
+<main id="learn" role="tabpanel">
+<nav class="toc" aria-label="Lessons">
+  <a href="#l0">Study plan</a><a href="#l1">Alphabet</a><a href="#l2">What is a case?</a><a href="#l3">Masculine</a><a href="#l4">Feminine</a><a href="#l5">Neuter</a><a href="#l6">Verbs</a><a href="#l7">Pūjā verses</a><a href="#l8">Virtues</a>
+</nav>
+
+<section class="lesson" id="l0">
+  <h2><small>Start here</small>Your 7-day plan</h2>
+  <p>Don't try to learn everything at once. One topic a day, plus 10 minutes of flashcards on everything you've already done.</p>
+  <ol class="plan">
+    <li><b>Day 1 · Alphabet.</b> 41 letters, 8 vowels, 33 consonants. Easy marks.</li>
+    <li><b>Day 2 · What a case is + the masculine.</b> Learn bhūpāla. It's the master pattern, and the other two nouns copy it.</li>
+    <li><b>Day 3 · Feminine + neuter.</b> Only learn what's <i>different</i> from bhūpāla.</li>
+    <li><b>Day 4 · Verbs.</b> One set of endings (ti, si, mi), then add <span class="pali">-issa-</span> for the future and the past endings.</li>
+    <li><b>Day 5 · Pūjā verses.</b> Light, food and incense (4 lines each), then flowers (8 lines).</li>
+    <li><b>Day 6 · Virtues.</b> Buddha 9, Dhamma 6, Saṅgha 9. Learn the chant and you get the list for free.</li>
+    <li><b>Day 7 · Practice tests.</b> Do the practice test until you score 9/10 or better, three times in a row.</li>
+  </ol>
+  <div class="box trick"><span class="lbl">Best study habit</span><p>Say things <b>out loud</b>. Pali was a spoken and chanted language, and your memory for sound is much stronger than for spelling.</p></div>
+</section>
+
+<section class="lesson" id="l1">
+  <h2><small>Lesson 1</small>The Pali alphabet</h2>
+  <div class="box eli5"><span class="lbl">Explain it simply</span>
+    <p>Pali has <b>41 letters</b> (this count comes from the old grammarian <span class="pali">Kaccāyana</span>). They split into two teams: <b>8 vowels</b> (the sounds you can sing, like a, i, u) and <b>33 consonants</b> (the sounds that need your tongue, teeth or lips, like k, t, p).</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick for the numbers</span><span class="big">8 + 33 = 41</span><p>“<b>8</b> singers and <b>33</b> helpers make <b>41</b>.”</p></div>
+
+  <h3>The 8 vowels: 3 short, 3 long, 2 that swing</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Type</th><th>Letters</th><th>Simple idea</th></tr></thead>
+    <tbody>
+      <tr><th>Short</th><td class="p">a · i · u</td><td class="hook">Quick tap, one beat</td></tr>
+      <tr><th>Long</th><td class="p">ā · ī · ū</td><td class="hook">The bar on top means “hold it longer”, two beats</td></tr>
+      <tr><th>Variable</th><td class="p">e · o</td><td class="hook">Usually long, but go short before a double consonant</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box eli5"><span class="lbl">Why are e and o “variable”?</span>
+    <p>They change length like a swing. Normally they're long: <span class="pali">d<b>e</b>va, l<b>o</b>ka</span>. When a double consonant comes next, they get squeezed short: <span class="pali">m<b>e</b>ttā, s<b>o</b>tthi</span>.</p>
+  </div>
+
+  <h3>The 33 consonants: a trip from throat to lips</h3>
+  <p>25 of them sit in a neat 5 × 5 grid. Each row is one place in your mouth, moving <b>from the back of your throat to your lips</b>.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Row (place)</th><th>Plain</th><th>+ breath</th><th>Soft</th><th>Soft + breath</th><th>Nose</th></tr></thead>
+    <tbody>
+      <tr><th>Guttural · throat</th><td class="p">k</td><td class="p">kh</td><td class="p">g</td><td class="p">gh</td><td class="p">ṅ</td></tr>
+      <tr><th>Palatal · roof of mouth</th><td class="p">c</td><td class="p">ch</td><td class="p">j</td><td class="p">jh</td><td class="p">ñ</td></tr>
+      <tr><th>Cerebral · tongue curled back</th><td class="p">ṭ</td><td class="p">ṭh</td><td class="p">ḍ</td><td class="p">ḍh</td><td class="p">ṇ</td></tr>
+      <tr><th>Dental · teeth</th><td class="p">t</td><td class="p">th</td><td class="p">d</td><td class="p">dh</td><td class="p">n</td></tr>
+      <tr><th>Labial · lips</th><td class="p">p</td><td class="p">ph</td><td class="p">b</td><td class="p">bh</td><td class="p">m</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory trick: the 5 rows in order</span><span class="big">Kids Can Tap Their Pots</span><p><b>K</b>-group, <b>C</b>-group, <b>Ṭ</b>-group, <b>T</b>-group, <b>P</b>-group. Throat → lips. Say k… c… ṭ… t… p… and feel the sound walk forward in your mouth.</p></div>
+  <div class="box trick"><span class="lbl">Memory trick: every row has the same 5 steps</span><p><b>Plain → add a puff of air → make it soft → soft with a puff → through the nose.</b> Learn row 1 (k kh g gh ṅ) and the other rows follow the same rhythm.</p></div>
+  <p>The other <b>8 are ungrouped</b>: <span class="pali" style="font-size:19px">y r l v s h ḷ ṁ</span></p>
+  <div class="box trick"><span class="lbl">Memory trick: the 8 ungrouped</span><span class="big">Young Rāhula Loved Visiting Sāriputta's Hut, Lastly Mmm</span><p>y · r · l · v · s · h · ḷ · ṁ. The final “Mmm” is the humming sound <span class="pali">ṁ</span>, called <span class="pali">niggahīta</span>.</p></div>
+  <div class="box eli5"><span class="lbl">Exam answer, ready to write</span>
+    <ul>
+      <li>According to <span class="pali">Kaccāyana</span>, the Pali alphabet has 41 letters: 8 vowels and 33 consonants.</li>
+      <li>Vowels: short a, i, u; long ā, ī, ū; variable e, o (long by nature, short before a double consonant).</li>
+      <li>Consonants: 25 grouped into 5 groups by place of pronunciation (guttural k, palatal c, cerebral ṭ, dental t, labial p), plus 8 ungrouped: y, r, l, v, s, h, ḷ, ṁ.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="lesson" id="l2">
+  <h2><small>Lesson 2</small>What is a “case”?</h2>
+  <div class="box eli5"><span class="lbl">Explain it simply</span>
+    <p>In English, word <b>order</b> tells you who does what: “The king sees the dog” vs “The dog sees the king”.</p>
+    <p>Pali doesn't care about order. Instead, the <b>end of the word changes</b> to show its job. Think of the king wearing a different <b>costume</b> for each job. The person underneath (<span class="pali">bhūpāl-</span>) stays the same; only the ending (the costume) changes.</p>
+    <p>There are <b>8 jobs (cases)</b> × <b>2 numbers</b> (one king, many kings) = 16 boxes per noun.</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Case</th><th>Its job</th><th>Ask</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><th>Nominative</th><td>The doer</td><td>Who?</td><td><b>The king</b> walks.</td></tr>
+      <tr><th>Accusative</th><td>The one something is done to</td><td>Whom? What?</td><td>I see <b>the king</b>.</td></tr>
+      <tr><th>Instrumental</th><td>With / by</td><td>With whom? By what?</td><td>Done <b>by the king</b>.</td></tr>
+      <tr><th>Dative</th><td>To / for</td><td>To whom? For whom?</td><td>A gift <b>for the king</b>.</td></tr>
+      <tr><th>Ablative</th><td>From / away from</td><td>From where?</td><td>Run <b>from the king</b>.</td></tr>
+      <tr><th>Genitive</th><td>Of / 's</td><td>Whose?</td><td><b>The king's</b> palace.</td></tr>
+      <tr><th>Locative</th><td>In / on / at</td><td>Where?</td><td>Trust <b>in the king</b>.</td></tr>
+      <tr><th>Vocative</th><td>Calling someone</td><td>“O…!”</td><td><b>O king!</b></td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory trick: the order of the 8 cases</span><span class="big">Noble Arahants Inspire Devotees And Give Loving Vibes</span><p><b>N</b>om · <b>A</b>cc · <b>I</b>ns · <b>D</b>at · <b>A</b>bl · <b>G</b>en · <b>L</b>oc · <b>V</b>oc. Always fill your charts in this order.</p></div>
+</section>
+
+<section class="lesson" id="l3">
+  <h2><small>Lesson 3</small>Masculine: bhūpāla (king)</h2>
+  <p>This is the <b>master pattern</b>. Learn it well and the other two nouns are mostly copies. Stem: <span class="pali">bhūpāl-</span> + ending.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Case</th><th>One king</th><th>Many kings</th><th>Memory hook</th></tr></thead>
+    <tbody>
+      <tr><th>Nom</th><td class="p">bhūpāl<span class="end">o</span></td><td class="p">bhūpāl<span class="end">ā</span></td><td class="hook">-o = the b<b>O</b>ss, the doer</td></tr>
+      <tr><th>Acc</th><td class="p">bhūpāl<span class="end">aṁ</span></td><td class="p">bhūpāl<span class="end">e</span></td><td class="hook">-aṁ = what I <b>aim</b> at</td></tr>
+      <tr><th>Ins</th><td class="p">bhūpāl<span class="end">ena</span></td><td class="p">bhūpāl<span class="end">ebhi, ehi</span></td><td class="hook">-ena = done with <b>Ena</b>; bhi/hi = “<b>by</b>”</td></tr>
+      <tr><th>Dat</th><td class="p">bhūpāl<span class="end">āya, assa</span></td><td class="p">bhūpāl<span class="end">ānaṁ</span></td><td class="hook">-āya sounds like “<b>for ya</b>”</td></tr>
+      <tr><th>Abl</th><td class="p">bhūpāl<span class="end">ā, amhā, asmā</span></td><td class="p">bhūpāl<span class="end">ebhi, ehi</span></td><td class="hook">ends in <b>ā</b> = “aaa-way” (from)</td></tr>
+      <tr><th>Gen</th><td class="p">bhūpāl<span class="end">assa</span></td><td class="p">bhūpāl<span class="end">ānaṁ</span></td><td class="hook">-a<b>ss</b>a = the king'<b>s</b></td></tr>
+      <tr><th>Loc</th><td class="p">bhūpāl<span class="end">e, asmiṁ, amhi</span></td><td class="p">bhūpāl<span class="end">esu</span></td><td class="hook">ends in <b>i</b> = “iii-n”; -esu = “<b>su</b>rrounded by”</td></tr>
+      <tr><th>Voc</th><td class="p">bhūpāl<span class="end">a, ā</span></td><td class="p">bhūpāl<span class="end">ā</span></td><td class="hook">“O king!” Just drop the -o</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">The twins rule: learn 16 boxes, remember about 10</span>
+    <ul>
+      <li><b>Ins plural = Abl plural:</b> both <span class="pali">-ebhi, -ehi</span>. “By them” and “from them” share one outfit.</li>
+      <li><b>Dat plural = Gen plural:</b> both <span class="pali">-ānaṁ</span>. Think “<b>and 'em</b>”: for them, of them.</li>
+      <li><b>Dat singular can also be Gen singular:</b> <span class="pali">-assa</span> works for both.</li>
+      <li><b>Nom plural = Voc plural:</b> both <span class="pali">-ā</span>.</li>
+    </ul>
+  </div>
+  <div class="box trick"><span class="lbl">Ablative vs Locative: same skeleton, different last vowel</span>
+    <span class="big">sm<b>ā</b> · mh<b>ā</b> → sm<b>iṁ</b> · mh<b>i</b></span>
+    <p>Ablative ends in <b>ā = aaa-way</b> (moving <b>from</b>). Locative ends in <b>i = iii-n</b> (sitting <b>in</b>). Same letters s-m and m-h; only the vowel at the end tells you which.</p>
+  </div>
+</section>
+
+<section class="lesson" id="l4">
+  <h2><small>Lesson 4</small>Feminine: bhariyā (wife)</h2>
+  <div class="box eli5"><span class="lbl">Explain it simply</span>
+    <p>Feminine nouns end in long <b>-ā</b>. Bhariyā is lazy in a good way: she uses <b>one ending, -āya, for 5 different jobs</b>. That makes her the easiest noun on the exam.</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Case</th><th>One wife</th><th>Many wives</th></tr></thead>
+    <tbody>
+      <tr><th>Nom</th><td class="p">bhariy<span class="end">ā</span></td><td class="p">bhariy<span class="end">ā, āyo</span></td></tr>
+      <tr><th>Acc</th><td class="p">bhariy<span class="end">aṁ</span></td><td class="p">bhariy<span class="end">ā, āyo</span></td></tr>
+      <tr><th>Ins</th><td class="p">bhariy<span class="end">āya</span></td><td class="p">bhariy<span class="end">ābhi, āhi</span></td></tr>
+      <tr><th>Dat</th><td class="p">bhariy<span class="end">āya</span></td><td class="p">bhariy<span class="end">ānaṁ</span></td></tr>
+      <tr><th>Abl</th><td class="p">bhariy<span class="end">āya</span></td><td class="p">bhariy<span class="end">ābhi, āhi</span></td></tr>
+      <tr><th>Gen</th><td class="p">bhariy<span class="end">āya</span></td><td class="p">bhariy<span class="end">ānaṁ</span></td></tr>
+      <tr><th>Loc</th><td class="p">bhariy<span class="end">āya, āyaṁ</span></td><td class="p">bhariy<span class="end">āsu</span></td></tr>
+      <tr><th>Voc</th><td class="p">bhariy<span class="end">e</span></td><td class="p">bhariy<span class="end">ā, āyo</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory tricks for bhariyā</span>
+    <ul>
+      <li><b>The “āya family”:</b> Ins, Dat, Abl, Gen and Loc singular are all <span class="pali">-āya</span>. Loc also gets <span class="pali">-āyaṁ</span>, as in “āya, I'M here”.</li>
+      <li><b>Plural Nom = Acc = Voc:</b> <span class="pali">-ā, -āyo</span>. Think “all of <b>yo</b>u ladies”.</li>
+      <li><b>Calling her:</b> <span class="pali">bhariy<b>e</b>!</span> sounds like “hey!”.</li>
+      <li><b>Same twins as the king,</b> with ā instead of e: <span class="pali">-ābhi/-āhi</span> (Ins = Abl plural), <span class="pali">-ānaṁ</span> (Dat = Gen plural), and <span class="pali">-āsu</span> for Loc plural (king has -esu).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="lesson" id="l5">
+  <h2><small>Lesson 5</small>Neuter: paṇṇa (leaf)</h2>
+  <div class="box eli5"><span class="lbl">Explain it simply</span>
+    <p>Paṇṇa is the king's <b>twin</b>. It copies bhūpāla in 5 cases. Only <b>3 rows change: Nom, Acc and Voc</b>. So you only need to learn 3 new rows!</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Case</th><th>One leaf</th><th>Many leaves</th></tr></thead>
+    <tbody>
+      <tr><th>Nom</th><td class="p">paṇṇ<span class="end">aṁ</span></td><td class="p">paṇṇ<span class="end">ā, āni</span></td></tr>
+      <tr><th>Acc</th><td class="p">paṇṇ<span class="end">aṁ</span></td><td class="p">paṇṇ<span class="end">e, āni</span></td></tr>
+      <tr><th>Voc</th><td class="p">paṇṇ<span class="end">a, ā</span></td><td class="p">paṇṇ<span class="end">āni</span></td></tr>
+      <tr><th>Ins → Loc</th><td colspan="2" class="hook">Same as bhūpāla: paṇṇena, paṇṇassa, paṇṇasmā, paṇṇasmiṁ, paṇṇesu…</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory trick</span><span class="big">N-A-V rows change</span>
+    <p>A leaf can't <b>do</b> anything, so it looks the same whether it's the doer or the thing done to: <b>Nom = Acc = -aṁ</b>. Many leaves pile up: <span class="pali">-<b>āni</b></span> (“ā-nnni, a pile of leaves”).</p>
+  </div>
+</section>
+
+<section class="lesson" id="l6">
+  <h2><small>Lesson 6</small>Verbs: dhāvati (runs)</h2>
+  <div class="box eli5"><span class="lbl">Explain it simply</span>
+    <p>A verb has a <b>root</b>, the core meaning: <span class="pali">dhāv</span> = run. The ending tells you <b>who</b> is doing it and <b>when</b>. Pali lists people in this order: <b>3rd</b> (he/they) → <b>2nd</b> (you) → <b>1st</b> (I/we).</p>
+  </div>
+
+  <h3>Present: the 6 endings everything else is built on</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Person</th><th>One</th><th>Many</th><th>Memory hook</th></tr></thead>
+    <tbody>
+      <tr><th>3rd · he / they</th><td class="p">dhāva<span class="end">ti</span></td><td class="p">dhāva<span class="end">nti</span></td><td class="hook"><b>ti</b> = that one · <b>nti</b> = a<b>n</b>d them all</td></tr>
+      <tr><th>2nd · you</th><td class="p">dhāva<span class="end">si</span></td><td class="p">dhāva<span class="end">tha</span></td><td class="hook"><b>si</b> = I <b>see</b> you · <b>tha</b> = all of <b>tha</b> lot of you</td></tr>
+      <tr><th>1st · I / we</th><td class="p">dhāvā<span class="end">mi</span></td><td class="p">dhāvā<span class="end">ma</span></td><td class="hook"><b>mi</b> = <b>me</b> · <b>ma</b> = <b>m</b>any of us</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Chant it like a rhyme</span><span class="big">ti-nti · si-tha · mi-ma</span><p>Say it 10 times. This little rhyme is the key to every tense.</p></div>
+
+  <h3>Future: just add “issa”</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Person</th><th>One</th><th>Many</th></tr></thead>
+    <tbody>
+      <tr><th>3rd</th><td class="p">dhāv<span class="end">issa</span>ti</td><td class="p">dhāv<span class="end">issa</span>nti</td></tr>
+      <tr><th>2nd</th><td class="p">dhāv<span class="end">issa</span>si</td><td class="p">dhāv<span class="end">issa</span>tha</td></tr>
+      <tr><th>1st</th><td class="p">dhāv<span class="end">issā</span>mi</td><td class="p">dhāv<span class="end">issā</span>ma</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory trick</span><span class="big">-issa- = “I'll”</span><p>Root + <b>issa</b> + the same rhyme (ti-nti, si-tha, mi-ma). “Dhāv-issa-ti” = he <b>will</b> run. Like the present, the a lengthens to ā before mi and ma.</p></div>
+
+  <h3>Past (aorist): an optional “a-” at the front</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Person</th><th>One</th><th>Many</th></tr></thead>
+    <tbody>
+      <tr><th>3rd · he ran / they ran</th><td class="p">(a)dhāv<span class="end">i</span>, (a)dhāv<span class="end">ī</span></td><td class="p">(a)dhāv<span class="end">iṁsu</span>, (a)dhāv<span class="end">uṁ</span></td></tr>
+      <tr><th>2nd · you ran</th><td class="p">(a)dhāv<span class="end">i</span>, (a)dhāv<span class="end">o</span></td><td class="p">(a)dhāv<span class="end">ittha</span></td></tr>
+      <tr><th>1st · I ran / we ran</th><td class="p">(a)dhāv<span class="end">iṁ</span></td><td class="p">(a)dhāv<span class="end">imhā</span>, (a)dhāv<span class="end">imha</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory tricks for the past</span>
+    <ul>
+      <li><b>“a-” = “a-go”.</b> Put <span class="pali">a</span> in front to show it happened <b>ago</b>. It's optional, so every form has a with-a and a without-a version: <span class="pali">adhāvi / dhāvi</span>.</li>
+      <li><b>-iṁsu</b> (the teacher marked this in red!): “they ran” → they're all <b>in-su</b>-ide now, gone.</li>
+      <li><b>-iṁ</b> = “I'<b>m</b> done running.” <b>-imha</b> = “we did it, <b>ha</b>!”</li>
+      <li><b>-ittha</b> = you all ran. It has the same <b>tha</b> as the present “you all” (dhāva<b>tha</b>).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="lesson" id="l7">
+  <h2><small>Lesson 7</small>Pūjā offering verses</h2>
+  <div class="box eli5"><span class="lbl">Explain it simply</span>
+    <p>Each verse is a tiny story: <b>what I'm offering → who I offer it to → I offer it</b>. Learn the story in English first, then the Pali words fall into place. The highlighted words are the anchors.</p>
+  </div>
+
+  <h3>1. Light · 4 lines</h3>
+  <p class="verse"><span><em>Ghanasāra</em>ppadittena</span><span><em>dīpena</em> tamadhaṁsinā</span><span><em>Tilokadīpaṁ</em> sambuddhaṁ</span><span><em>pūjayāmi</em> tamonudaṁ.</span></p>
+  <p class="vgloss">Story: <b>camphor-bright</b> → <b>lamp</b> → for the <b>Light of the 3 worlds</b> → <b>I worship</b> the darkness-remover.</p>
+  <div class="box trick"><span class="lbl">Memory trick</span><p><span class="pali">dīpa</span> = lamp appears <b>twice</b>: my <b>dīpa</b> (lamp) for the Ti-loka-<b>dīpa</b> (lamp of 3 worlds). And <span class="pali">tama</span> (darkness) also appears twice: tama-dhaṁsinā, tamo-nudaṁ. “My lamp for the world's lamp, removing darkness twice.”</p></div>
+
+  <h3>2. Food · 4 lines</h3>
+  <p class="verse"><span><em>Adhivāsetu</em> no bhante</span><span><em>bhojanaṁ</em> parikappitaṁ</span><span><em>Anukampaṁ</em> upādāya</span><span><em>paṭiggaṇhātu</em>-m-uttamaṁ.</span></p>
+  <p class="vgloss">Story: <b>Please accept</b>, Bhante → this <b>food</b> we prepared → out of <b>compassion</b> → please <b>receive</b> it.</p>
+  <div class="box trick"><span class="lbl">Memory trick</span><span class="big">Accept · Food · Compassion · Receive</span><p>“<b>A F</b>ew <b>C</b>an <b>R</b>eceive.” <span class="pali">Bhojanaṁ</span> sounds like <i>bhojan</i>, the Hindi/Malay-Indian word for a meal.</p></div>
+
+  <h3>3. Incense · 4 lines</h3>
+  <p class="verse"><span><em>Gandha</em>sambhārayuttena</span><span><em>dhūpen</em>āhaṁ sugandhinā</span><span><em>Pūjaye pūjaneyyaṁ</em> taṁ</span><span><em>pūjā</em>bhājanamuttamaṁ.</span></p>
+  <p class="vgloss">Story: <b>fragrant mix</b> → <b>incense smoke</b> → I <b>honour the honour-worthy</b> → the best <b>vessel of honour</b>.</p>
+  <div class="box trick"><span class="lbl">Memory trick</span><p><b>Gandha</b> (smell) appears twice in lines 1–2. Then <b>pūjā</b> appears <b>3 times</b> in lines 3–4: pūjaye, pūjaneyyaṁ, pūjā-bhājanaṁ. “Smell, smell, then honour, honour, honour.”</p></div>
+
+  <h3>4. Flowers · 8 lines in 2 halves</h3>
+  <p class="verse"><span><em>Vaṇṇa-gandha-guṇ</em>opetaṁ</span><span>etaṁ <em>kusuma</em>santatiṁ</span><span><em>Pūjayāmi</em> munindassa</span><span>sirīpāda-<em>saroruhe</em>.</span></p>
+  <p class="vgloss">Half 1, the <b>offering</b>: these flowers with <b>colour, scent, quality</b> → I offer → at the Sage's <b>lotus feet</b>.</p>
+  <p class="verse"><span><em>Pūjemi buddhaṁ</em> kusumenanena</span><span><em>puññen</em>ametena ca hotu <em>mokkhaṁ</em></span><span><em>Pupphaṁ milāyāti</em> yathā idaṁ me</span><span><em>kāyo</em> tathā yāti <em>vināsa</em>bhāvaṁ.</span></p>
+  <p class="vgloss">Half 2, the <b>reflection</b>: I worship the Buddha with these flowers → by this merit may there be <b>freedom</b> → as this <b>flower fades</b> → so my <b>body</b> goes to <b>destruction</b>.</p>
+  <div class="box trick"><span class="lbl">Memory trick</span><span class="big">Offer, then Reflect</span><p>Half 1 = Colour-Scent-Quality, “<b>C S Q</b>”. Half 2 = Merit → Freedom → Fading flower → Fading body, “<b>the flower is me</b>”. This verse teaches impermanence (<span class="pali">anicca</span>).</p></div>
+</section>
+
+<section class="lesson" id="l8">
+  <h2><small>Lesson 8</small>Virtues of the Triple Gem</h2>
+  <div class="box eli5"><span class="lbl">The big secret</span><p>Each vandanā chant <b>is</b> the list of virtues, in order. If you can chant <span class="pali">Iti pi so…</span>, you already know the 9 virtues. So learn the chant, then split it up.</p></div>
+
+  <h3>Buddha · 9 virtues (Iti pi so bhagavā…)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Pali</th><th>Simple meaning</th></tr></thead>
+    <tbody>
+      <tr><th>1</th><td class="p">Arahaṁ</td><td>Pure, all defilements gone</td></tr>
+      <tr><th>2</th><td class="p">Sammāsambuddho</td><td>Woke up fully, by himself</td></tr>
+      <tr><th>3</th><td class="p">Vijjācaraṇasampanno</td><td>Perfect in knowing (vijjā) and doing (caraṇa)</td></tr>
+      <tr><th>4</th><td class="p">Sugato</td><td>Went well (su = good, gata = gone)</td></tr>
+      <tr><th>5</th><td class="p">Lokavidū</td><td>Knows the worlds (loka = world)</td></tr>
+      <tr><th>6</th><td class="p">Anuttaro purisadammasārathi</td><td>Best trainer of people to be tamed (sārathi = charioteer)</td></tr>
+      <tr><th>7</th><td class="p">Satthā devamanussānaṁ</td><td>Teacher of gods (deva) and humans (manussa)</td></tr>
+      <tr><th>8</th><td class="p">Buddho</td><td>The Awakened One</td></tr>
+      <tr><th>9</th><td class="p">Bhagavā</td><td>The Blessed One</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory trick: 3 groups of 3</span>
+    <ul>
+      <li><b>What he IS:</b> Arahaṁ, Sammāsambuddho, Vijjācaraṇasampanno: pure, awake, perfect.</li>
+      <li><b>What he KNOWS / where he WENT:</b> Sugato, Lokavidū, Anuttaro purisadammasārathi: went well, knows the world, trains others.</li>
+      <li><b>What we CALL him:</b> Satthā, Buddho, Bhagavā: Teacher, Buddha, Blessed One.</li>
+    </ul>
+    <p>Acronym: <b>A S V · S L A · S B B</b>, “A Sage Very Serene Leads All; Sweet Blessed Buddha.”</p>
+  </div>
+
+  <h3>Dhamma · 6 virtues (Svākkhāto…)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Pali</th><th>Simple meaning</th></tr></thead>
+    <tbody>
+      <tr><th>1</th><td class="p">Svākkhāto bhagavatā dhammo</td><td>Well taught by the Buddha</td></tr>
+      <tr><th>2</th><td class="p">Sandiṭṭhiko</td><td>You can see it yourself, here and now</td></tr>
+      <tr><th>3</th><td class="p">Akāliko</td><td>Timeless (a = not, kāla = time)</td></tr>
+      <tr><th>4</th><td class="p">Ehipassiko</td><td>“Come and see!” (ehi = come, passa = see)</td></tr>
+      <tr><th>5</th><td class="p">Opanayiko</td><td>Leads you onward, toward Nibbāna</td></tr>
+      <tr><th>6</th><td class="p">Paccattaṁ veditabbo viññūhi</td><td>The wise must experience it for themselves</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory trick</span><span class="big">“Said So, Always, Everyone, Onward, Personally”</span><p><b>S</b>vākkhāto · <b>S</b>andiṭṭhiko · <b>A</b>kāliko · <b>E</b>hipassiko · <b>O</b>panayiko · <b>P</b>accattaṁ. And <b>Ehipassiko</b> is the friendliest word in Pali: “come, see!”</p></div>
+
+  <h3>Saṅgha · 9 virtues (Supaṭipanno…), grouped 4 + 4 + 1</h3>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Pali</th><th>Simple meaning</th></tr></thead>
+    <tbody>
+      <tr><th>1</th><td class="p">Supaṭipanno</td><td>Practises <b>well</b></td></tr>
+      <tr><th>2</th><td class="p">Ujupaṭipanno</td><td>Practises <b>straight</b> (uju = straight)</td></tr>
+      <tr><th>3</th><td class="p">Ñāyapaṭipanno</td><td>Practises the <b>true</b> way</td></tr>
+      <tr><th>4</th><td class="p">Sāmīcipaṭipanno</td><td>Practises <b>properly</b></td></tr>
+      <tr><th>5</th><td class="p">Āhuneyyo</td><td>Worthy of <b>gifts</b></td></tr>
+      <tr><th>6</th><td class="p">Pāhuneyyo</td><td>Worthy of <b>hospitality</b></td></tr>
+      <tr><th>7</th><td class="p">Dakkhiṇeyyo</td><td>Worthy of <b>offerings</b></td></tr>
+      <tr><th>8</th><td class="p">Añjalikaraṇīyo</td><td>Worthy of <b>respect</b> (añjali = palms joined)</td></tr>
+      <tr><th>9</th><td class="p">Anuttaraṁ puññakkhettaṁ lokassa</td><td>The best <b>field of merit</b> in the world</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory trick: 4 + 4 + 1</span>
+    <ul>
+      <li><b>First 4 all end in -paṭipanno</b> (“practising”). Just learn the 4 fronts: <b>Su · Uju · Ñāya · Sāmīci</b>, “<b>W</b>ell, <b>S</b>traight, <b>T</b>rue, <b>P</b>roper”: “<b>W</b>e <b>S</b>hould <b>T</b>ry <b>P</b>roperly.”</li>
+      <li><b>Next 4 mean “worthy of…”:</b> Āhuneyyo, Pāhuneyyo, Dakkhiṇeyyo, Añjalikaraṇīyo. Āhun and Pāhun rhyme, so learn them as a pair.</li>
+      <li><b>Last 1:</b> the field where merit grows. Picture a rice field.</li>
+    </ul>
+  </div>
+  <div class="box eli5"><span class="lbl">Also on the exam</span><p>Learn the <span class="pali"><b>Karaṇīya Metta Sutta</b></span> (loving-kindness) from your chanting book. It opens with <span class="pali">Karaṇīyam atthakusalena…</span>. Practise it a few lines a day, out loud.</p></div>
+</section>
+</main>
+
+<!-- ================= FLASHCARDS ================= -->
+<main id="cards" role="tabpanel" hidden>
+  <p style="margin-top:20px">Pick a deck. Tap the card to flip it. Be honest: <b>Again</b> puts the card back in the pile, <b>Got it</b> removes it.</p>
+  <div class="chips" id="deckChips"></div>
+  <div class="meta"><span id="fcCount"></span><span id="fcDeckName"></span></div>
+  <div class="progress"><i id="fcBar"></i></div>
+  <div class="card" id="fcCard" tabindex="0" role="button" aria-label="Flip card"></div>
+  <div class="fcbar">
+    <button class="again" id="fcAgain" type="button">Again</button>
+    <button class="got" id="fcGot" type="button">Got it</button>
+  </div>
+</main>
+
+<!-- ================= PRACTICE TEST ================= -->
+<main id="test" role="tabpanel" hidden>
+  <p style="margin-top:20px">10 random questions. Each answer comes with the memory trick, so you learn while you test.</p>
+  <div class="chips" id="testChips"></div>
+  <div id="testArea"></div>
+</main>
+</div>
+
+<script>
+(function(){
+/* ---------- data ---------- */
+var CASES=['Nom','Acc','Ins','Dat','Abl','Gen','Loc','Voc'];
+var CASEN={Nom:'Nominative',Acc:'Accusative',Ins:'Instrumental',Dat:'Dative',Abl:'Ablative',Gen:'Genitive',Loc:'Locative',Voc:'Vocative'};
+var CASEHINT={
+ Nom:'Nominative = the doer. Masculine -o is the bOss.',
+ Acc:'Accusative = what I aim at: -aṁ.',
+ Ins:'Instrumental = with/by. Masc -ena; plural bhi/hi = “by”. Ins plural = Abl plural.',
+ Dat:'Dative = to/for. -āya sounds like “for ya”. Dat plural = Gen plural (-ānaṁ).',
+ Abl:'Ablative = from. Ends in ā = “aaa-way”: -ā, -amhā, -asmā. Plural = Ins plural.',
+ Gen:'Genitive = of / ’s. -assa has the s of “king’s”. Plural -ānaṁ = “and ’em”.',
+ Loc:'Locative = in/on. Ends in i = “iii-n”: -e, -asmiṁ, -amhi. Plural -esu / -āsu.',
+ Voc:'Vocative = calling “O…!”. Masc drops the -o; fem bhariye = “hey!”'
+};
+var M={Nom:[['o'],['ā']],Acc:[['aṁ'],['e']],Ins:[['ena'],['ebhi','ehi']],Dat:[['āya','assa'],['ānaṁ']],Abl:[['ā','amhā','asmā'],['ebhi','ehi']],Gen:[['assa'],['ānaṁ']],Loc:[['e','asmiṁ','amhi'],['esu']],Voc:[['a','ā'],['ā']]};
+var F={Nom:[['ā'],['ā','āyo']],Acc:[['aṁ'],['ā','āyo']],Ins:[['āya'],['ābhi','āhi']],Dat:[['āya'],['ānaṁ']],Abl:[['āya'],['ābhi','āhi']],Gen:[['āya'],['ānaṁ']],Loc:[['āya','āyaṁ'],['āsu']],Voc:[['e'],['ā','āyo']]};
+var N=JSON.parse(JSON.stringify(M)); N.Nom=[['aṁ'],['ā','āni']]; N.Acc=[['aṁ'],['e','āni']]; N.Voc=[['a','ā'],['āni']];
+var NOUNS=[
+ {name:'bhūpāla',gloss:'king',g:'masculine',stem:'bhūpāl',t:M},
+ {name:'bhariyā',gloss:'wife',g:'feminine',stem:'bhariy',t:F},
+ {name:'paṇṇa',gloss:'leaf',g:'neuter',stem:'paṇṇ',t:N}
+];
+var NUMN=['singular','plural'];
+var PERS=['3rd','2nd','1st'], PERSN={'3rd':'3rd person (he/she · they)','2nd':'2nd person (you)','1st':'1st person (I · we)'};
+var VERB={
+ present:{'3rd':[['dhāvati'],['dhāvanti']],'2nd':[['dhāvasi'],['dhāvatha']],'1st':[['dhāvāmi'],['dhāvāma']]},
+ future:{'3rd':[['dhāvissati'],['dhāvissanti']],'2nd':[['dhāvissasi'],['dhāvissatha']],'1st':[['dhāvissāmi'],['dhāvissāma']]},
+ past:{'3rd':[['adhāvi','dhāvi','adhāvī','dhāvī'],['adhāviṁsu','dhāviṁsu','adhāvuṁ','dhāvuṁ']],'2nd':[['adhāvi','dhāvi','adhāvo','dhāvo'],['adhāvittha','dhāvittha']],'1st':[['adhāviṁ','dhāviṁ'],['adhāvimhā','dhāvimhā','adhāvimha','dhāvimha']]}
+};
+var VHINT={present:'Present rhyme: ti-nti · si-tha · mi-ma.',future:'Future = root + issa + the present rhyme (issati, issasi, issāmi…).',past:'Past: optional a- (“a-go”). 3pl -iṁsu/-uṁ, 2pl -ittha, 1sg -iṁ, 1pl -imhā/-imha.'};
+var VIRTUES=[
+ {set:'Buddha',p:'Arahaṁ',e:'Pure, free from all defilements'},
+ {set:'Buddha',p:'Sammāsambuddho',e:'Fully enlightened by himself'},
+ {set:'Buddha',p:'Vijjācaraṇasampanno',e:'Perfect in knowledge and conduct'},
+ {set:'Buddha',p:'Sugato',e:'The Well-gone One'},
+ {set:'Buddha',p:'Lokavidū',e:'Knower of the worlds'},
+ {set:'Buddha',p:'Anuttaro purisadammasārathi',e:'Best trainer of those to be tamed'},
+ {set:'Buddha',p:'Satthā devamanussānaṁ',e:'Teacher of gods and humans'},
+ {set:'Buddha',p:'Buddho',e:'The Awakened One'},
+ {set:'Buddha',p:'Bhagavā',e:'The Blessed One'},
+ {set:'Dhamma',p:'Svākkhāto bhagavatā dhammo',e:'Well taught by the Blessed One'},
+ {set:'Dhamma',p:'Sandiṭṭhiko',e:'Seen for yourself, here and now'},
+ {set:'Dhamma',p:'Akāliko',e:'Timeless'},
+ {set:'Dhamma',p:'Ehipassiko',e:'Inviting you to “come and see”'},
+ {set:'Dhamma',p:'Opanayiko',e:'Leading onward to Nibbāna'},
+ {set:'Dhamma',p:'Paccattaṁ veditabbo viññūhi',e:'To be experienced by the wise for themselves'},
+ {set:'Saṅgha',p:'Supaṭipanno',e:'Practising well'},
+ {set:'Saṅgha',p:'Ujupaṭipanno',e:'Practising straightly'},
+ {set:'Saṅgha',p:'Ñāyapaṭipanno',e:'Practising the true way'},
+ {set:'Saṅgha',p:'Sāmīcipaṭipanno',e:'Practising properly'},
+ {set:'Saṅgha',p:'Āhuneyyo',e:'Worthy of gifts'},
+ {set:'Saṅgha',p:'Pāhuneyyo',e:'Worthy of hospitality'},
+ {set:'Saṅgha',p:'Dakkhiṇeyyo',e:'Worthy of offerings'},
+ {set:'Saṅgha',p:'Añjalikaraṇīyo',e:'Worthy of respectful salutation'},
+ {set:'Saṅgha',p:'Anuttaraṁ puññakkhettaṁ lokassa',e:'The best field of merit in the world'}
+];
+var CHANTS=[
+ {name:'Light offering',lines:['Ghanasārappadittena','dīpena tamadhaṁsinā','Tilokadīpaṁ sambuddhaṁ','pūjayāmi tamonudaṁ.']},
+ {name:'Food offering',lines:['Adhivāsetu no bhante','bhojanaṁ parikappitaṁ','Anukampaṁ upādāya','paṭiggaṇhātu-m-uttamaṁ.']},
+ {name:'Incense offering',lines:['Gandhasambhārayuttena','dhūpenāhaṁ sugandhinā','Pūjaye pūjaneyyaṁ taṁ','pūjābhājanamuttamaṁ.']},
+ {name:'Flower offering',lines:['Vaṇṇa-gandha-guṇopetaṁ','etaṁ kusumasantatiṁ','Pūjayāmi munindassa','sirīpāda-saroruhe.','Pūjemi buddhaṁ kusumenanena','puññenametena ca hotu mokkhaṁ','Pupphaṁ milāyāti yathā idaṁ me','kāyo tathā yāti vināsabhāvaṁ.']}
+];
+var CHANT_HINT={'Light offering':'Lamp for the Light of 3 worlds: dīpa twice, tama (darkness) twice.','Food offering':'Accept · Food · Compassion · Receive: “A Few Can Receive”.','Incense offering':'Smell, smell, then pūjā, pūjā, pūjā.','Flower offering':'Half 1 offers (colour, scent, quality → lotus feet); half 2 reflects (merit → freedom → fading flower → fading body).'};
+var GRID=[['Guttural (k-group)',['k','kh','g','gh','ṅ']],['Palatal (c-group)',['c','ch','j','jh','ñ']],['Cerebral (ṭ-group)',['ṭ','ṭh','ḍ','ḍh','ṇ']],['Dental (t-group)',['t','th','d','dh','n']],['Labial (p-group)',['p','ph','b','bh','m']]];
+var ALPHA_Q=[
+ {q:'How many letters are in the Pali alphabet (Kaccāyana)?',a:'41',o:['41','33','49','25'],h:'8 singers + 33 helpers = 41.'},
+ {q:'How many vowels does Pali have?',a:'8',o:['8','6','10','5'],h:'3 short + 3 long + 2 variable = 8.'},
+ {q:'How many consonants does Pali have?',a:'33',o:['33','25','41','35'],h:'25 in the grid + 8 ungrouped = 33.'},
+ {q:'Which are the short vowels?',a:'a, i, u',o:['a, i, u','ā, ī, ū','e, o','a, e, o'],h:'Short = quick tap. Long ones carry the bar.'},
+ {q:'Which vowels are called “variable”?',a:'e, o',o:['e, o','a, i','ā, ū','i, u'],h:'e and o swing: long by nature, short before a double consonant (mettā).'},
+ {q:'Why are e and o called variable?',a:'Long by nature, but short before a double consonant',o:['Long by nature, but short before a double consonant','They can be used as consonants','They only appear at the end of words','They are always nasal'],h:'deva / loka are long; mettā / sotthi are short.'},
+ {q:'Which of these is NOT one of the 8 ungrouped consonants?',a:'k',o:['k','y','ḷ','ṁ'],h:'Ungrouped: “Young Rāhula Loved Visiting Sāriputta’s Hut, Lastly Mmm”: y r l v s h ḷ ṁ.'},
+ {q:'What is ṁ called?',a:'niggahīta',o:['niggahīta','byañjana','sara','vagga'],h:'The final “Mmm” humming sound is the niggahīta.'},
+ {q:'In what order do the 5 consonant groups go?',a:'k, c, ṭ, t, p',o:['k, c, ṭ, t, p','p, t, ṭ, c, k','k, t, c, p, ṭ','c, k, t, ṭ, p'],h:'“Kids Can Tap Their Pots”: from the throat to the lips.'}
+];
+GRID.forEach(function(r){ r[1].forEach(function(l){ ALPHA_Q.push({q:'Which group does <span class="pali">'+l+'</span> belong to?',a:r[0],o:GRID.map(function(x){return x[0];}),h:'Kids Can Tap Their Pots: k (throat) → c (palate) → ṭ (tongue back) → t (teeth) → p (lips).'}); }); });
+
+/* ---------- helpers ---------- */
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function nounForms(n,c,k){return n.t[c][k].map(function(e){return n.stem+e;});}
+function nounStr(n,c,k){return nounForms(n,c,k).join(', ');}
+function uniq(a){var s={};return a.filter(function(x){if(s[x])return false;s[x]=1;return true;});}
+function esc(s){return String(s);}
+function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function load(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+
+/* ---------- tabs ---------- */
+var tabs=document.querySelectorAll('.tabs button');
+function showTab(id){
+  tabs.forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===id?'true':'false');});
+  ['learn','cards','test'].forEach(function(p){document.getElementById(p).hidden=(p!==id);});
+  store('coachTab',id);
+}
+tabs.forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab);window.scrollTo(0,0);});});
+
+/* ---------- flashcards ---------- */
+var DECKS={
+ 'Cases':function(){return CASES.map(function(c){return {tag:'What job does this case do?',f:CASEN[c],b:CASEHINT[c]};});},
+ 'bhūpāla':function(){return deckNoun(NOUNS[0]);},
+ 'bhariyā':function(){return deckNoun(NOUNS[1]);},
+ 'paṇṇa':function(){return deckNoun(NOUNS[2]);},
+ 'Verbs':function(){var out=[];['present','future','past'].forEach(function(t){PERS.forEach(function(p){[0,1].forEach(function(k){out.push({tag:'dhāvati · '+t,f:p+' person '+NUMN[k],b:VERB[t][p][k].join(', '),s:VHINT[t]});});});});return out;},
+ 'Alphabet':function(){return ALPHA_Q.slice(0,9).map(function(x){return {tag:'Alphabet',f:x.q,b:x.a,s:x.h};});},
+ 'Virtues':function(){return VIRTUES.map(function(v,i){return {tag:v.set+' virtue · what does it mean?',f:v.p,b:v.e};});},
+ 'Pūjā verses':function(){var out=[];CHANTS.forEach(function(c){c.lines.forEach(function(l,i){if(i<c.lines.length-1)out.push({tag:c.name+' · what comes next?',f:l,b:c.lines[i+1],s:CHANT_HINT[c.name]});});});return out;}
+};
+function deckNoun(n){var out=[];CASES.forEach(function(c){[0,1].forEach(function(k){out.push({tag:n.name+' ('+n.gloss+', '+n.g+')',f:CASEN[c]+' '+NUMN[k],b:nounStr(n,c,k),s:CASEHINT[c]});});});return out;}
+var deckName=load('coachDeck'); if(!DECKS[deckName]) deckName='Cases';
+var pile=[],total=0,flipped=false;
+var chipBox=document.getElementById('deckChips');
+Object.keys(DECKS).forEach(function(k){var b=document.createElement('button');b.type='button';b.textContent=k;b.setAttribute('aria-pressed',k===deckName?'true':'false');b.addEventListener('click',function(){deckName=k;store('coachDeck',k);chipBox.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});startDeck();});chipBox.appendChild(b);});
+var card=document.getElementById('fcCard');
+function startDeck(){pile=shuffle(DECKS[deckName]());total=pile.length;flipped=false;renderCard();}
+function renderCard(){
+  document.getElementById('fcDeckName').textContent=deckName;
+  document.getElementById('fcCount').textContent=pile.length?pile.length+' of '+total+' left':'Deck done';
+  document.getElementById('fcBar').style.width=((total-pile.length)/total*100)+'%';
+  document.getElementById('fcAgain').disabled=!pile.length; document.getElementById('fcGot').disabled=!pile.length;
+  if(!pile.length){card.innerHTML='<div class="tag">Well done</div><div class="front">You finished the '+deckName+' deck.</div><div class="tap">Tap to go through it again</div>';return;}
+  var c=pile[0];
+  card.innerHTML='<div class="tag">'+c.tag+'</div><div class="front">'+c.f+'</div>'+(flipped?'<div class="back">'+c.b+(c.s?'<small>'+c.s+'</small>':'')+'</div>':'<div class="tap">Tap to flip</div>');
+}
+function flip(){ if(!pile.length){startDeck();return;} flipped=!flipped; renderCard(); }
+card.addEventListener('click',flip);
+card.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();flip();}});
+document.getElementById('fcGot').addEventListener('click',function(){pile.shift();flipped=false;renderCard();});
+document.getElementById('fcAgain').addEventListener('click',function(){var c=pile.shift();var pos=Math.min(pile.length,3+Math.floor(Math.random()*3));pile.splice(pos,0,c);flipped=false;renderCard();});
+startDeck();
+
+/* ---------- practice test ---------- */
+function qNounCell(){
+  var n=pick(NOUNS),c=pick(CASES),k=pick([0,1]);
+  var right=nounStr(n,c,k), pool=[];
+  CASES.forEach(function(cc){[0,1].forEach(function(kk){var s=nounStr(n,cc,kk);if(s!==right)pool.push(s);});});
+  var opts=shuffle([right].concat(shuffle(uniq(pool)).slice(0,3)));
+  return {tag:'Declension · '+n.name,text:'How do you say <span class="pali">'+n.name+'</span> ('+n.gloss+') in the <b>'+CASEN[c]+' '+NUMN[k]+'</b>?',opts:opts,right:right,pali:true,hint:CASEHINT[c]};
+}
+function qNounForm(){
+  var n=pick(NOUNS),c=pick(CASES),k=pick([0,1]);
+  var form=pick(nounForms(n,c,k)), labels=[];
+  CASES.forEach(function(cc){[0,1].forEach(function(kk){if(nounForms(n,cc,kk).indexOf(form)>-1)labels.push(CASEN[cc]+' '+NUMN[kk]);});});
+  var right=labels.join(' or '), pool=[];
+  CASES.forEach(function(cc){[0,1].forEach(function(kk){var l=CASEN[cc]+' '+NUMN[kk];if(labels.indexOf(l)<0)pool.push(l);});});
+  var opts=shuffle([right].concat(shuffle(pool).slice(0,3)));
+  return {tag:'Declension · '+n.name,text:'Which case is <span class="pali">'+form+'</span>?',opts:opts,right:right,pali:false,hint:(labels.length>1?'This form does more than one job, so both answers count. ':'')+CASEHINT[c]};
+}
+function qVerb(){
+  var t=pick(['present','future','past']),p=pick(PERS),k=pick([0,1]);
+  var right=VERB[t][p][k].join(', '), pool=[];
+  PERS.forEach(function(pp){[0,1].forEach(function(kk){var s=VERB[t][pp][kk].join(', ');if(s!==right)pool.push(s);});});
+  ['present','future','past'].forEach(function(tt){if(tt!==t)pool.push(VERB[tt][p][k].join(', '));});
+  var opts=shuffle([right].concat(shuffle(uniq(pool)).slice(0,3)));
+  return {tag:'Conjugation · dhāvati',text:'<b>'+t.charAt(0).toUpperCase()+t.slice(1)+' tense</b>, '+PERSN[p]+', <b>'+NUMN[k]+'</b>?',opts:opts,right:right,pali:true,hint:VHINT[t]};
+}
+function qVirtue(){
+  var v=pick(VIRTUES), pool=VIRTUES.filter(function(x){return x!==v;}).map(function(x){return x.e;});
+  if(Math.random()<.5){
+    return {tag:v.set+' virtues',text:'What does <span class="pali">'+v.p+'</span> mean?',opts:shuffle([v.e].concat(shuffle(pool).slice(0,3))),right:v.e,pali:false,hint:'Remember: the vandanā chant is the list in order.'};
+  }
+  var pp=VIRTUES.filter(function(x){return x!==v;}).map(function(x){return x.p;});
+  return {tag:v.set+' virtues',text:'Which Pali virtue means “'+v.e+'”?',opts:shuffle([v.p].concat(shuffle(pp).slice(0,3))),right:v.p,pali:true,hint:'Buddha 9 (3 × 3) · Dhamma 6 (S S A E O P) · Saṅgha 9 (4 + 4 + 1).'};
+}
+function qChant(){
+  var c=pick(CHANTS), i=Math.floor(Math.random()*(c.lines.length-1));
+  var right=c.lines[i+1], pool=[];
+  CHANTS.forEach(function(x){x.lines.forEach(function(l){if(l!==right&&l!==c.lines[i])pool.push(l);});});
+  return {tag:c.name,text:'Which line comes after <span class="pali">'+c.lines[i]+'</span>?',opts:shuffle([right].concat(shuffle(pool).slice(0,3))),right:right,pali:true,hint:CHANT_HINT[c.name]};
+}
+function qCount(){
+  var bank=[
+   {q:'How many lines is the flower offering verse?',a:'8',o:['8','4','6','9']},
+   {q:'How many lines is the light offering verse?',a:'4',o:['4','8','6','3']},
+   {q:'How many virtues of the Dhamma are there?',a:'6',o:['6','9','4','8']},
+   {q:'How many virtues of the Saṅgha are there?',a:'9',o:['9','6','8','4']},
+   {q:'How many virtues of the Buddha are there?',a:'9',o:['9','6','10','8']},
+   {q:'Which chant begins the Buddha Vandanā?',a:'Iti pi so…',o:['Iti pi so…','Svākkhāto…','Supaṭipanno…','Karaṇīyam…']},
+   {q:'Which chant begins the Saṅgha Vandanā?',a:'Supaṭipanno…',o:['Supaṭipanno…','Svākkhāto…','Iti pi so…','Adhivāsetu…']}
+  ];
+  var x=pick(bank); return {tag:'Pūjā & Vandanā',text:x.q,opts:shuffle(x.o),right:x.a,pali:false,hint:'Offerings: light 4 · food 4 · incense 4 · flowers 8. Virtues: Buddha 9 · Dhamma 6 · Saṅgha 9.'};
+}
+function qAlpha(){var x=pick(ALPHA_Q);return {tag:'Alphabet',text:x.q,opts:shuffle(uniq(x.o)),right:x.a,pali:false,hint:x.h};}
+var TOPICS={
+ 'Everything':[qNounCell,qNounForm,qVerb,qVirtue,qChant,qAlpha,qCount],
+ 'Nouns':[qNounCell,qNounForm],
+ 'Verbs':[qVerb],
+ 'Alphabet':[qAlpha],
+ 'Pūjā & Virtues':[qVirtue,qChant,qCount]
+};
+var topic='Everything', qs=[], qi=0, score=0, misses=[];
+var tc=document.getElementById('testChips');
+Object.keys(TOPICS).forEach(function(k){var b=document.createElement('button');b.type='button';b.textContent=k;b.setAttribute('aria-pressed',k===topic?'true':'false');b.addEventListener('click',function(){topic=k;tc.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});startTest();});tc.appendChild(b);});
+var area=document.getElementById('testArea');
+function startTest(){
+  qs=[];var seen={},guard=0;
+  while(qs.length<10&&guard<200){guard++;var q=pick(TOPICS[topic])();if(seen[q.text])continue;seen[q.text]=1;qs.push(q);}
+  qi=0;score=0;misses=[];renderQ();
+}
+function renderQ(){
+  if(qi>=qs.length){return renderEnd();}
+  var q=qs[qi];
+  area.innerHTML='<div class="meta"><span>Question '+(qi+1)+' of '+qs.length+'</span><span>Score '+score+'</span></div><div class="progress"><i style="width:'+(qi/qs.length*100)+'%"></i></div>'+
+   '<div class="qcard"><div class="qtag">'+q.tag+'</div><div class="qtext">'+q.text+'</div><div class="opts"></div><div id="exp"></div></div>';
+  var box=area.querySelector('.opts');
+  q.opts.forEach(function(o){var b=document.createElement('button');b.type='button';b.textContent=o;if(q.pali)b.className='pl';b.addEventListener('click',function(){answer(b,o);});box.appendChild(b);});
+}
+function answer(btn,o){
+  var q=qs[qi], ok=(o===q.right);
+  area.querySelectorAll('.opts button').forEach(function(b){b.disabled=true;if(b.textContent===q.right)b.classList.add('right');});
+  if(!ok){btn.classList.add('wrong');misses.push(q);} else score++;
+  var exp=document.getElementById('exp');
+  exp.innerHTML='<div class="explain"><b>'+(ok?'Correct!':'Not quite.')+'</b> '+(ok?'':'The answer is <span class="pali">'+q.right+'</span>. ')+'<br>'+q.hint+'</div><div style="margin-top:12px"><button class="primary" type="button" id="nextQ">'+(qi===qs.length-1?'See my score':'Next question')+'</button></div>';
+  document.getElementById('nextQ').addEventListener('click',function(){qi++;renderQ();});
+  document.getElementById('nextQ').focus();
+}
+function renderEnd(){
+  var msg=score>=9?'Exam ready on this topic. Do it twice more to be sure.':score>=7?'Nearly there. Look at the mistakes below, then try again.':'Go back to the Learn tab for these topics, do the flashcards, then try again.';
+  var h='<div class="qcard"><div class="qtag">Your score</div><div class="score">'+score+' / '+qs.length+'</div><p>'+msg+'</p><button class="primary" type="button" id="again">New test</button></div>';
+  if(misses.length){h+='<h3 style="margin-top:22px">Review your mistakes</h3>';misses.forEach(function(q){h+='<div class="miss">'+q.text+'<br>Answer: <span class="pali"><b>'+q.right+'</b></span><br><span class="hook">'+q.hint+'</span></div>';});}
+  area.innerHTML=h;
+  document.getElementById('again').addEventListener('click',startTest);
+}
+startTest();
+
+var savedTab=load('coachTab'); if(savedTab&&document.getElementById(savedTab)) showTab(savedTab);
+})();
+</script>
