@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Geo Expansion Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: four tabs (Learn, Cards, Quiz, Essays) in one study column. Each exam slot is a lesson card: explain-like-I'm-5 box, memory trick, key facts, answer outline */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#1d2a2e; --muted:#5b6b70; --rule:#d5dedc;
+  --robe:#b8640f; --robe-soft:#f8ead8; --teal:#1f5c63; --teal-soft:#e2eeee;
+  --good:#2f7d4a; --good-soft:#e1f1e6; --bad:#b03a2e; --bad-soft:#f7e2df;
+  --land:#e7ece9; --sea:#dbe7ea;
+  --pali:"Gentium Book Plus","Noto Serif",Georgia,serif;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#352717; --teal:#7cc3c9; --teal-soft:#1c3336;
+  --good:#7fcf98; --good-soft:#18301f; --bad:#f08a7e; --bad-soft:#3a1d1a;
+  --land:#22302f; --sea:#16272b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#352717; --teal:#7cc3c9; --teal-soft:#1c3336;
+  --good:#7fcf98; --good-soft:#18301f; --bad:#f08a7e; --bad-soft:#3a1d1a;
+  --land:#22302f; --sea:#16272b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:0 72px;margin:0}
+.wrap{max-width:820px;margin:0 auto}
+header.top{padding-block:32px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--robe);font-weight:600}
+h1{font-family:var(--pali);font-size:clamp(30px,6vw,42px);line-height:1.1;margin:6px 0 8px;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.pali{font-family:var(--pali)}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);padding-block:10px;display:flex;gap:8px}
+.tabs button{flex:1 1 0;min-width:0;padding-inline:6px}
+button{font:inherit;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px;padding:9px 14px;border:1px solid var(--rule);background:var(--surface);color:var(--ink)}
+button:hover{border-color:var(--teal)}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--robe);outline-offset:2px}
+.tabs button[aria-selected="true"]{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.primary{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-block:8px 14px}
+.chips button{font-size:13px;padding:6px 12px;border-radius:999px}
+.chips button[aria-pressed="true"]{background:var(--teal-soft);border-color:var(--teal);color:var(--teal)}
+
+/* Learn */
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-block:16px 4px}
+.toc a{font-size:13px;color:var(--teal);text-decoration:none;border:1px solid var(--rule);background:var(--surface);border-radius:999px;padding:4px 10px}
+.lesson{padding-block:30px 6px;scroll-margin-top:70px}
+.lesson h2{font-family:var(--pali);font-size:27px;line-height:1.2;margin:0 0 10px;text-wrap:balance}
+.lesson h2 small{display:block;font-family:var(--ui);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--robe);font-weight:600;margin-bottom:2px}
+.lesson h3{font-size:16px;margin:22px 0 6px}
+.lesson p,.lesson li{max-width:66ch}
+.stars{color:var(--robe);letter-spacing:.05em}
+.asked{font-size:14px;color:var(--muted);margin:0 0 6px}
+.box{border-radius:10px;padding:14px 16px;margin-block:12px}
+.box .lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.eli5{background:var(--teal-soft)} .eli5 .lbl{color:var(--teal)}
+.trick{background:var(--robe-soft)} .trick .lbl{color:var(--robe)}
+.trick .big{font-family:var(--pali);font-size:21px;line-height:1.35;display:block;margin-block:2px 6px}
+.picture{background:var(--surface);border:1px dashed var(--robe)} .picture .lbl{color:var(--robe)}
+.box p{margin:4px 0}
+.box ul,.box ol{margin:4px 0;padding-left:20px}
+.letters{list-style:none;padding:0 !important}
+.letters li{padding-left:0}
+.letters b.l{display:inline-block;min-width:1.6em;font-family:var(--pali);font-size:19px;color:var(--robe)}
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:10px;margin-block:10px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td,tr:last-child th{border-bottom:0}
+thead th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+tbody th{font-size:13px;font-weight:600;color:var(--teal);white-space:nowrap}
+.hook{color:var(--muted);font-size:14px}
+.plan{list-style:none;padding:0;margin:8px 0;display:grid;gap:8px}
+.plan li{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;max-width:none}
+.plan b{color:var(--teal)}
+
+/* Answer outline (shared by Learn and Essays) */
+.outline{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--teal);border-radius:10px;padding:14px 16px;margin-block:12px}
+.outline .lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--teal);margin-bottom:6px}
+.outline h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:10px 0 2px}
+.outline p{margin:2px 0}
+.outline ol{margin:2px 0;padding-left:22px}
+.outline li{margin-block:3px}
+
+/* Map and timeline */
+figure{margin:12px 0}
+.map{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:8px}
+.map .scroll{overflow-x:auto}
+.map svg{display:block;width:100%;height:auto}
+figcaption{font-size:13px;color:var(--muted);margin-top:6px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid var(--robe);vertical-align:middle;margin-right:6px}
+.legend i.x{border-top-color:var(--teal);border-top-style:dashed}
+.tl{list-style:none;padding:0;margin:10px 0;border-left:2px solid var(--rule)}
+.tl li{position:relative;padding:4px 0 10px 18px;max-width:none}
+.tl li::before{content:"";position:absolute;left:-7px;top:11px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--robe)}
+.tl .when{display:inline-block;min-width:92px;font-weight:600;color:var(--robe);font-variant-numeric:tabular-nums}
+.ladder{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:end;margin-block:12px}
+.step{background:var(--teal-soft);border-radius:10px 10px 4px 4px;padding:10px;text-align:center;font-size:14px}
+.step b{display:block;font-family:var(--pali);font-size:26px;line-height:1.1;color:var(--teal)}
+.step span{display:block;color:var(--muted);font-size:12px}
+
+/* Short notes */
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-block:10px}
+.notes details{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 14px}
+.notes summary{cursor:pointer;font-weight:600;list-style:none}
+.notes summary::-webkit-details-marker{display:none}
+.notes summary::before{content:"+";display:inline-block;width:1.1em;color:var(--robe);font-weight:700}
+.notes details[open] summary::before{content:"–"}
+.notes summary small{display:block;font-weight:400;color:var(--muted);font-size:13px;padding-left:1.1em}
+.notes ul{margin:8px 0 0;padding-left:18px;font-size:15px}
+.notes li{margin-block:2px}
+
+/* Flashcards */
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:14px;min-height:240px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:28px 20px;cursor:pointer;gap:10px;user-select:none}
+.card .tag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--robe);font-weight:600}
+.card .front{font-family:var(--pali);font-size:24px;line-height:1.35;text-wrap:balance}
+.card .back{font-size:17px;line-height:1.5;color:var(--teal);border-top:1px solid var(--rule);padding-top:12px;width:100%}
+.card .back small{display:block;font-size:14px;color:var(--muted);margin-top:6px}
+.card .tap{font-size:13px;color:var(--muted)}
+.fcbar{display:flex;gap:8px;margin-top:12px}
+.fcbar button{flex:1}
+.again{border-color:var(--bad);color:var(--bad)}
+.got{border-color:var(--good);color:var(--good)}
+.meta{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.progress{height:6px;background:var(--rule);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.progress i{display:block;height:100%;background:var(--good);width:0;transition:width .2s}
+
+/* Quiz */
+.qcard{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.qtag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--robe);font-weight:600}
+.qtext{font-size:18px;margin:6px 0 14px;line-height:1.45}
+.opts{display:grid;gap:8px}
+.opts button{text-align:left;font-weight:500;font-size:16px;padding:12px 14px}
+.opts button.right{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.opts button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.opts button:disabled{cursor:default}
+.explain{margin-top:14px;background:var(--robe-soft);border-radius:10px;padding:12px 14px;font-size:15px}
+.explain b{color:var(--robe)}
+.score{font-family:var(--pali);font-size:44px;line-height:1;margin:6px 0}
+.miss{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin-top:8px;font-size:15px}
+
+/* Essays */
+.timer{font-family:var(--pali);font-size:44px;line-height:1;font-variant-numeric:tabular-nums;margin:10px 0 4px}
+.timer.done{color:var(--good)}
+.drillbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.check{list-style:none;padding:0;margin:8px 0}
+.check li{margin-block:4px}
+.check label{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.check input{margin-top:5px;accent-color:var(--teal)}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+@media (max-width:600px){.map svg{min-width:600px}}
+@media (max-width:420px){.tl .when{display:block;min-width:0}.step b{font-size:22px}}
+</style>
+<style>
+.site{margin-inline:-16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.site .brand{font-family:var(--pali);font-weight:700;font-size:18px;color:var(--ink);text-decoration:none;margin-right:auto}
+.site .links{display:flex;gap:6px;flex-wrap:wrap}
+.site .links a{font-family:var(--ui);font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 10px;border-radius:8px;border:1px solid transparent}
+.site .links a:hover{color:var(--teal);border-color:var(--rule)}
+.site .links a[aria-current="page"]{color:var(--teal);background:var(--bg);border-color:var(--rule)}
+</style>
+</head>
+<body>
+<nav class="site" aria-label="Site">
+  <a class="brand" href="./">Diploma Exam Prep</a>
+  <span class="links"><a href="./">Pali Charts</a><a href="coach.html">Pali Coach</a><a href="geo.html" aria-current="page">Geo Expansion</a></span>
+</nav>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Buddhism Diploma · Geographical Expansion</div>
+  <h1>Geo Expansion Coach</h1>
+  <p class="lede">How the Dhamma travelled from India to Sri Lanka and South-East Asia, explained simply, with memory tricks for every exam question. Read <b>Learn</b>, drill the <b>Cards</b>, test yourself in the <b>Quiz</b>, then plan real past questions in <b>Essays</b>.</p>
+</header>
+
+<div class="tabs" role="tablist">
+  <button role="tab" id="t-learn" aria-selected="true" data-tab="learn">Learn</button>
+  <button role="tab" id="t-cards" aria-selected="false" data-tab="cards">Cards</button>
+  <button role="tab" id="t-quiz" aria-selected="false" data-tab="quiz">Quiz</button>
+  <button role="tab" id="t-essay" aria-selected="false" data-tab="essay">Essays</button>
+</div>
+
+<!-- ================= LEARN ================= -->
+<main id="learn" role="tabpanel">
+<nav class="toc" aria-label="Topics">
+  <a href="#start">Start here</a><a href="#map">The big map</a><a href="#q1">Q1 Buddha's time</a><a href="#q2">Q2 Councils</a><a href="#q3">Q3 Asoka</a><a href="#q4">Q4 Mahinda</a><a href="#q5">Q5 Myanmar</a><a href="#q6">Q6 Thailand</a><a href="#q7">Q7 Exchanges</a><a href="#q8">Q8 Cambodia &amp; Laos</a><a href="#q9">Q9 Decline</a><a href="#sg">Singapore</a><a href="#q10">Q10 Short notes</a>
+</nav>
+
+<section class="lesson" id="start">
+  <h2><small>Start here</small>How the paper works</h2>
+  <p>3 hours. <b>10 questions, answer 5.</b> Q1 to Q9 are essays. Q10 is <b>6 short notes, pick 4</b>, and it counts as one question. The good news: the same 9 topics come up <b>every single year</b>, just asked from a different angle.</p>
+  <div class="box trick"><span class="lbl">Memory trick: the 9 essay slots, in order</span>
+    <span class="big">“I Can Always Make My Thai Soup Cook Longer, Darling.”</span>
+    <ul class="letters">
+      <li><b class="l">I</b> India in the Buddha's time (Q1)</li>
+      <li><b class="l">C</b> Councils (Q2)</li>
+      <li><b class="l">A</b> Asoka (Q3)</li>
+      <li><b class="l">M</b> Mahinda in Sri Lanka (Q4)</li>
+      <li><b class="l">M</b> Myanmar (Q5)</li>
+      <li><b class="l">T</b> Thailand (Q6)</li>
+      <li><b class="l">S</b> Swaps: Sri Lanka's exchanges with Thailand or Myanmar (Q7)</li>
+      <li><b class="l">C L</b> Cambodia or Laos (Q8)</li>
+      <li><b class="l">D</b> Decline (Q9)</li>
+    </ul>
+  </div>
+  <h3>Your time plan</h3>
+  <ol class="plan">
+    <li><b>5 minutes</b> to read everything and choose your 5.</li>
+    <li><b>35 minutes per question:</b> 5 minutes to jot your outline, 30 minutes to write.</li>
+    <li><b>Safest set of 5:</b> Asoka · Mahinda · Myanmar · Thailand · Exchanges. Backups: Buddha's time, Councils, short notes.</li>
+  </ol>
+  <div class="box eli5"><span class="lbl">How to write each answer</span>
+    <p><b>Intro</b> (who, when, where) → <b>Body</b> (one point per paragraph) → <b>Conclusion</b> (why it mattered for Buddhism).</p>
+    <p>For every paragraph, use <b>Say it, Show it, Link it</b>: say the point, show an example (a name, a place, a date), then link it back to <i>how it helped Buddhism spread or survive</i>. That last step is where the marks are.</p>
+  </div>
+  <h3>A 7-day plan</h3>
+  <ol class="plan">
+    <li><b>Day 1 · The big map + Q1.</b> Get the story of the journey in your head first.</li>
+    <li><b>Day 2 · Q2 Councils + Q3 Asoka.</b> Learn the councils table cold. It's pure marks.</li>
+    <li><b>Day 3 · Q4 Mahinda + Q7 Exchanges.</b> Sri Lanka is the hub of everything after India.</li>
+    <li><b>Day 4 · Q5 Myanmar + Q6 Thailand.</b> King names and one big deed each.</li>
+    <li><b>Day 5 · Q8 Cambodia &amp; Laos + Q9 Decline + Singapore.</b></li>
+    <li><b>Day 6 · Q10 short notes.</b> Open each note, say it aloud, close it, repeat.</li>
+    <li><b>Day 7 · Essays tab.</b> Plan 5 past questions in 5 minutes each. Then do the Quiz until you get 9/10.</li>
+  </ol>
+</section>
+
+<section class="lesson" id="map">
+  <h2><small>The big picture</small>The journey of the Dhamma</h2>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>Buddhism started in <b>India</b>. King Asoka sent teachers out like seeds on the wind. One seed landed in <b>Sri Lanka</b> and grew into a big strong tree. Later, Myanmar, Thailand, Cambodia and Laos all took cuttings from the Sri Lankan tree. And whenever one tree got sick, a neighbour sent a healthy branch back. Then India's own tree died out, but the cuttings kept it alive everywhere else.</p>
+  </div>
+  <figure class="map">
+    <div class="scroll"><svg viewBox="0 0 640 430" role="img" aria-labelledby="mapT mapD">
+      <title id="mapT">How Theravāda Buddhism spread</title>
+      <desc id="mapD">Schematic map. Arrows go from India to Sri Lanka (Mahinda, about 250 BCE) and to Suvaṇṇabhūmi in Myanmar (Soṇa and Uttara). From Sri Lanka, arrows go to Myanmar (Chapata, 1180s), Thailand (Sukhothai, 13th century) and Cambodia (Tāmalinda, about 1190). Cambodia sends Buddhism to Laos (Fa Ngum, 1353). Dashed return arrows show Myanmar helping Sri Lanka (1070, 1800, 1864) and Thailand helping Sri Lanka (1753).</desc>
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--robe)"/></marker>
+        <marker id="ahx" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--teal)"/></marker>
+      </defs>
+      <rect x="0" y="0" width="640" height="430" rx="10" style="fill:var(--sea)"/>
+      <!-- simplified land shapes, not to scale -->
+      <path d="M20,40 L250,30 L300,70 L285,120 L240,150 L215,230 L178,300 L150,250 L118,180 L60,140 L20,120 Z" style="fill:var(--land)"/>
+      <path d="M168,322 q18,-6 26,14 q6,26 -14,36 q-20,-8 -12,-50 Z" style="fill:var(--land)"/>
+      <path d="M300,40 L620,30 L620,250 L560,330 L520,320 L480,290 L460,330 L452,395 L430,395 L430,330 L400,250 L360,220 L330,160 Z" style="fill:var(--land)"/>
+      <!-- out of India -->
+      <path d="M150,150 C165,220 180,270 182,318" style="fill:none;stroke:var(--robe);stroke-width:3" marker-end="url(#ah)"/>
+      <path d="M190,120 C250,110 290,150 338,175" style="fill:none;stroke:var(--robe);stroke-width:3" marker-end="url(#ah)"/>
+      <!-- from Sri Lanka -->
+      <path d="M198,330 C260,300 300,250 340,198" style="fill:none;stroke:var(--robe);stroke-width:3" marker-end="url(#ah)"/>
+      <path d="M200,345 C290,340 360,300 408,262" style="fill:none;stroke:var(--robe);stroke-width:3" marker-end="url(#ah)"/>
+      <path d="M198,360 C320,390 440,350 500,308" style="fill:none;stroke:var(--robe);stroke-width:3" marker-end="url(#ah)"/>
+      <path d="M518,284 C550,250 545,205 506,178" style="fill:none;stroke:var(--robe);stroke-width:3" marker-end="url(#ah)"/>
+      <!-- favours returned to Sri Lanka -->
+      <path d="M336,200 C270,228 215,280 194,322" style="fill:none;stroke:var(--teal);stroke-width:2.5;stroke-dasharray:6 5" marker-end="url(#ahx)"/>
+      <path d="M404,270 C340,345 270,354 204,346" style="fill:none;stroke:var(--teal);stroke-width:2.5;stroke-dasharray:6 5" marker-end="url(#ahx)"/>
+      <!-- places -->
+      <g style="font-family:var(--ui);font-size:13px;font-weight:600;fill:var(--ink)">
+        <circle cx="160" cy="135" r="8" style="fill:var(--robe)"/><text x="60" y="110">INDIA</text><text x="40" y="128" style="font-weight:400;font-size:11.5px;fill:var(--muted)">Buddha · Asoka</text>
+        <circle cx="182" cy="340" r="7" style="fill:var(--robe)"/><text x="60" y="345">SRI LANKA</text><text x="62" y="362" style="font-weight:400;font-size:11.5px;fill:var(--muted)">the hub</text>
+        <circle cx="345" cy="185" r="7" style="fill:var(--teal)"/><text x="355" y="168">MYANMAR</text>
+        <circle cx="412" cy="255" r="7" style="fill:var(--teal)"/><text x="424" y="245">THAILAND</text>
+        <circle cx="508" cy="295" r="7" style="fill:var(--teal)"/><text x="522" y="300">CAMBODIA</text>
+        <circle cx="496" cy="170" r="7" style="fill:var(--teal)"/><text x="508" y="160">LAOS</text>
+        <circle cx="444" cy="388" r="5" style="fill:var(--muted)"/><text x="456" y="393" style="font-weight:400;fill:var(--muted)">Singapore</text>
+      </g>
+      <!-- arrow labels -->
+      <g style="font-family:var(--ui);font-size:11px;fill:var(--ink)">
+        <text x="92" y="230">Mahinda</text><text x="92" y="244" style="fill:var(--muted)">c. 250 BCE</text>
+        <text x="220" y="100">Soṇa &amp; Uttara</text><text x="220" y="86" style="fill:var(--muted)">3rd C BCE</text>
+        <text x="355" y="184" style="fill:var(--muted)">from SL: Chapata 1180s</text>
+        <text x="424" y="261" style="fill:var(--muted)">from SL:</text><text x="424" y="275" style="fill:var(--muted)">Sukhothai 13th C</text>
+        <text x="522" y="316" style="fill:var(--muted)">from SL: Tāmalinda</text><text x="522" y="330" style="fill:var(--muted)">c. 1190</text>
+        <text x="556" y="226">Fa Ngum</text><text x="556" y="240" style="fill:var(--muted)">1353</text>
+      </g>
+    </svg></div>
+    <div class="legend"><span><i></i>Buddhism carried to a new place</span><span><i class="x"></i>A favour returned to Sri Lanka: Myanmar 1070, 1800, 1864 · Thailand 1753</span></div>
+    <figcaption>Simplified sketch, not to scale. On a phone, swipe the map sideways.</figcaption>
+  </figure>
+  <h3>Key dates in one line each</h3>
+  <ul class="tl">
+    <li><span class="when">c. 528 BCE</span> Enlightenment at Bodhgayā (age 35), 45 years of teaching</li>
+    <li><span class="when">c. 483 BCE</span> Parinibbāna at Kusinārā, then the First Council</li>
+    <li><span class="when">+100 years</span> Second Council at Vesālī, the first split</li>
+    <li><span class="when">c. 250 BCE</span> Third Council under Asoka, then 9 missions; Mahinda reaches Sri Lanka</li>
+    <li><span class="when">1057</span> Anawrahta conquers Thaton and brings the Tipiṭaka to Pagan</li>
+    <li><span class="when">c. 1190</span> Chapata and Tāmalinda return from Sri Lanka</li>
+    <li><span class="when">c. 1193</span> Nālandā destroyed: Buddhism fades in India</li>
+    <li><span class="when">1292</span> Ram Khamhaeng's inscription in Sukhothai</li>
+    <li><span class="when">1353</span> Fa Ngum founds Lan Xang (Laos)</li>
+    <li><span class="when">1753</span> Thai monks restore ordination in Sri Lanka (Siyam Nikāya)</li>
+  </ul>
+</section>
+
+<section class="lesson" id="q1">
+  <h2><small>Q1 · <span class="stars">★★★</span></small>Why Buddhism spread so fast in the Buddha's time</h2>
+  <p class="asked">Asked every year. Angles: social and religious factors · “religious revolution” · the Buddha as a teacher.</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>Imagine a town where only some kids are allowed in the playground, and every game costs a lot of money. Then a kind teacher opens a free playground for <b>everyone</b>, explains the rules in <b>your own language</b>, and says “don't just believe me, <b>come and try it</b>.” Everyone runs over. That was India 2,500 years ago.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: 10 reasons in 3 groups</span>
+    <span class="big">“Can Monks Keep Walking? Really Rapidly, with 4 Ps!”</span>
+    <ul class="letters">
+      <li><b class="l">C</b> <b>Caste</b>: everyone welcome (Upāli the barber, Sunīta the sweeper)</li>
+      <li><b class="l">M</b> <b>Merchants &amp; cities</b>: rich traders (Anāthapiṇḍika gave Jetavana) carried the Dhamma along trade routes</li>
+      <li><b class="l">K</b> <b>Kings</b>: Bimbisāra gave Veḷuvana, Pasenadi became a follower</li>
+      <li><b class="l">W</b> <b>Women</b>: the Bhikkhunī Order gave women dignity (Mahāpajāpatī, Visākhā)</li>
+      <li><b class="l">R</b> <b>Rituals rejected</b>: no costly animal sacrifices (Kūṭadanta Sutta)</li>
+      <li><b class="l">R</b> <b>Restless seekers</b>: many wandering teachers; the Middle Path stood out</li>
+      <li><b class="l">P</b> <b>Personality</b> of the Buddha: compassion, wisdom, teaching to suit each person (Kisā Gotamī)</li>
+      <li><b class="l">P</b> <b>Practical</b> teaching: <span class="pali">ehipassiko</span>, “come and see” (Kālāma Sutta)</li>
+      <li><b class="l">P</b> <b>People's language</b>: Māgadhī, not priestly Sanskrit</li>
+      <li><b class="l">P</b> <b>Preaching Saṅgha</b>: 60 arahants sent out “for the welfare of the many”</li>
+    </ul>
+    <p class="hook">C-M-K-W are social · R-R are religious · the 4 Ps are about the Buddha and his teaching.</p>
+  </div>
+  <div class="outline" data-slot="q1"></div>
+</section>
+
+<section class="lesson" id="q2">
+  <h2><small>Q2 · <span class="stars">★★★</span></small>The three Buddhist Councils</h2>
+  <p class="asked">Asked every year, rotating: First (2025, 2023, 2020) · Second (2024, 2021) · Third (2022). Learn all three.</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>Nobody had written the teachings down. So when something went wrong, the monks held a giant <b>“say it together” meeting</b>, like a class reciting a poem out loud so no one forgets or changes a word. That's all a council (<span class="pali">saṅgāyanā</span>, “chanting together”) is. They did it three times, each time because of a different troublemaker.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: three troublemakers</span>
+    <span class="big">Rude monk → Money monks → Fake monks</span>
+    <ol>
+      <li><b>1st:</b> the <b>rude</b> old monk Subhadda said “now the Teacher is gone, we can do as we like!” → <b>preserve</b> the teaching.</li>
+      <li><b>2nd:</b> the Vajjian monks took <b>money</b> and bent 10 rules → protect the <b>discipline</b>.</li>
+      <li><b>3rd:</b> <b>fake</b> monks joined for Asoka's free food and gifts → <b>purify</b> the Saṅgha.</li>
+    </ol>
+  </div>
+  <div class="ladder" aria-label="Monks at each council: 500, 700, 1,000. Months: 7, 8, 9.">
+    <div class="step" style="padding-top:18px"><b>500</b>arahants<span>7 months</span></div>
+    <div class="step" style="padding-top:30px"><b>700</b>arahants<span>8 months</span></div>
+    <div class="step" style="padding-top:44px"><b>1,000</b>monks<span>9 months</span></div>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the numbers climb</span>
+    <p>Monks go <b>5 → 7 → 10</b> (hundreds). Months go <b>7 → 8 → 9</b>. Places go <b>R → V → P</b>: “<b>R</b>eally <b>V</b>ery <b>P</b>recious” (Rājagaha, Vesālī, Pāṭaliputta). Patrons are “<b>A</b>-<b>K</b>-<b>A</b>”: Ajātasattu, Kālāsoka, Asoka (two Asokas at the end).</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th></th><th>1st</th><th>2nd</th><th>3rd</th></tr></thead>
+    <tbody>
+      <tr><th>When</th><td>3 months after Parinibbāna</td><td>100 years after</td><td>c. 236 years after (c. 250 BCE)</td></tr>
+      <tr><th>Where</th><td>Sattapaṇṇi cave, Rājagaha</td><td>Vālukārāma, Vesālī</td><td>Asokārāma, Pāṭaliputta</td></tr>
+      <tr><th>Patron</th><td>King Ajātasattu</td><td>King Kālāsoka</td><td>Emperor Asoka</td></tr>
+      <tr><th>President</th><td>Ven. Mahākassapa</td><td>Ven. Sabbakāmī (Revata asked the questions)</td><td>Ven. Moggaliputta Tissa</td></tr>
+      <tr><th>Why</th><td>Subhadda's remark; fix the Dhamma &amp; Vinaya</td><td>10 points of the Vajjian monks</td><td>Fake monks with wrong views</td></tr>
+      <tr><th>Result</th><td>Upāli recites Vinaya, Ānanda recites suttas; canon fixed; reciters (bhāṇaka)</td><td>All 10 points rejected; first split (Mahāsāṅghika)</td><td>60,000 expelled; Kathāvatthu; 9 missions abroad</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box trick"><span class="lbl">Memory trick: the 10 points of the 2nd Council</span>
+    <span class="big">“Sally's Sunny Village Monastery Asks Cousins for Milk, Toddy, Rugs &amp; Gold.”</span>
+    <ol>
+      <li><b>Salt</b> kept in a horn for later</li>
+      <li><b>Sun</b>: eating when the shadow is two fingers past noon</li>
+      <li><b>Village</b>: a second meal in another village</li>
+      <li><b>Monastery</b>: separate uposatha inside the same boundary</li>
+      <li><b>Asks</b> consent afterwards</li>
+      <li><b>Custom</b>: “my teacher did it”</li>
+      <li><b>Milk</b> (unchurned) after the meal</li>
+      <li><b>Toddy</b>: unfermented palm wine</li>
+      <li><b>Rugs</b> without a fringe</li>
+      <li><b>Gold</b> &amp; silver (money). This one started it all.</li>
+    </ol>
+  </div>
+  <div class="box picture"><span class="lbl">Picture it: Ānanda's big night</span>
+    <p>Ānanda is the only one of the 500 who isn't yet an arahant. He meditates all night, and just as he lies down, before his head touches the pillow, he becomes enlightened. Next morning he walks in and recites every sutta. Upāli the former barber recites the rules.</p>
+  </div>
+  <h3>The 9 missions after the 3rd Council</h3>
+  <p>Only two really matter for this paper: <b>Mahinda → Laṅkā (Sri Lanka)</b> and <b>Soṇa &amp; Uttara → Suvaṇṇabhūmi</b> (“Golden Land”: Lower Myanmar or Thailand). Trick: <b>S</b>oṇa goes to <b>S</b>uvaṇṇabhūmi.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Monk</th><th>Region</th></tr></thead>
+    <tbody>
+      <tr><th>Majjhantika</th><td>Kashmir &amp; Gandhāra</td></tr>
+      <tr><th>Mahādeva</th><td>Mahisamaṇḍala (Mysore)</td></tr>
+      <tr><th>Rakkhita</th><td>Vanavāsī</td></tr>
+      <tr><th>Yonaka Dhammarakkhita</th><td>Aparanta (west coast)</td></tr>
+      <tr><th>Mahādhammarakkhita</th><td>Mahāraṭṭha</td></tr>
+      <tr><th>Mahārakkhita</th><td>Yona (Greek regions)</td></tr>
+      <tr><th>Majjhima</th><td>Himalayas</td></tr>
+      <tr><th>Soṇa &amp; Uttara</th><td>Suvaṇṇabhūmi</td></tr>
+      <tr><th>Mahinda</th><td>Laṅkā</td></tr>
+    </tbody>
+  </table></div>
+  <div class="outline" data-slot="q2a"></div>
+  <div class="outline" data-slot="q2b"></div>
+  <div class="outline" data-slot="q2c"></div>
+</section>
+
+<section class="lesson" id="q3">
+  <h2><small>Q3 · <span class="stars">★★★</span></small>Emperor Asoka</h2>
+  <p class="asked">Asked every year. Angles: “first monarch to govern by Buddhist teachings” (2025, 2022) · “a great gift to Buddhism” (2024) · spread beyond India (2023).</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>A king who loved fighting won a huge war at <b>Kalinga</b>. Then he saw about 100,000 people dead and felt terrible. So he changed from winning with <b>swords</b> to winning with <b>kindness</b> (<span class="pali">Dhammavijaya</span>). He wrote kind rules on rocks and pillars all over India, built hospitals even for animals, and sent teachers to other countries, including his own son and daughter.</p>
+    <p>Before: <b>Caṇḍāsoka</b> (Asoka the Fierce). After: <b>Dhammāsoka</b> (Asoka the Righteous).</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: Asoka spells DHAMMA</span>
+    <ul class="letters">
+      <li><b class="l">D</b> <b>Dhammavijaya</b>: conquest by righteousness after Kalinga (Rock Edict XIII)</li>
+      <li><b class="l">H</b> <b>Hospitals &amp; help</b>: for people and animals, wells, shade trees, rest houses (Rock Edict II)</li>
+      <li><b class="l">A</b> <b>Animals protected</b>: sacrifices banned, less killing in the royal kitchen</li>
+      <li><b class="l">M</b> <b>Messages in stone</b>: rock &amp; pillar edicts; Dhamma-mahāmattas (officers of righteousness); tolerance (Rock Edict XII)</li>
+      <li><b class="l">M</b> <b>Missions</b>: 9 missions, envoys to 5 Greek kings, Mahinda &amp; Saṅghamittā to Sri Lanka</li>
+      <li><b class="l">A</b> <b>Assembly &amp; stūpas</b>: sponsored the 3rd Council, 84,000 stūpas, pilgrimage to Lumbinī</li>
+    </ul>
+  </div>
+  <div class="box picture"><span class="lbl">Picture it: the novice who changed history</span>
+    <p>A calm young novice, <b>Nigrodha</b>, walks slowly past the palace window. The king is struck by how peaceful he is, calls him in, and hears the Dhamma. The Pāli chronicles say that's how Asoka's heart turned.</p>
+  </div>
+  <div class="outline" data-slot="q3"></div>
+</section>
+
+<section class="lesson" id="q4">
+  <h2><small>Q4 · <span class="stars">★★★</span></small>Arahant Mahinda's mission to Sri Lanka</h2>
+  <p class="asked">Asked every year. Angles: why Sri Lankans accepted it so quickly (2025, 2022) · his abilities (2023) · diplomacy and far-sightedness (2021) · reasons for success (2024).</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>Asoka sent his own son, the monk Mahinda, to Sri Lanka. Mahinda found King Devānampiya Tissa <b>out hunting a deer</b> on Mihintale hill, on the Poson full moon. Before teaching him, he asked a clever riddle to check the king was smart enough. The king passed, listened, and took refuge. And when the king says yes, the whole island follows.</p>
+  </div>
+  <div class="box picture"><span class="lbl">Picture it: the mango riddle</span>
+    <p>“What is this tree?” A mango. “Are there other mangoes?” Many. “Are there trees that aren't mangoes?” Many. “Besides the other mangoes and the non-mangoes, is there another?” <i>Yes, sir, this mango tree!</i> Then the same riddle about the king's relatives. Smart king: lesson can begin.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: your teacher's Five Rs (what he did)</span>
+    <ol>
+      <li><b>Royal acceptance</b>: converted the king first (Cūḷahatthipadopama Sutta), 40,000 followers took refuge</li>
+      <li><b>Reach the people</b>: simple stories for ordinary folk (Petavatthu, Vimānavatthu, Devadūta Sutta)</li>
+      <li><b>Royal residences</b>: the king gave Mahāmeghavana → the <b>Mahāvihāra</b>; caves at Mihintale</li>
+      <li><b>Rooting the Sāsana</b>: a <span class="pali">sīmā</span> boundary, local monks (Ariṭṭha), nuns via Saṅghamittā</li>
+      <li><b>Relics &amp; sacred objects</b>: the Buddha's collar-bone relic (Thūpārāma) and the Bodhi tree sapling</li>
+    </ol>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: why the island said yes so fast</span>
+    <span class="big">“Friendly Language Avoids Grudges, Pleases Kings.”</span>
+    <ul class="letters">
+      <li><b class="l">F</b> <b>Friendship</b> between Asoka and Tissa (gifts already exchanged)</li>
+      <li><b class="l">L</b> <b>Language</b> close to early Sinhala</li>
+      <li><b class="l">A</b> <b>Absence</b> of a strong rival religion (only folk beliefs)</li>
+      <li><b class="l">G</b> <b>Gentle</b> method: no force, local customs respected</li>
+      <li><b class="l">P</b> <b>Personality</b>: royal-born, wise, an arahant</li>
+      <li><b class="l">K</b> <b>King's</b> example: people follow the ruler</li>
+    </ul>
+  </div>
+  <div class="box eli5"><span class="lbl">The line examiners love</span>
+    <p>Mahinda said Buddhism would only be truly rooted when <b>a monk born in Sri Lanka, of Sri Lankan parents, learned the Vinaya here and recited it</b>. That's why Ariṭṭha's Vinaya recital at Thūpārāma is the moment the Sāsana took root.</p>
+  </div>
+  <div class="outline" data-slot="q4"></div>
+</section>
+
+<section class="lesson" id="q5">
+  <h2><small>Q5 · <span class="stars">★★★</span></small>Myanmar and King Anawrahta</h2>
+  <p class="asked">Asked every year. Angles: from the early missionaries up to Anawrahta (2025, 2023, 2021) · royal patronage (2024, 2022).</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>Buddhism visited Myanmar a few times, like guests dropping by. It moved in for good when a strong king, <b>Anawrahta</b>, met a wise Mon monk, <b>Shin Arahan</b>. The king asked the neighbouring Mon king for the holy books. He said no. So Anawrahta conquered Thaton and carried the books home on <b>32 elephants</b>.</p>
+  </div>
+  <h3>The story in order</h3>
+  <ul class="tl">
+    <li><span class="when">Legend</span> Merchants <b>Tapussa &amp; Bhalluka</b> bring hair relics → Shwedagon</li>
+    <li><span class="when">3rd C BCE</span> <b>Soṇa &amp; Uttara</b> to Suvaṇṇabhūmi (Thaton, Mon country)</li>
+    <li><span class="when">5th–9th C</span> <b>Pyu</b> kingdom: Pāli on gold plates. Upper Myanmar has the corrupt <b>Ari</b> monks</li>
+    <li><span class="when">1044–77</span> <b>Anawrahta</b>: Shin Arahan, conquers Thaton (1057), Shwezigon</li>
+    <li><span class="when">1084–1112</span> <b>Kyansittha</b>: Ānanda temple, repairs Bodhgayā</li>
+    <li><span class="when">1180s</span> <b>Chapata</b> returns from Sri Lanka → Sīhaḷa Saṅgha</li>
+    <li><span class="when">1472–92</span> <b>Dhammazedi</b>: Kalyāṇī sīmā, whole Saṅgha re-ordained</li>
+    <li><span class="when">1871</span> <b>Mindon</b>: 5th Council, Tipiṭaka on 729 marble slabs</li>
+    <li><span class="when">1954–56</span> 6th Council in Yangon under U Nu</li>
+  </ul>
+  <div class="box trick"><span class="lbl">Memory trick: what Anawrahta did</span>
+    <span class="big">“Shin Arahan Taught The Super Sovereign.”</span>
+    <ul class="letters">
+      <li><b class="l">S</b> <b>Shin Arahan</b> converted him</li>
+      <li><b class="l">A</b> <b>Ari</b> monks suppressed; Theravāda made the state religion</li>
+      <li><b class="l">T</b> <b>Thaton</b> conquered 1057: Tipiṭaka, monks, artisans, King Manuha</li>
+      <li><b class="l">T</b> <b>Texts &amp; Tooth relic</b> replica also obtained from Sri Lanka</li>
+      <li><b class="l">S</b> <b>Shwezigon</b> pagoda begun; Pagan becomes a city of temples</li>
+      <li><b class="l">S</b> <b>Sri Lanka helped</b>: sent monks to restore ordination there (Vijayabāhu I)</li>
+    </ul>
+  </div>
+  <div class="box trick"><span class="lbl">Kyansittha (the “new style of building” king)</span>
+    <p>Think “<b>Kind Successor finishes the job</b>”: <b>completed</b> the Shwezigon, built the <b>Ānanda</b> temple with bright interiors full of Jātaka scenes that drew ordinary people in, <b>purified</b> the Mon Tipiṭaka against the Sri Lankan copy, kept <b>harmony</b> with Mon culture and Mahāyāna, and repaired <b>Bodhgayā</b>.</p>
+  </div>
+  <div class="outline" data-slot="q5"></div>
+</section>
+
+<section class="lesson" id="q6">
+  <h2><small>Q6 · <span class="stars">★★★</span></small>Thailand: Sukhothai and Ayutthaya kings</h2>
+  <p class="asked">Asked every year. Sukhothai (2025, 2022) · Ayutthaya (2024, 2021) · history and influence today (2023).</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>Thai kings acted like Buddhism's <b>head prefects</b>. The <b>Sukhothai</b> kings ordered in the “Sri Lankan recipe” of Buddhism. The <b>Ayutthaya</b> kings kept it going for 400 years, and one of them even sent monks to rescue Sri Lanka when it ran out of monks.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Sukhothai: think RAM and LIT</span>
+    <p><b>Ram Khamhaeng</b> (c. 1279–1298) = <b>RAM</b>:</p>
+    <ul class="letters">
+      <li><b class="l">R</b> <b>Rock inscription</b> of 1292: “in the water there are fish, in the fields there is rice”</li>
+      <li><b class="l">A</b> <b>Araññika</b> forest monastery + <b>Laṅkāvaṃsa</b> monks invited from Nakhon Si Thammarat</li>
+      <li><b class="l">M</b> <b>Manangasila</b> stone throne for monks to preach on uposatha days. (Bonus: credited with the Thai script.)</li>
+    </ul>
+    <p><b>Lithai</b> (1347–1368) = <b>LIT</b>: <b>L</b>iterature (wrote the <i>Traiphum</i>, the “Three Worlds”), <b>I</b>nvited the Sri Lankan-trained monk Sumana, <b>T</b>emporarily ordained himself.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Ayutthaya (1351–1767): “Uncle Boon Sells Bananas”</span>
+    <ul class="letters">
+      <li><b class="l">U</b> <b>U Thong</b> (Ramathibodi I): founded Ayutthaya, Theravāda the state religion</li>
+      <li><b class="l">B</b> <b>Borommatrailokkanat</b>: ordained himself, Mahachat (Vessantara) in Thai, Wat Phra Si Sanphet</li>
+      <li><b class="l">S</b> <b>Songtham</b>: Buddha's footprint shrine at Saraburi, Tipiṭaka study</li>
+      <li><b class="l">B</b> <b>Borommakot</b>: sent Ven. Upāli to Kandy in <b>1753</b> → Siyam Nikāya in Sri Lanka</li>
+    </ul>
+    <p class="hook">After Ayutthaya fell to the Burmese (1767): Rama I's council (1788), Rama IV founds the Dhammayuttika (1833), Rama V's Saṅgha Act (1902).</p>
+  </div>
+  <div class="box eli5"><span class="lbl">Influence on Thai life today</span>
+    <p>The king must be Buddhist · Supreme Patriarch heads the Saṅgha · young men ordain temporarily · morning alms rounds · the wat is the village centre · holidays for Visakha, Asanha and Makha Bucha · values like <i>jai yen</i> (cool heart) · forest masters Ajahn Mun and Ajahn Chah.</p>
+  </div>
+  <div class="outline" data-slot="q6"></div>
+</section>
+
+<section class="lesson" id="q7">
+  <h2><small>Q7 · <span class="stars">★★★</span></small>Sri Lanka's exchanges with Thailand and Myanmar</h2>
+  <p class="asked">Asked every year, alternating: <b>Thailand</b> (2024, 2022, 2020) and <b>Myanmar</b> (2023, 2021). So prepare both.</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>To make a new monk, you need enough monks already there, at least 5. It's like a club where members vote in new members. If a country loses all its monks to war, <b>it can't make new ones</b>. So it borrows monks from a friend. Years later, the friend is in trouble and the favour goes back. It's a game of <b>ping-pong</b> that has kept the line of monks unbroken for 1,000 years.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the ping-pong scoreboard</span>
+    <div class="tw" style="margin-top:6px"><table>
+      <thead><tr><th>When</th><th>Who helps whom</th><th>What happened</th></tr></thead>
+      <tbody>
+        <tr><th>c. 1070</th><td>Myanmar → SL</td><td>Anawrahta sends monks &amp; texts to Vijayabāhu I after the Chola occupation</td></tr>
+        <tr><th>1180s</th><td>SL → Myanmar</td><td>Chapata ordained at the Mahāvihāra, founds the Sīhaḷa Saṅgha at Pagan</td></tr>
+        <tr><th>13th–15th C</th><td>SL → Thailand</td><td>Laṅkāvaṃsa monks to Sukhothai; Sumana; Thai monks re-ordained in SL (1423)</td></tr>
+        <tr><th>1476</th><td>SL → Myanmar</td><td>Dhammazedi's 22 monks re-ordained on the Kalyāṇī river → Kalyāṇī sīmā</td></tr>
+        <tr><th>1753</th><td>Thailand → SL</td><td>Upāli &amp; Ariyamuni to Kandy → <b>Siyam</b> Nikāya (Saraṇaṅkara as Saṅgharāja)</td></tr>
+        <tr><th>1800</th><td>Myanmar → SL</td><td>Ordination at Amarapura → <b>Amarapura</b> Nikāya</td></tr>
+        <tr><th>1864</th><td>Myanmar → SL</td><td>Ordination in the Mon country → <b>Rāmañña</b> Nikāya</td></tr>
+      </tbody>
+    </table></div>
+    <p>Sri Lanka's three big monk groups are named after <b>where the ordination came from</b>: <b>S-A-R</b> = Siam, Amarapura, Rāmañña, in date order (1753, 1800, 1864).</p>
+  </div>
+  <div class="outline" data-slot="q7a"></div>
+  <div class="outline" data-slot="q7b"></div>
+</section>
+
+<section class="lesson" id="q8">
+  <h2><small>Q8 · <span class="stars">★★★</span></small>Cambodia and Laos</h2>
+  <p class="asked">Cambodia &amp; Jayavarman VII (2025, 2023, 2021) · Laos &amp; Fa Ngum (2022, 2020) · influence on society, either country (2024).</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p><b>Cambodia:</b> a very kind Buddhist king, Jayavarman VII, built 102 hospitals and a temple covered in huge <b>smiling stone faces</b> (the “Angkor smiles”). His son went to Sri Lanka, became a monk, and brought Sri Lankan-style Buddhism home.</p>
+    <p><b>Laos:</b> a prince grew up in Cambodia and married a Buddhist princess. When he became king, she asked her father to send monks, books and a golden Buddha statue called the <b>Phra Bang</b>. The royal city was renamed after it: <b>Luang Prabang</b>.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Cambodia: Jayavarman VII (1181–c. 1218)</span>
+    <span class="big">“1-0-2 to get well, 1-2-1 to rest.”</span>
+    <p><b>102 hospitals</b> and <b>121 rest houses</b>. His inscription: “the suffering of the people was his own suffering.” He built Angkor Thom with the <b>Bayon</b> (smiling faces), <b>Ta Prohm</b> for his mother and <b>Preah Khan</b> for his father. Trick: <b>M</b>other = Ta Pro<b>hm</b>, <b>F</b>ather = Preah <b>Kh</b>an (“Papa Khan”).</p>
+    <p>His son <b>Tāmalinda</b> sailed with Chapata to Sri Lanka and brought back the Mahāvihāra lineage (c. 1190).</p>
+  </div>
+  <div class="box eli5"><span class="lbl">Cambodia after Jayavarman VII</span>
+    <p>The Chinese visitor <b>Zhou Daguan</b> saw yellow-robed monks (1296) · King <b>Srindravarman</b> left the first Pāli inscription (1309) · after Angkor fell (1431) Theravāda became the people's religion · two orders: Mohanikay and Thommayut (from Thailand, 1864) · Buddhist Institute (1930) · the Khmer Rouge (1975–79) nearly wiped out the Saṅgha · revived after 1979, now the state religion.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Laos: Fa Ngum (1353) and the kings after him</span>
+    <p><b>Lan Xang</b> = “Land of a Million Elephants.” Fa Ngum's Khmer wife <b>Keo Kengnya</b> asked for a mission led by <b>Mahāpāsamāna</b> Thera, with the Tipiṭaka and the <b>Phra Bang</b>.</p>
+    <p>Later kings: “<b>V</b>ery <b>P</b>ious <b>S</b>ons <b>S</b>hine”</p>
+    <ul class="letters">
+      <li><b class="l">V</b> <b>Visoun</b>: Wat Visoun, made the Phra Bang the kingdom's protector</li>
+      <li><b class="l">P</b> <b>Photisarath</b>: banned spirit worship, invited monks from Chiang Mai</li>
+      <li><b class="l">S</b> <b>Setthathirath</b>: moved capital to Vientiane, built <b>That Luang</b> and Wat Ho Phra Keo (Emerald Buddha)</li>
+      <li><b class="l">S</b> <b>Souligna Vongsa</b>: the golden age of learning</li>
+    </ul>
+  </div>
+  <div class="box eli5"><span class="lbl">Influence on daily life (both countries)</span>
+    <p><b>Laos:</b> morning alms (<i>tak bat</i>) in Luang Prabang · temporary ordination · Boun That Luang, Boun Pi Mai, Boun Ok Phansa boat races · the baci ceremony · That Luang on the national emblem.</p>
+    <p><b>Cambodia:</b> Pchum Ben (ancestors' festival) · Visak Bochea · Khmer New Year · temples as schools · Angkor Wat on the flag.</p>
+  </div>
+  <div class="outline" data-slot="q8a"></div>
+  <div class="outline" data-slot="q8b"></div>
+</section>
+
+<section class="lesson" id="q9">
+  <h2><small>Q9 · <span class="stars">★★</span></small>Decline of Buddhism, and how to keep it alive</h2>
+  <p class="asked">India (2024, 2022) · Sri Lanka under colonial rule (2023) · <b>“one country”</b> plus preservation today (2025).</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>Think of a big tree. First it went <b>rotten inside</b>: it split into many groups, started to look just like Hinduism, and the monks lived in big rich monasteries far from ordinary people. Then a <b>storm</b> hit: invaders burnt Nālandā. With no strong roots (lay people) to regrow, the tree fell. The lesson: keep the roots strong.</p>
+  </div>
+  <div class="box trick"><span class="lbl">India: Buddhism got SLIM, then hit by BPM</span>
+    <p><b>Inside (SLIM-D):</b></p>
+    <ul class="letters">
+      <li><b class="l">S</b> <b>Sects</b>: 18 schools, then Mahāyāna and Vajrayāna</li>
+      <li><b class="l">L</b> <b>Lost identity</b>: Tantric rituals; Hindus called the Buddha an avatar of Vishnu</li>
+      <li><b class="l">I</b> <b>Isolated</b> monasteries, far from lay people</li>
+      <li><b class="l">M</b> <b>Moral</b> decline in parts of the Saṅgha</li>
+      <li><b class="l">D</b> <b>Dependence</b> on kings</li>
+    </ul>
+    <p><b>Outside (BPM):</b></p>
+    <ul class="letters">
+      <li><b class="l">B</b> <b>Brahmanical revival</b>: Śaṅkarācārya, Kumārila, Bhakti movement</li>
+      <li><b class="l">P</b> <b>Persecution</b>: Pushyamitra Śuṅga, Mihirakula, Śaśāṅka (cut the Bodhi tree)</li>
+      <li><b class="l">M</b> <b>Muslim invasions</b>: Bakhtiyar Khilji destroys Nālandā (c. 1193) and Vikramaśilā (c. 1203)</li>
+    </ul>
+  </div>
+  <div class="box trick"><span class="lbl">Any Theravāda country (2026 lesson): 4 reasons</span>
+    <span class="big">“Kings Went, Wars Came, Colonisers Conquered, Competitors Crept.”</span>
+    <ol>
+      <li><b>Kings went:</b> loss of royal patronage, or hostile kings (Rājasiṃha I of Sri Lanka, Jayavarman VIII of Angkor, the Khmer Rouge)</li>
+      <li><b>Wars came:</b> Chola invasions of Sri Lanka (hard to find 5 monks by the 11th century), Ayutthaya sacked in 1767</li>
+      <li><b>Colonisers conquered:</b> Portuguese, Dutch, British in Sri Lanka; British ended Myanmar's monarchy (1885); French in Cambodia</li>
+      <li><b>Competitors crept:</b> Hinduism absorbed Buddhism in India; Christianity offered jobs and schooling in colonial Sri Lanka</li>
+    </ol>
+  </div>
+  <div class="box trick"><span class="lbl">Sri Lanka version (colonial rule and revival)</span>
+    <p><b>P-D-B</b> came in alphabetical order too: <b>P</b>ortuguese (1505, temples destroyed) → <b>D</b>utch (1658, jobs only for Christians) → <b>B</b>ritish (1796/1815, promised protection then withdrew it). By the 1750s no fully ordained monks were left.</p>
+    <p><b>Revival:</b> Siam Nikāya (1753) · Vidyodaya (1873) &amp; Vidyālaṅkāra (1875) colleges · Panadura debate (1873) · Colonel Olcott's schools (1880) · Buddhist flag &amp; Vesak holiday (1885) · Anagārika Dharmapāla.</p>
+  </div>
+  <div class="box eli5"><span class="lbl">How to keep Buddhism alive today (always end with this)</span>
+    <p>Your teacher's four words: <b>Learn, Practise, Support, Propagate</b>.</p>
+    <ul>
+      <li><b>Learn</b> the original teachings and check claims against the suttas (Mahāpadesa Sutta)</li>
+      <li><b>Practise</b> so you know for yourself and become a role model</li>
+      <li><b>Support</b> temples, monks and Dhamma schools with time and resources: “be the Anāthapiṇḍika of your time”</li>
+      <li><b>Propagate</b>: talks, books, websites, social media, adapting to local culture while respecting other religions</li>
+    </ul>
+    <p class="hook">Also: keep the lay community strong, keep the Saṅgha disciplined, stay united, don't rely only on the state, do social service.</p>
+  </div>
+  <div class="outline" data-slot="q9"></div>
+</section>
+
+<section class="lesson" id="sg">
+  <h2><small>New in 2026 · short note</small>Buddhism in Singapore</h2>
+  <p class="asked">“Influence of Buddhism in Singapore” was a 2025 short note. It can also help a “preservation today” answer.</p>
+  <div class="box eli5"><span class="lbl">Like I'm 5</span>
+    <p>Singapore is a port where everyone stops. Chinese, Burmese, Thai, Sri Lankan and Tibetan Buddhists each built a temple here, so <b>all three traditions</b> (Theravāda, Mahāyāna, Vajrayāna) live side by side. About <b>31%</b> of people are Buddhist, the biggest religion.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: two waves, one temple per country</span>
+    <p><b>1st wave</b> (from the 1st century CE): traders between India, Malaya and China. <b>2nd wave</b> (late 1800s): monks passing through and immigrants founding temples.</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Tradition</th><th>Temple</th><th>Hook</th></tr></thead>
+    <tbody>
+      <tr><th>Myanmar</th><td>Burmese Buddhist Temple, 1875</td><td class="hook">The oldest on this list</td></tr>
+      <tr><th>Chinese</th><td>Lian Shan Shuang Lin, 1898</td><td class="hook">Ven. Xian-Hui + Low Kim Pong</td></tr>
+      <tr><th>Chinese</th><td>Kong Meng San Phor Kark See, 1921</td><td class="hook">Largest; Ven. Zhuan Dao; Buddhist College</td></tr>
+      <tr><th>Thai</th><td>Wat Ananda Metyarama, 1920s</td><td class="hook">Bukit Merah</td></tr>
+      <tr><th>Thai</th><td>Sakya Muni Buddha Gaya, 1927</td><td class="hook">“Temple of 1,000 Lights”</td></tr>
+      <tr><th>Sri Lankan</th><td>Mangala Vihara, 1960</td><td class="hook">Ven. M. M. Mahāweera; BPCS college (1993)</td></tr>
+      <tr><th>Thai</th><td>Palelai, 1963</td><td class="hook">Named after the Pārileyyaka forest</td></tr>
+      <tr><th>Tibetan</th><td>Karma Kagyud (1981), Amitabha Centre (1989), Sakya Tenphel Ling (1995)</td><td class="hook">Kagyu, Gelug, Sakya</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box eli5"><span class="lbl">Influence in Singapore</span>
+    <p>Vesak is a public holiday · temples run schools, colleges, free clinics and welfare · Dhamma classes in English · alms rounds adapted to local laws (at set places or inside temple grounds) · the traditions co-operate in interfaith harmony.</p>
+  </div>
+</section>
+
+<section class="lesson" id="q10">
+  <h2><small>Q10 · <span class="stars">★★★</span></small>Short notes (pick 4 of 6)</h2>
+  <p>About 150 to 200 words each. Use <b>Who · When/Where · 2 key facts · Why it matters</b>. Tap a name, try to say the facts out loud <i>before</i> you open it.</p>
+  <div class="box trick"><span class="lbl">Watch out: two monks called Yasa</span>
+    <p><b>Yasa</b> (the rich young man of Benares, 6th arahant) is from the Buddha's time. <b>Yasa Kākaṇḍakaputta</b> started the 2nd Council 100 years later. The 2025 note “Venerable Yasa” means the first one.</p>
+  </div>
+  <div class="notes" id="notes"></div>
+</section>
+</main>
+
+<!-- ================= CARDS ================= -->
+<main id="cards" role="tabpanel" hidden>
+  <p style="margin-top:20px">Pick a deck and tap the card to flip it. Be honest: <b>Again</b> puts the card back in the pile, <b>Got it</b> removes it.</p>
+  <div class="chips" id="deckChips"></div>
+  <div class="meta"><span id="fcCount"></span><span id="fcDeckName"></span></div>
+  <div class="progress"><i id="fcBar"></i></div>
+  <div class="card" id="fcCard" tabindex="0" role="button" aria-label="Flip card"></div>
+  <div class="fcbar">
+    <button class="again" id="fcAgain" type="button">Again</button>
+    <button class="got" id="fcGot" type="button">Got it</button>
+  </div>
+</main>
+
+<!-- ================= QUIZ ================= -->
+<main id="quiz" role="tabpanel" hidden>
+  <p style="margin-top:20px">10 random questions. Every answer comes with its memory trick, so you learn while you test.</p>
+  <div class="chips" id="quizChips"></div>
+  <div id="quizArea"></div>
+</main>
+
+<!-- ================= ESSAYS ================= -->
+<main id="essay" role="tabpanel" hidden>
+  <p style="margin-top:20px">Real past-year questions. Read it, start the timer and jot your outline on paper in <b>5 minutes</b>, like in the exam. Then compare with the outline.</p>
+  <div class="chips" id="essayChips"></div>
+  <div id="essayArea"></div>
+</main>
+</div>
+
+<script>
+(function(){
+/* ---------- helpers ---------- */
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function load(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function chipRow(box,names,current,onPick){
+  box.innerHTML='';
+  names.forEach(function(k){var b=document.createElement('button');b.type='button';b.textContent=k;b.setAttribute('aria-pressed',k===current?'true':'false');
+    b.addEventListener('click',function(){box.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});onPick(k);});box.appendChild(b);});
+}
+
+/* ---------- answer outlines (used in Learn and Essays) ---------- */
+var OUTLINE={
+ q1:{t:'Q1 · Spread in the Buddha\'s time',
+  i:'Enlightened at Bodhgayā at 35, taught 45 years in the Ganges valley. Grew from 5 disciples to a large Saṅgha with royal, merchant and lay support, thanks to the conditions of 6th-century BCE India and the Buddha himself.',
+  b:['<b>Caste:</b> all welcome (Upāli, Sunīta); worth by conduct, not birth (Vāseṭṭha Sutta)','<b>Cities &amp; merchants:</b> Anāthapiṇḍika (Jetavana), Visākhā (Pubbārāma); Tapussa &amp; Bhalluka; trade routes','<b>Kings:</b> Bimbisāra (Veḷuvana, first monastery), Pasenadi of Kosala','<b>Women:</b> Bhikkhunī Order, women can be arahants (Mahāpajāpatī, Khemā)','<b>Against ritualism:</b> no animal sacrifice (Kūṭadanta Sutta), no priestly monopoly','<b>Religious ferment:</b> six teachers, 62 views; the clear Middle Path stood out','<b>The Buddha\'s personality:</b> compassion, skill in teaching (Kisā Gotamī, Aṅgulimāla), royal birth','<b>Rational teaching:</b> ehipassiko, Kālāma Sutta, addresses universal suffering','<b>Vernacular:</b> taught in Māgadhī, not Sanskrit','<b>Missionary Saṅgha:</b> 60 arahants sent out; Kassapa brothers (1,000), Sāriputta &amp; Moggallāna (250); Vinaya earned respect'],
+  c:'Favourable social and religious conditions plus the unique Buddha and his inclusive, rational teaching. These foundations made its later spread across India and beyond possible.'},
+ q2a:{t:'Q2 · First Council',
+  i:'Three months after the Parinibbāna at Kusinārā, nothing written down, risk of the teaching being lost or corrupted.',
+  b:['<b>Causes:</b> Subhadda\'s remark; “the Dhamma and Vinaya will be your teacher”; fear of wrong views','<b>Details:</b> Sattapaṇṇi cave, Rājagaha · patron Ajātasattu · president Mahākassapa · 500 arahants · 7 months','<b>Proceedings:</b> Upāli questioned on Vinaya, Ānanda on suttas (arahant the night before)','<b>Issues:</b> minor rules all kept; Ānanda\'s faults; brahmadaṇḍa on Channa; Purāṇa kept his own version','<b>Preservation:</b> canon fixed → basis of the Tipiṭaka; bhāṇaka reciters; written at Aluvihāra, Sri Lanka, 1st C BCE','<b>Propagation:</b> unity after the Teacher\'s death; “Theravāda” = teaching of these elders; model for later councils'],
+  c:'Turned spoken words into an authoritative canon. Every later spread of Theravāda rests on its work.'},
+ q2b:{t:'Q2 · Second Council',
+  i:'About 100 years after the Parinibbāna, the Vajjian monks of Vesālī practised 10 points that broke the Vinaya.',
+  b:['<b>The 10 points</b> (Sally\'s Sunny Village…), above all accepting gold and silver','<b>Spark:</b> Yasa Kākaṇḍakaputta protests, is punished, seeks support from Sambhūta, Revata, Sabbakāmī','<b>Details:</b> Vālukārāma, Vesālī · King Kālāsoka · 700 arahants · 8 months','<b>Method:</b> committee (ubbāhikā) of 8, 4 East + 4 West; Revata asks, Sabbakāmī answers','<b>Outcome:</b> all 10 points rejected; Dhamma and Vinaya recited again','<b>Significance:</b> Vinaya purity (no money); democratic settling of disputes; first schism → Mahāsāṅghika vs Sthaviravāda → 18 schools, later Mahāyāna'],
+  c:'Protected the discipline, but also marked the first division. Theravāda\'s strict character comes from the elders of Vesālī.'},
+ q2c:{t:'Q2 · Third Council',
+  i:'Pāṭaliputta, about 236 years after the Parinibbāna (c. 250 BCE), under Emperor Asoka.',
+  b:['<b>Cause:</b> fake monks joined for Asoka\'s gifts; no uposatha together for 7 years; a minister killed monks','<b>Details:</b> Asokārāma · Moggaliputta Tissa · 1,000 arahants · 9 months','<b>Purification:</b> “What did the Buddha teach?” → Vibhajjavāda; about 60,000 expelled','<b>Canon:</b> Kathāvatthu added → Theravāda Tipiṭaka complete','<b>9 missions:</b> Mahinda → Laṅkā; Soṇa &amp; Uttara → Suvaṇṇabhūmi; others to Kashmir, Greek lands, Himalayas','<b>Role of the Saṅgha:</b> purified itself, defined orthodoxy, then sent missionaries'],
+  c:'Turned Buddhism from an Indian religion into an international one, so it survived in Sri Lanka and South-East Asia after fading in India.'},
+ q3:{t:'Q3 · Emperor Asoka',
+  i:'Third Mauryan emperor (c. 268–232 BCE), grandson of Chandragupta, capital Pāṭaliputta. Caṇḍāsoka became Dhammāsoka after the Kalinga war. The greatest royal patron in Buddhist history.',
+  b:['<b>Conversion:</b> novice Nigrodha; remorse after Kalinga (100,000 killed, Rock Edict XIII)','<b>Dhammavijaya:</b> conquest by righteousness instead of the sword','<b>Edicts &amp; officers:</b> rock and pillar edicts in Prakrit; Dhamma-mahāmattas; tolerance (Rock Edict XII)','<b>Welfare:</b> hospitals for people and animals, wells, trees, rest houses (Rock Edict II); animal sacrifice banned','<b>Saṅgha:</b> 84,000 stūpas; 3rd Council; Bhābrū and Schism edicts; Mahinda and Saṅghamittā ordained','<b>Beyond India:</b> 9 missions; envoys to 5 Greek kings; Sri Lanka (Devānampiya Tissa, Bodhi sapling)'],
+  c:'Turned a regional religion into a world religion and set the model of the righteous Buddhist king. Truly “a great gift to Buddhism”.'},
+ q4:{t:'Q4 · Mahinda in Sri Lanka',
+  i:'Son of Asoka, ordained at 20 under Moggaliputta Tissa, an arahant. Arrived at Mihintale on Poson full moon (c. 250 BCE) with Iṭṭhiya, Uttiya, Sambala, Bhaddasāla, novice Sumana and lay follower Bhaṇḍuka.',
+  b:['<b>Royal acceptance:</b> mango riddle, Cūḷahatthipadopama Sutta; king + 40,000 take refuge','<b>Reach the people:</b> Petavatthu, Vimānavatthu, Devadūta Sutta','<b>Royal residences:</b> Mahāmeghavana → Mahāvihāra; 68 caves at Mihintale; Thūpārāma (collar-bone relic)','<b>Rooting the Sāsana:</b> sīmā; Ariṭṭha + 55 ordained; Ariṭṭha recites the Vinaya','<b>Relics:</b> Saṅghamittā brings the Bodhi sapling, ordains Queen Anulā → Bhikkhunī Order','<b>Culture:</b> Tipiṭaka and commentaries in Sinhala, literacy, architecture, education, Poson and Vesak','<b>Why so fast (FLAG-PK):</b> friendship, language, no rival religion, gentle method, personality, king\'s example'],
+  c:'Wisdom, diplomacy and far-sightedness made Sri Lanka the guardian of Theravāda, which later passed it to Myanmar, Thailand, Cambodia and Laos.'},
+ q5:{t:'Q5 · Myanmar',
+  i:'One of the strongest Theravāda countries. Buddhism came in waves, but was firmly established by royal patronage, above all King Anawrahta of Pagan (11th C).',
+  b:['<b>Early arrival:</b> Tapussa &amp; Bhalluka (hair relics, Shwedagon); Soṇa &amp; Uttara to Thaton','<b>Evidence:</b> Pyu gold plates in Pāli; Mon Thaton a centre of learning; Ari monks in the north','<b>Anawrahta (1044–77):</b> Shin Arahan; Ari suppressed; Thaton conquered 1057 (Tipiṭaka on 32 elephants)','<b>Anawrahta and Sri Lanka:</b> texts and Tooth relic replica received; monks sent to restore SL ordination; Shwezigon begun','<b>Later kings:</b> Kyansittha (Ānanda temple, Bodhgayā), Narapatisithu (Chapata), Dhammazedi (Kalyāṇī sīmā), Mindon (5th Council, 729 slabs)','<b>Why patronage drove it:</b> texts, monks, pagodas, purification, councils, national identity','<b>Today:</b> about 90% Buddhist; shinbyu novice ceremony; monastery schools; Abhidhamma; Mahasi and Ledi Sayadaw'],
+  c:'Merchants and missionaries brought it early, but royal patronage, above all Anawrahta, made Theravāda the national religion.'},
+ q6:{t:'Q6 · Thailand',
+  i:'About 95% of Thais are Buddhist and the king must be Buddhist. Theravāda became the state religion through Sukhothai (13th–15th C) and Ayutthaya (1351–1767) kings who adopted the Sri Lankan form.',
+  b:['<b>Background:</b> Mon Dvāravatī (dharmacakra wheels, Nakhon Pathom); Khmer Mahāyāna influence','<b>Ram Khamhaeng (RAM):</b> 1292 inscription, Laṅkāvaṃsa monks, Manangasila throne, Thai script','<b>Lithai (LIT):</b> Traiphum, invited Sumana, ordained himself; walking-Buddha art','<b>U Thong:</b> founded Ayutthaya, state religion','<b>Borommatrailokkanat &amp; Songtham:</b> ordination, Mahachat; Saraburi footprint, Tipiṭaka study','<b>Borommakot:</b> Upāli to Kandy 1753 → Siyam Nikāya','<b>Saṅgha administration:</b> Supreme Patriarch; town and forest monks; Rama V\'s 1902 Act','<b>Today:</b> temporary ordination, alms rounds, wat as community centre, Bucha holidays'],
+  c:'Sukhothai and Ayutthaya kings made Theravāda the foundation of the Thai state and culture, and it still shapes all of Thai life.'},
+ q7a:{t:'Q7 · Sri Lanka ↔ Thailand',
+  i:'Over 700 years of ties. Each country helped the other when Buddhism was weak, preserving a pure Theravāda lineage in both.',
+  b:['<b>SL → TH:</b> Laṅkāvaṃsa monks at Nakhon Si Thammarat, invited to Sukhothai by Ram Khamhaeng','<b>SL → TH:</b> Lithai invites Sumana; Thai monks re-ordained in SL in 1423 → Sīhaḷa sect','<b>SL → TH:</b> texts, relics, Bodhi saplings, bell-shaped chedi, Phra Buddha Sihing (legend)','<b>TH → SL:</b> by the 1700s no fully ordained monks, only novices (gaṇinnānse)','<b>TH → SL:</b> Saraṇaṅkara + King Kīrti Śrī Rājasiṃha ask Borommakot; Upāli &amp; Ariyamuni arrive 1753','<b>Result:</b> Siyam Nikāya (Malwatta and Asgiriya), still the largest; Thai influence on the Esala Perahera','<b>Today:</b> students in each other\'s universities, relic exchanges, World Fellowship of Buddhists'],
+  c:'Sri Lanka gave Thailand the Mahāvihāra tradition; centuries later Thailand returned the gift. Mutual help preserved the Dhamma in both.'},
+ q7b:{t:'Q7 · Sri Lanka ↔ Myanmar',
+  i:'For about 1,000 years each has helped the other restore ordination, obtain texts and purify the Saṅgha.',
+  b:['<b>MM → SL (c. 1070):</b> after the Chola occupation, Vijayabāhu I asks Anawrahta; monks and texts sent','<b>SL → MM:</b> Tipiṭaka copies and Tooth relic replica to Anawrahta (Shwezigon)','<b>SL → MM (1180s):</b> Chapata, ordained at the Mahāvihāra, founds the Sīhaḷa Saṅgha (with Tāmalinda)','<b>SL → MM (1476):</b> Dhammazedi\'s monks re-ordained at Kalyāṇī → Kalyāṇī sīmā, whole Saṅgha unified','<b>MM → SL (1800):</b> non-Goyigama monks ordained at Amarapura → Amarapura Nikāya','<b>MM → SL (1864):</b> Ñāṇasāmi ordained in the Mon country → Rāmañña Nikāya (strict discipline)','<b>Scholarship:</b> Pāli and Abhidhamma; 6th Council; Burmese meditation in SL today'],
+  c:'Whenever one Saṅgha weakened, the other restored it, keeping the Theravāda lineage unbroken in both.'},
+ q8a:{t:'Q8 · Cambodia',
+  i:'Today a Theravāda country, about 95% Buddhist, Buddhism the state religion. Its history includes Hinduism and Mahāyāna; kings, especially Jayavarman VII, prepared the way.',
+  b:['<b>Funan &amp; Chenla:</b> Indianised kingdoms; monks Saṅghapāla and Mandrasena went to China','<b>Angkor:</b> Jayavarman II\'s god-king cult (802); Suryavarman I tolerant of Buddhism','<b>Jayavarman VII:</b> Buddhism the state religion; Angkor Thom, Bayon, Ta Prohm, Preah Khan','<b>Welfare:</b> 102 hospitals, 121 rest houses; “the people\'s suffering was his own”','<b>Theravāda link:</b> son Tāmalinda ordained in Sri Lanka, returns c. 1190','<b>People\'s religion:</b> Zhou Daguan (1296), Srindravarman\'s Pāli inscription (1309), after 1431','<b>Modern:</b> Mohanikay and Thommayut; Khmer Rouge 1975–79; revival; festivals like Pchum Ben'],
+  c:'Jayavarman VII\'s patronage and welfare made Buddhism the heart of Khmer civilisation; Theravāda has survived even the Khmer Rouge.'},
+ q8b:{t:'Q8 · Laos',
+  i:'Landlocked, about two-thirds Buddhist. Theravāda was established when Fa Ngum founded Lan Xang (“Land of a Million Elephants”) in 1353. Sources: Lao chronicles (Nithan Khun Borom) and inscriptions.',
+  b:['<b>Before:</b> Mon and Khmer influence alongside spirit (phi) worship','<b>Fa Ngum:</b> raised at Angkor, married Khmer princess Keo Kengnya, founded Lan Xang 1353','<b>The mission:</b> Mahāpāsamāna Thera with the Tipiṭaka and the Phra Bang → Luang Prabang','<b>Later kings:</b> Visoun, Photisarath (banned spirit worship), Setthathirath (Vientiane, That Luang, Emerald Buddha), Souligna Vongsa','<b>Modern:</b> French era Buddhist Institute; Pathet Lao 1975 controls the Saṅgha; later accepted as national culture','<b>Influence today:</b> tak bat alms, temporary ordination, temples as schools, Boun festivals, baci ceremony'],
+  c:'Brought by Fa Ngum\'s royal mission and strengthened by the Lan Xang kings, Theravāda remains the soul of Lao life despite colonialism and communism.'},
+ q9:{t:'Q9 · Decline and preservation',
+  i:'Buddhism flourished in India for about 1,700 years (Nālandā, Vikramaśilā), yet had almost vanished by the 13th century, through internal and external causes. These hold lessons for today.',
+  b:['<b>Sects:</b> 18 schools, then Mahāyāna and Vajrayāna','<b>Lost identity:</b> Tantric rituals; Buddha as an avatar of Vishnu','<b>Isolated, wealthy monasteries</b> without a strong lay base; dependence on kings','<b>Brahmanical revival:</b> Śaṅkarācārya, Kumārila, Bhakti','<b>Persecution:</b> Pushyamitra Śuṅga, Mihirakula, Śaśāṅka','<b>Invasions:</b> Bakhtiyar Khilji destroys Nālandā (c. 1193) and Vikramaśilā (c. 1203); monks flee to Tibet and Nepal','<b>Lessons:</b> Learn, Practise, Support, Propagate; strong laity, disciplined Saṅgha, unity, social service, modern media','<b>Revival:</b> Dharmapāla\'s Maha Bodhi Society (1891); Ambedkar\'s conversion (1956)'],
+  c:'Buddhism survives when the Saṅgha is disciplined, the laity educated and engaged, and the Dhamma presented clearly to every generation.'}
+};
+function outlineHTML(o){
+  return '<span class="lbl">Answer outline · '+o.t+'</span><h4>Introduction</h4><p>'+o.i+'</p><h4>Body: one paragraph each</h4><ol>'+o.b.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ol><h4>Conclusion</h4><p>'+o.c+'</p>';
+}
+document.querySelectorAll('.outline[data-slot]').forEach(function(el){el.innerHTML=outlineHTML(OUTLINE[el.dataset.slot]);});
+
+/* ---------- short notes ---------- */
+var NOTES=[
+ {n:'Ven. Sāriputta',k:'Chief disciple of the right hand',f:['Brahmin Upatissa from Nālaka, follower of Sañjaya','Converted by Assaji\'s verse “ye dhammā hetuppabhavā…”','Foremost in wisdom, “General of the Dhamma”','Arahant two weeks after ordination; died before the Buddha']},
+ {n:'Ven. Moggallāna',k:'Chief disciple of the left hand',f:['Sāriputta\'s childhood friend, converted through him','Foremost in psychic powers','Arahant seven days after ordination','Killed by bandits hired by rival ascetics (past kamma)']},
+ {n:'Ven. Ānanda',k:'The Buddha\'s attendant for 25 years',f:['The Buddha\'s cousin','Foremost in learning and memory','Pleaded for the ordination of women','Became arahant the night before the 1st Council and recited the suttas']},
+ {n:'Ven. Upāli',k:'The barber who became master of the rules',f:['Barber of the Sakyan princes, ordained before them to humble their pride','Foremost in Vinaya','Recited the Vinaya at the 1st Council','Symbol of equality in the Saṅgha']},
+ {n:'Ven. Mahākassapa',k:'President of the 1st Council',f:['Brahmin who renounced with his wife Bhaddā Kāpilānī','Foremost in ascetic practices (dhutaṅga); exchanged robes with the Buddha','Called the 1st Council after Subhadda\'s remark','“Father of the Saṅgha” after the Buddha']},
+ {n:'Ven. Yasa',k:'Rich young man of Benares (2025 note)',f:['Son of a wealthy merchant; left his luxurious home at night','Heard the Buddha at Isipatana and became the 6th arahant','His parents became the first lay followers to take the Triple Refuge','54 of his friends followed him: 60 arahants sent out to teach']},
+ {n:'Mahāpajāpatī Gotamī',k:'First bhikkhunī',f:['The Buddha\'s aunt and foster mother','Asked three times; walked with 500 Sakyan women to Vesālī','Ānanda interceded; she accepted the 8 garudhammas','Founded the Bhikkhunī Order; became an arahant']},
+ {n:'Khemā Therī',k:'Bimbisāra\'s favourite queen who became a nun',f:['Chief queen of King Bimbisāra, proud of her beauty','The Buddha showed her a vision of beauty fading','Became an arahant, chief female disciple of the right hand','Foremost in wisdom among nuns']},
+ {n:'Visākhā',k:'Chief female lay supporter (2025 note)',f:['Stream-enterer at age 7; lived in Sāvatthī','Built the Pubbārāma (Migāramātu-pāsāda)','Asked for 8 boons, e.g. rains robes and medicine for the Saṅgha','Model of the generous, wise laywoman']},
+ {n:'Veḷuvana',k:'The Bamboo Grove (2025 note)',f:['At Rājagaha, capital of Magadha','Donated by King Bimbisāra','The first monastery given to the Saṅgha','Where Sāriputta and Moggallāna joined; uposatha began here']},
+ {n:'Jetavana',k:'Where the Buddha spent the most rains',f:['At Sāvatthī, Kosala','Bought by Anāthapiṇḍika by covering the ground with gold coins','The Buddha spent 19 rains retreats here','Many suttas were taught here']},
+ {n:'Lumbinī',k:'Birthplace',f:['Prince Siddhattha born under a sāla tree (now Nepal)','Queen Mahāmāyā was travelling to Devadaha','Asoka\'s pillar: “here the Buddha was born”, village tax reduced','UNESCO site; one of the 4 pilgrimage places']},
+ {n:'Bodhgayā',k:'Place of Enlightenment',f:['Enlightenment under the Bodhi tree, Vesak full moon, age 35','Mahābodhi temple and the Vajirāsana','Restored through Dharmapāla\'s Maha Bodhi Society (1891)','Holiest Buddhist site; UNESCO']},
+ {n:'Sārnāth (Isipatana)',k:'First sermon',f:['Deer park near Vārāṇasī','Dhammacakkappavattana Sutta to the 5 ascetics','The first Saṅgha formed here','Dhamek stūpa; Asoka\'s lion capital = India\'s emblem']},
+ {n:'Kusinārā',k:'Place of Parinibbāna',f:['Between twin sāla trees, Malla country, age 80','Last words: “vayadhammā saṅkhārā, appamādena sampādetha”','Subhadda the last disciple ordained here','Relics divided into 8 by Doṇa']},
+ {n:'King Bimbisāra',k:'King of Magadha',f:['Capital Rājagaha; offered the Bodhisatta half his kingdom before enlightenment','Stream-enterer after hearing the Buddha','Gave Veḷuvana; suggested the uposatha','Imprisoned and killed by his son Ajātasattu']},
+ {n:'King Pasenadi',k:'King of Kosala',f:['Capital Sāvatthī; same age as the Buddha','Converted through Queen Mallikā','Many talks with the Buddha (Kosala Saṃyutta)','Overthrown by his son Viḍūḍabha']},
+ {n:'1st Council',k:'Preserve the teaching',f:['3 months after Parinibbāna, Sattapaṇṇi cave, Rājagaha','Ajātasattu; Mahākassapa; 500 arahants; 7 months','Upāli: Vinaya. Ānanda: suttas','Canon fixed; bhāṇaka reciters']},
+ {n:'2nd Council & 10 points',k:'Protect the discipline',f:['100 years later, Vālukārāma, Vesālī; Kālāsoka; 700 arahants','Yasa Kākaṇḍakaputta objects to monks taking money','10 points rejected by a committee of 8 (Revata, Sabbakāmī)','First schism: Mahāsāṅghika']},
+ {n:'Mahāsāṅghika school',k:'The “Great Assembly”',f:['Split from the elders after the 2nd Council','Over the 10 points and the nature of arahants (Mahādeva\'s 5 points)','More liberal, open to lay followers','Forerunner of Mahāyāna ideas']},
+ {n:'Dhammavijaya',k:'Asoka\'s conquest by righteousness',f:['Adopted after the Kalinga war (Rock Edict XIII)','Spreading morality, welfare and goodwill instead of war','Dhamma envoys to Greek and neighbouring kingdoms','Ideal of the righteous king (cakkavatti)']},
+ {n:'Theri Saṅghamittā',k:'Brought the Bodhi tree',f:['Daughter of Asoka, an arahant nun','Came at Mahinda\'s request with the Bodhi sapling','Ordained Queen Anulā and 500 women','Founded the Bhikkhunī Order in Sri Lanka; Unduvap full moon']},
+ {n:'Mahāvihāra',k:'Centre of Theravāda orthodoxy',f:['In the Mahāmeghavana park given to Mahinda','Buddhaghosa wrote the commentaries here (5th C)','Its monks wrote the Tipiṭaka down at Aluvihāra (1st C BCE)','Source of the lineage taken to Myanmar, Thailand, Cambodia, Laos']},
+ {n:'Abhayagiri Vihāra',k:'The rival monastery',f:['Founded by King Vaṭṭagāmaṇī Abhaya (1st C BCE)','More liberal, open to Mahāyāna ideas','Visited by the Chinese pilgrim Faxian (5th C)','Reunited with the Mahāvihāra under Parākramabāhu I (12th C)']},
+ {n:'Prince Vijaya',k:'Legendary founder of the Sinhala people',f:['Landed at Tambapaṇṇi on the day of the Parinibbāna (Mahāvaṃsa)','The Buddha asked Sakka to protect him and the island','“Where my teaching will be established”','Basis of Sri Lanka as Dhammadīpa']},
+ {n:'King Anawrahta',k:'Founder of Pagan (1044–1077)',f:['Converted by Shin Arahan; suppressed the Ari monks','Conquered Thaton (1057) for the Tipiṭaka','Began the Shwezigon','Helped Sri Lanka restore ordination']},
+ {n:'Shin Arahan',k:'The Mon monk who converted Anawrahta',f:['From Thaton','Became the first primate of Pagan','Guided the suppression of the Ari monks','Adviser to Kyansittha']},
+ {n:'King Kyansittha',k:'Pagan (1084–1112)',f:['Completed the Shwezigon; built the Ānanda temple','New style of temple drew ordinary people in','Purified the Mon Tipiṭaka against the Sri Lankan text','Repaired the Mahābodhi temple at Bodhgayā']},
+ {n:'Sukhothai Kingdom',k:'First Thai kingdom (c. 1238)',f:['Founded by Sri Indraditya','Ram Khamhaeng and Lithai made Sri Lankan Theravāda the state religion','Thai script and the Traiphum','Famous walking-Buddha art']},
+ {n:'King Ram Khamhaeng',k:'Sukhothai (c. 1279–1298)',f:['Invited Laṅkāvaṃsa monks from Nakhon Si Thammarat','1292 inscription: “fish in the water, rice in the fields”','Manangasila stone throne for uposatha sermons','Credited with the Thai script']},
+ {n:'King Jayavarman VII',k:'Angkor (1181–c. 1218), “Angkor smiles”',f:['Buddhist king; built Angkor Thom and the Bayon','102 hospitals and 121 rest houses','Ta Prohm (mother), Preah Khan (father)','Son Tāmalinda brought Sri Lankan Theravāda']},
+ {n:'King Fa Ngum',k:'Founder of Lan Xang, Laos (1353)',f:['Raised at Angkor; Khmer wife Keo Kengnya','Mission of Mahāpāsamāna Thera with the Tipiṭaka','Brought the Phra Bang → Luang Prabang','Made Theravāda the state religion']},
+ {n:'Buddhism in Singapore',k:'2025 note',f:['About 31% Buddhist; Theravāda, Mahāyāna and Vajrayāna together','Two waves: ancient trade, then 19th-century monks and immigrants','Burmese Temple 1875, Shuang Lin 1898, KMSPKS 1921, Mangala Vihara 1960','Schools, clinics, welfare, English Dhamma classes, Vesak holiday']},
+ {n:'MV anniversary ritual',k:'Overnight paritta chanting',f:['Monks chant the Great Book of Protection (Catubhāṇavārapāli): 24 protective suttas','Origin: the boy Āyuvaḍḍhana, saved by 7 days of paritta chanting (Dhammapada 109)','A pirit maṇḍapa holds a relic casket, the text on ola leaves, water and thread','The white pirit thread links monks, text and listeners; blessed water and threads are given out at the end']}
+];
+var nb=document.getElementById('notes');
+NOTES.forEach(function(x){var d=document.createElement('details');d.innerHTML='<summary>'+x.n+'<small>'+x.k+'</small></summary><ul>'+x.f.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>';nb.appendChild(d);});
+
+/* ---------- tabs ---------- */
+var PANES=['learn','cards','quiz','essay'];
+var tabs=document.querySelectorAll('.tabs button');
+function showTab(id){
+  tabs.forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===id?'true':'false');});
+  PANES.forEach(function(p){document.getElementById(p).hidden=(p!==id);});
+  store('gebTab',id);
+}
+tabs.forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab);window.scrollTo(0,0);});});
+
+/* ---------- flashcards ---------- */
+var FACTS=[
+ ['Councils','Who presided over the 1st Council?','Ven. Mahākassapa','Rude monk Subhadda made him call it.'],
+ ['Councils','Where was the 1st Council held?','Sattapaṇṇi cave, Rājagaha','R-V-P: Really Very Precious.'],
+ ['Councils','Who recited the Vinaya and the suttas at the 1st Council?','Upāli: Vinaya. Ānanda: suttas.','The barber knows the rules; the attendant heard every talk.'],
+ ['Councils','Patron of the 1st Council?','King Ajātasattu','A-K-A: Ajātasattu, Kālāsoka, Asoka.'],
+ ['Councils','Where and when was the 2nd Council?','Vālukārāma, Vesālī, about 100 years after the Parinibbāna','R-V-P.'],
+ ['Councils','Who started the 2nd Council, and why?','Yasa Kākaṇḍakaputta: the Vajjian monks were taking gold and silver','Money monks.'],
+ ['Councils','Who chaired and who questioned at the 2nd Council?','Sabbakāmī (most senior) chaired; Revata questioned','Committee of 8: 4 East + 4 West.'],
+ ['Councils','Which school split off after the 2nd Council?','The Mahāsāṅghika (“Great Assembly”)','The first schism → 18 schools.'],
+ ['Councils','The 10 points, in order?','Salt, Sun (two-finger shadow), Village, Monastery (separate uposatha), Asking consent later, Custom, Milk, Toddy, Rug, Gold & silver','Sally\'s Sunny Village Monastery Asks Cousins for Milk, Toddy, Rugs & Gold.'],
+ ['Councils','Who presided over the 3rd Council?','Ven. Moggaliputta Tissa','At the Asokārāma, Pāṭaliputta, 1,000 monks.'],
+ ['Councils','What text was added at the 3rd Council?','The Kathāvatthu (Points of Controversy)','It completed the Abhidhamma Piṭaka.'],
+ ['Councils','Monks and months at the three councils?','500 / 700 / 1,000 monks; 7 / 8 / 9 months','Numbers climb.'],
+ ['Kings','What does Dhammavijaya mean?','Conquest by righteousness, Asoka\'s policy after Kalinga','Rock Edict XIII.'],
+ ['Kings','Asoka\'s name before and after Kalinga?','Caṇḍāsoka (the Fierce) → Dhammāsoka (the Righteous)',''],
+ ['Kings','Asoka\'s contributions?','Dhammavijaya, Hospitals, Animals protected, Messages in stone, Missions, Assembly & stūpas','DHAMMA.'],
+ ['Kings','Which king gave Veḷuvana?','King Bimbisāra of Magadha','The first monastery.'],
+ ['Kings','Who converted King Anawrahta?','Shin Arahan, a Mon monk from Thaton',''],
+ ['Kings','Why did Anawrahta conquer Thaton (1057)?','King Manuha refused to give him the Tipiṭaka and relics','32 elephant-loads of scriptures.'],
+ ['Kings','Which Myanmar king built the Ānanda temple?','Kyansittha (1084–1112)','Also repaired Bodhgayā.'],
+ ['Kings','Ram Khamhaeng in three letters?','R: Rock inscription 1292 · A: Araññika & Laṅkāvaṃsa monks · M: Manangasila throne','Plus the Thai script.'],
+ ['Kings','What did King Lithai write?','The Traiphum Phra Ruang (“Three Worlds”)','LIT: Literature, Invited Sumana, Temporarily ordained.'],
+ ['Kings','The four Ayutthaya kings to know?','U Thong, Borommatrailokkanat, Songtham, Borommakot','Uncle Boon Sells Bananas.'],
+ ['Kings','Which Thai king sent Upāli to Sri Lanka?','Borommakot, in 1753','→ Siyam Nikāya.'],
+ ['Kings','Jayavarman VII: hospitals and rest houses?','102 hospitals, 121 rest houses','1-0-2 to get well, 1-2-1 to rest.'],
+ ['Kings','Who founded Lan Xang, and when?','Fa Ngum, 1353','“Land of a Million Elephants”.'],
+ ['Kings','Which Lao king built That Luang?','Setthathirath (moved the capital to Vientiane)','Very Pious Sons Shine.'],
+ ['Sri Lanka','Where did Mahinda meet the king?','Mihintale (Missaka Pabbata), Poson full moon, while the king was hunting',''],
+ ['Sri Lanka','First sutta Mahinda preached to the king?','Cūḷahatthipadopama Sutta (simile of the elephant\'s footprint)',''],
+ ['Sri Lanka','Mahinda\'s Five Rs?','Royal acceptance, Reach the people, Royal residences, Rooting the Sāsana, Relics',''],
+ ['Sri Lanka','Why did Sri Lankans accept Buddhism so fast?','Friendship, Language, Absence of rivals, Gentle method, Personality, King\'s example','Friendly Language Avoids Grudges, Pleases Kings.'],
+ ['Sri Lanka','Who was the first Sri Lankan monk to recite the Vinaya?','Ariṭṭha, the king\'s nephew, at Thūpārāma','The moment the Sāsana took root.'],
+ ['Sri Lanka','What was enshrined in the Thūpārāma?','The Buddha\'s right collar-bone relic','Brought by the novice Sumana.'],
+ ['Sri Lanka','Sri Lanka\'s three monk groups, in order?','Siyam (1753), Amarapura (1800), Rāmañña (1864)','S-A-R: named after where ordination came from.'],
+ ['Sri Lanka','Who founded the Abhayagiri?','King Vaṭṭagāmaṇī Abhaya, 1st C BCE',''],
+ ['Exchanges','Which Myanmar monk founded the Sīhaḷa Saṅgha?','Chapata, after ordination at the Mahāvihāra (1180s)','Tāmalinda went with him.'],
+ ['Exchanges','What did Dhammazedi do?','Sent monks to Sri Lanka (1476), set up the Kalyāṇī sīmā and re-ordained the whole Saṅgha',''],
+ ['Exchanges','Who asked Anawrahta for monks c. 1070?','King Vijayabāhu I of Sri Lanka, after the Chola occupation',''],
+ ['Decline','Inside reasons for India\'s decline?','Sects, Lost identity, Isolated monasteries, Moral decline, Dependence on kings','SLIM-D.'],
+ ['Decline','Outside reasons for India\'s decline?','Brahmanical revival, Persecution, Muslim invasions','BPM.'],
+ ['Decline','Who destroyed Nālandā, and when?','Bakhtiyar Khilji, c. 1193',''],
+ ['Decline','4 reasons for decline in Theravāda countries?','Loss of royal patronage, wars and invasions, colonial rule, competing religions','Kings Went, Wars Came, Colonisers Conquered, Competitors Crept.'],
+ ['Decline','How to keep Buddhism alive today?','Learn, Practise, Support, Propagate',''],
+ ['Decline','Who founded the Maha Bodhi Society?','Anagārika Dharmapāla, 1891','To restore Bodhgayā.']
+];
+var DECKS={'Everything':null,'Councils':null,'Kings':null,'Sri Lanka':null,'Exchanges':null,'Decline':null,'Short notes':null};
+function buildDeck(name){
+  if(name==='Short notes')return NOTES.map(function(x){return {tag:'Short note · say 4 facts',f:x.n,b:x.f.join(' · '),s:x.k};});
+  var src=FACTS.filter(function(r){return name==='Everything'||r[0]===name;}).map(function(r){return {tag:r[0],f:r[1],b:r[2],s:r[3]};});
+  if(name==='Everything')src=src.concat(buildDeck('Short notes'));
+  return src;
+}
+var deckName=load('gebDeck'); if(!(deckName in DECKS)) deckName='Councils';
+var pile=[],total=0,flipped=false;
+var card=document.getElementById('fcCard');
+function startDeck(){pile=shuffle(buildDeck(deckName));total=pile.length;flipped=false;document.getElementById('fcDeckName').textContent=deckName;renderCard();}
+function renderCard(){
+  document.getElementById('fcCount').textContent=pile.length?(total-pile.length)+' of '+total+' learned':'Deck done';
+  document.getElementById('fcBar').style.width=((total-pile.length)/total*100)+'%';
+  if(!pile.length){card.innerHTML='<div class="tag">Well done</div><div class="front">You finished the '+deckName+' deck.</div><div class="tap">Tap to go through it again</div>';return;}
+  var c=pile[0];
+  card.innerHTML='<div class="tag">'+c.tag+'</div><div class="front">'+c.f+'</div>'+(flipped?'<div class="back">'+c.b+(c.s?'<small>'+c.s+'</small>':'')+'</div>':'<div class="tap">Tap to flip</div>');
+}
+function flip(){if(!pile.length){startDeck();return;}flipped=!flipped;renderCard();}
+card.addEventListener('click',flip);
+card.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();flip();}});
+document.getElementById('fcGot').addEventListener('click',function(){if(!pile.length)return;pile.shift();flipped=false;renderCard();});
+document.getElementById('fcAgain').addEventListener('click',function(){if(!pile.length)return;var c=pile.shift();var pos=Math.min(pile.length,3+Math.floor(Math.random()*3));pile.splice(pos,0,c);flipped=false;renderCard();});
+chipRow(document.getElementById('deckChips'),Object.keys(DECKS),deckName,function(k){deckName=k;store('gebDeck',k);startDeck();});
+startDeck();
+
+/* ---------- quiz ---------- */
+// [topic, question, right answer, [wrong answers], hint]
+var QB=[
+ ['India','Which of these was NOT a reason Buddhism spread in the Buddha\'s time?','It was taught in Sanskrit',['All castes were welcome','Rich merchants supported it','It rejected animal sacrifice'],'People\'s language: the Buddha taught in Māgadhī, not Sanskrit.'],
+ ['India','Which sutta did the Buddha use to reject animal sacrifice?','Kūṭadanta Sutta',['Kālāma Sutta','Vāseṭṭha Sutta','Sigālovāda Sutta'],'Kūṭadanta = the brahmin planning a big sacrifice.'],
+ ['India','“Come and see for yourself” is which quality of the Dhamma?','ehipassiko',['akāliko','sandiṭṭhiko','opanayiko'],'Practical teaching: one of the 4 Ps.'],
+ ['India','Who donated Jetavana?','Anāthapiṇḍika',['Visākhā','Bimbisāra','Pasenadi'],'Merchants & cities: the M in “Can Monks Keep Walking”.'],
+ ['India','How many arahants did the Buddha first send out to teach?','60',['500','5','1,000'],'“For the welfare of the many”: Yasa and his 54 friends made up most of them.'],
+ ['India','Which king gave the first monastery, Veḷuvana?','Bimbisāra',['Pasenadi','Ajātasattu','Asoka'],'K for Kings in “Can Monks Keep Walking”.'],
+ ['Councils','Why was the 1st Council called?','Subhadda said “now we can do as we like”',['Monks were taking money','Fake monks joined for gifts','A dispute over meditation'],'Rude monk → Money monks → Fake monks.'],
+ ['Councils','Where was the 1st Council held?','Sattapaṇṇi cave, Rājagaha',['Vālukārāma, Vesālī','Asokārāma, Pāṭaliputta','Jetavana, Sāvatthī'],'R-V-P: Really Very Precious.'],
+ ['Councils','Who recited the Vinaya at the 1st Council?','Ven. Upāli',['Ven. Ānanda','Ven. Mahākassapa','Ven. Sāriputta'],'The former barber is the rules expert.'],
+ ['Councils','How many arahants attended the 2nd Council?','700',['500','1,000','60'],'Monks climb 5 → 7 → 10 hundred.'],
+ ['Councils','Which of the 10 points started the 2nd Council?','Accepting gold and silver',['Carrying salt in a horn','Drinking unchurned milk','Using a rug without a fringe'],'Money monks: Yasa Kākaṇḍakaputta saw them taking money.'],
+ ['Councils','Who patronised the 2nd Council?','King Kālāsoka',['King Ajātasattu','Emperor Asoka','King Bimbisāra'],'A-K-A.'],
+ ['Councils','What was the main result of the 2nd Council besides rejecting the 10 points?','The first split: the Mahāsāṅghika school',['The Tipiṭaka was written down','The 9 missions were sent','The Kathāvatthu was composed'],'The Vajjian monks held their own “Great Assembly”.'],
+ ['Councils','How long did the 3rd Council last?','9 months',['7 months','8 months','3 months'],'Months climb 7 → 8 → 9.'],
+ ['Councils','What answer did genuine monks give at the 3rd Council?','Vibhajjavāda, the doctrine of analysis',['Sarvāstivāda','Mahāyāna','Lokottaravāda'],'About 60,000 who gave other answers were expelled.'],
+ ['Councils','Who went to Suvaṇṇabhūmi after the 3rd Council?','Soṇa & Uttara',['Mahinda','Majjhantika','Mahādeva'],'S goes to S.'],
+ ['Asoka','What war changed Asoka?','Kalinga',['Magadha','Kosala','Gandhāra'],'About 100,000 killed (Rock Edict XIII).'],
+ ['Asoka','Asoka\'s officers who spread morality were called…','Dhamma-mahāmattas',['Bhāṇakas','Ubbāhikā','Gaṇinnānse'],'M for Messages in stone (and the officers who spread them).'],
+ ['Asoka','Which edict records Asoka\'s envoys to 5 Greek kings?','Rock Edict XIII',['Rock Edict II','Rock Edict XII','The Lumbinī pillar'],'XIII = Kalinga and Dhammavijaya.'],
+ ['Asoka','Which novice inspired Asoka?','Nigrodha',['Sumana','Bhaṇḍuka','Ariṭṭha'],'The calm novice walking past the window.'],
+ ['Asoka','According to tradition, how many stūpas did Asoka build?','84,000',['8,000','1,000','500'],'A for Assembly & stūpas.'],
+ ['Sri Lanka','Which king met Mahinda?','Devānampiya Tissa',['Duṭṭhagāmaṇī','Vaṭṭagāmaṇī Abhaya','Vijayabāhu I'],'He was out hunting on Poson full moon.'],
+ ['Sri Lanka','First sutta Mahinda taught the king?','Cūḷahatthipadopama Sutta',['Dhammacakkappavattana Sutta','Petavatthu','Maṅgala Sutta'],'After the mango riddle.'],
+ ['Sri Lanka','Which park became the Mahāvihāra?','Mahāmeghavana',['Jetavana','Veḷuvana','Isipatana'],'Royal residences: one of the Five Rs.'],
+ ['Sri Lanka','Who brought the Bodhi tree sapling to Sri Lanka?','Saṅghamittā Therī',['Queen Anulā','Mahinda','Sumana'],'She also ordained Queen Anulā.'],
+ ['Sri Lanka','Which relic is enshrined at Thūpārāma?','The right collar-bone relic',['A hair relic','The tooth relic','The alms bowl'],'Relics & sacred objects: the 5th R.'],
+ ['Sri Lanka','Which is NOT a reason Sri Lankans accepted Buddhism quickly?','Mahinda used the army',['Friendship between Asoka and Tissa','Similar language','No strong rival religion'],'G for Gentle method: no force at all.'],
+ ['Myanmar','Who converted Anawrahta?','Shin Arahan',['Chapata','Buddhaghosa','Dhammazedi'],'S in “Shin Arahan Taught The Super Sovereign”.'],
+ ['Myanmar','Which corrupt monks did Anawrahta suppress?','The Ari monks',['The Vajjian monks','The Mahāsāṅghikas','The Gaṇinnānse'],'A in the trick.'],
+ ['Myanmar','In what year did Anawrahta conquer Thaton?','1057',['1753','1353','1190'],'Then the Tipiṭaka came on 32 elephants.'],
+ ['Myanmar','Which king built the Ānanda temple?','Kyansittha',['Anawrahta','Mindon','Dhammazedi'],'Kind Successor finishes the job.'],
+ ['Myanmar','The Tipiṭaka on 729 marble slabs was made under…','King Mindon (5th Council, 1871)',['King Anawrahta','U Nu','King Dhammazedi'],'Kuthodaw Pagoda, Mandalay.'],
+ ['Thailand','Which Sukhothai king left the 1292 inscription?','Ram Khamhaeng',['Lithai','U Thong','Borommakot'],'R in RAM: Rock inscription.'],
+ ['Thailand','Who wrote the Traiphum (“Three Worlds”)?','King Lithai',['Ram Khamhaeng','Rama IV','Borommatrailokkanat'],'LIT: Literature.'],
+ ['Thailand','Who founded Ayutthaya in 1351?','U Thong (Ramathibodi I)',['Borommakot','Songtham','Sri Indraditya'],'U in Uncle Boon Sells Bananas.'],
+ ['Thailand','Which king founded the Dhammayuttika Nikāya?','Rama IV (Mongkut)',['Rama I','Rama V','Lithai'],'He founded it while still a monk (1833).'],
+ ['Exchanges','In 1753, who led the Thai monks to Kandy?','Ven. Upāli',['Ven. Chapata','Ven. Saraṇaṅkara','Ven. Sumana'],'Sent by Borommakot → Siyam Nikāya.'],
+ ['Exchanges','The Amarapura Nikāya began in…','1800',['1753','1864','1476'],'S-A-R: 1753, 1800, 1864.'],
+ ['Exchanges','Which nikāya came from the Mon country in 1864?','Rāmañña Nikāya',['Siyam Nikāya','Amarapura Nikāya','Dhammayuttika Nikāya'],'R is the last of S-A-R.'],
+ ['Exchanges','Which Sri Lankan king asked Anawrahta for monks?','Vijayabāhu I',['Kīrti Śrī Rājasiṃha','Devānampiya Tissa','Parākramabāhu I'],'After the Chola occupation (c. 1070).'],
+ ['Exchanges','The Kalyāṇī sīmā was set up by…','King Dhammazedi of Pegu',['King Anawrahta','King Borommakot','King Kyansittha'],'His monks were re-ordained on the Kalyāṇī river in 1476.'],
+ ['Cambodia & Laos','Which temple has the “Angkor smiles”?','The Bayon',['Ta Prohm','Preah Khan','That Luang'],'Built by Jayavarman VII in Angkor Thom.'],
+ ['Cambodia & Laos','How many hospitals did Jayavarman VII build?','102',['121','84,000','60'],'1-0-2 to get well, 1-2-1 to rest.'],
+ ['Cambodia & Laos','Which son of Jayavarman VII brought Sri Lankan Theravāda to Cambodia?','Tāmalinda',['Chapata','Ariṭṭha','Fa Ngum'],'He sailed with Chapata.'],
+ ['Cambodia & Laos','The Phra Bang image gave its name to…','Luang Prabang',['Vientiane','Angkor','Sukhothai'],'Brought by the mission for Fa Ngum.'],
+ ['Cambodia & Laos','Which Lao king built That Luang?','Setthathirath',['Fa Ngum','Visoun','Photisarath'],'Very Pious Sons Shine: the first S.'],
+ ['Decline','Who destroyed Nālandā around 1193?','Bakhtiyar Khilji',['Mihirakula','Pushyamitra Śuṅga','Śaśāṅka'],'M in BPM: Muslim invasions.'],
+ ['Decline','Which king cut down the Bodhi tree?','Śaśāṅka of Gauḍa',['Mihirakula','Jayavarman VIII','Rājasiṃha I'],'P in BPM: Persecution.'],
+ ['Decline','Which is an INTERNAL cause of decline in India?','Monasteries isolated from lay people',['Muslim invasions','Persecution by kings','Brahmanical revival'],'SLIM-D is inside; BPM is outside.'],
+ ['Decline','Your teacher\'s 4 words for keeping Buddhism alive?','Learn, Practise, Support, Propagate',['Read, Write, Chant, Give','Pray, Fast, Give, Travel','Build, Buy, Sell, Teach'],'The future of Buddhism depends on YOU.']
+];
+var QTOPICS=['Everything','India','Councils','Asoka','Sri Lanka','Myanmar','Thailand','Exchanges','Cambodia & Laos','Decline'];
+var qTopic='Everything', qs=[], qi=0, score=0, misses=[];
+var qArea=document.getElementById('quizArea');
+function startQuiz(){
+  var pool=QB.filter(function(r){return qTopic==='Everything'||r[0]===qTopic;});
+  qs=shuffle(pool).slice(0,10).map(function(r){return {tag:r[0],text:r[1],right:r[2],opts:shuffle([r[2]].concat(r[3])),hint:r[4]};});
+  qi=0;score=0;misses=[];renderQ();
+}
+function renderQ(){
+  if(qi>=qs.length)return renderEnd();
+  var q=qs[qi];
+  qArea.innerHTML='<div class="meta"><span>Question '+(qi+1)+' of '+qs.length+'</span><span>Score '+score+'</span></div><div class="progress"><i style="width:'+(qi/qs.length*100)+'%"></i></div>'+
+   '<div class="qcard"><div class="qtag">'+q.tag+'</div><div class="qtext">'+q.text+'</div><div class="opts"></div><div id="exp"></div></div>';
+  var box=qArea.querySelector('.opts');
+  q.opts.forEach(function(o){var b=document.createElement('button');b.type='button';b.textContent=o;b.addEventListener('click',function(){answer(b,o);});box.appendChild(b);});
+}
+function answer(btn,o){
+  var q=qs[qi],ok=(o===q.right);
+  qArea.querySelectorAll('.opts button').forEach(function(b){b.disabled=true;if(b.textContent===q.right)b.classList.add('right');});
+  if(!ok){btn.classList.add('wrong');misses.push(q);}else score++;
+  document.getElementById('exp').innerHTML='<div class="explain"><b>'+(ok?'Correct!':'Not quite.')+'</b> '+(ok?'':'The answer is <b>'+q.right+'</b>. ')+'<br>'+q.hint+'</div><div style="margin-top:12px"><button class="primary" type="button" id="nextQ">'+(qi===qs.length-1?'See my score':'Next question')+'</button></div>';
+  var n=document.getElementById('nextQ');n.addEventListener('click',function(){qi++;renderQ();});n.focus();
+}
+function renderEnd(){
+  var msg=score>=9?'Exam ready on this topic. Do it twice more to be sure.':score>=7?'Nearly there. Look at the mistakes below, then try again.':'Go back to the Learn tab for these topics, do the cards, then try again.';
+  var h='<div class="qcard"><div class="qtag">Your score</div><div class="score">'+score+' / '+qs.length+'</div><p>'+msg+'</p><button class="primary" type="button" id="againQ">New quiz</button></div>';
+  if(misses.length){h+='<h3 style="margin-top:22px">Review your mistakes</h3>';misses.forEach(function(q){h+='<div class="miss">'+q.text+'<br>Answer: <b>'+q.right+'</b><br><span class="hook">'+q.hint+'</span></div>';});}
+  qArea.innerHTML=h;document.getElementById('againQ').addEventListener('click',startQuiz);
+}
+chipRow(document.getElementById('quizChips'),QTOPICS,qTopic,function(k){qTopic=k;startQuiz();});
+startQuiz();
+
+/* ---------- essay drill ---------- */
+// [slot label, outline key, year, question]
+var PQ=[
+ ['Q1 India','q1','2025','Substantiate that the qualities of the Buddha as a teacher brought about the rapid spread of Buddhism during His lifetime.'],
+ ['Q1 India','q1','2024','Describe the social and religious factors in India which led to the rapid spread of the Buddha\'s teachings during His lifetime.'],
+ ['Q1 India','q1','2023','Discuss, with suitable illustrations, how the teachings of the Buddha caused a religious revolution in ancient India.'],
+ ['Q1 India','q1','2021','Describe, with examples, the qualities of the Buddha as a teacher and the uniqueness of his teachings which caused a religious and social revolution in India during his lifetime.'],
+ ['Q2 Councils','q2a','2025','“The First Buddhist Council played a crucial role in the preservation and propagation of Buddhism.” Elaborate on this statement.'],
+ ['Q2 Councils','q2a','2023','Examine the critical role played by the First Buddhist Council in the propagation and preservation of Buddhism.'],
+ ['Q2 Councils','q2b','2024','Discuss the factors that led to the convening of the Second Buddhist Council, and show the significance of this council in Buddhist history.'],
+ ['Q2 Councils','q2b','2021','Give an account of the factors which led to the convening of the Second Buddhist Council and appraise its role in the history of Buddhism.'],
+ ['Q2 Councils','q2c','2022','Discuss, with reference to the Third Buddhist Council, the role of the Saṅgha in the preservation and propagation of Buddhism.'],
+ ['Q3 Asoka','q3','2025','Discuss, with examples, that King Asoka was the first monarch who governed the state based on Buddhist teachings.'],
+ ['Q3 Asoka','q3','2024','“The patronage of King Asoka of India was a great gift to Buddhism.” Substantiate this statement with examples.'],
+ ['Q3 Asoka','q3','2023','Assess the contribution of King Asoka in the spread of Buddhism beyond the shores of India and how the effort has ensured the presence of Buddhism up to the present day.'],
+ ['Q3 Asoka','q3','2021','“King Asoka was the greatest patron of Buddhism in India.” Substantiate this statement with examples.'],
+ ['Q4 Mahinda','q4','2025','Examine the historical background in Sri Lanka that led to the ready acceptance of Buddhism introduced by Venerable Mahinda.'],
+ ['Q4 Mahinda','q4','2024','Briefly discuss the factors which contributed to the great success of Venerable Arahant Mahinda\'s mission to Sri Lanka.'],
+ ['Q4 Mahinda','q4','2023','Evaluate how the superior abilities of Venerable Mahinda contributed to the success of his mission in introducing Buddhism in Sri Lanka.'],
+ ['Q4 Mahinda','q4','2021','Explain, with reasons, the diplomacy and far-sightedness of Ven. Mahinda for the successful introduction and establishment of Buddhism in Sri Lanka.'],
+ ['Q5 Myanmar','q5','2025','Clarify the introduction and development of Theravāda Buddhism from the arrival of early missionaries up to the era of King Anawrahta in Myanmar.'],
+ ['Q5 Myanmar','q5','2024','Illustrate the royal patronage behind the spread and establishment of Theravāda Buddhism in Myanmar.'],
+ ['Q5 Myanmar','q5','2022','“Royal patronage was the driving force for the establishment and spread of Buddhism in Myanmar.” Discuss.'],
+ ['Q6 Thailand','q6','2025','Examine how royal patronage contributed to the successful establishment and growth of Buddhism in Thailand during the Sukhothai period.'],
+ ['Q6 Thailand','q6','2024','Examine the contributions made by Ayutthaya kings towards the establishment and growth of Buddhism in Thailand.'],
+ ['Q6 Thailand','q6','2023','Briefly introduce the history of Buddhism in Thailand and show how the religion influences Thai society today.'],
+ ['Q7 Exchanges','q7a','2024','“The religious exchanges between Thailand and Sri Lanka over the centuries have led to the preservation and development of the dispensation in both countries.” Discuss.'],
+ ['Q7 Exchanges','q7b','2023','Explain how the religious exchanges between Myanmar and Sri Lanka led to mutual benefits in the development and preservation of Buddhism in both countries.'],
+ ['Q8 Cambodia/Laos','q8a','2025','Discuss the contributions of King Jayavarman VII in the development of Buddhism in Cambodia and the reasons for his success.'],
+ ['Q8 Cambodia/Laos','q8a','2023','Illuminate the contribution of Cambodian kings to promote Buddhism, which eventually made Cambodia a Theravāda Buddhist country.'],
+ ['Q8 Cambodia/Laos','q8b','2022','Briefly trace the history of Buddhism in Laos and show how the religion influences Laotian society today.'],
+ ['Q9 Decline','q9','2025','Give a brief account of the reasons contributing to the decline of Buddhism in one country, and discuss how Buddhism might be preserved in the modern era.'],
+ ['Q9 Decline','q9','2024','Elucidate the factors that caused the decline of Buddhism in India, and discuss the lessons to be learned from history for the preservation of Buddhism today.']
+];
+var eSlots=['All'];PQ.forEach(function(r){if(eSlots.indexOf(r[0])<0)eSlots.push(r[0]);});
+var eSlot='All',eQ=null,tLeft=0,tId=null;
+var eArea=document.getElementById('essayArea');
+function fmt(s){var m=Math.floor(s/60),x=s%60;return m+':'+(x<10?'0':'')+x;}
+function stopTimer(){if(tId){clearInterval(tId);tId=null;}}
+function newEssay(){
+  stopTimer();
+  var pool=PQ.filter(function(r){return eSlot==='All'||r[0]===eSlot;});
+  var fresh=pool.filter(function(r){return r!==eQ;});
+  eQ=pick(fresh.length?fresh:pool);
+  eArea.innerHTML='<div class="qcard"><div class="qtag">'+eQ[0]+' · '+eQ[2]+' paper</div><div class="qtext">'+eQ[3]+'</div>'+
+   '<div class="timer" id="tm" aria-live="polite">5:00</div><p class="hook" id="tmMsg">Plan on paper: intro (who, when, where) · 5 to 8 points · conclusion.</p>'+
+   '<div class="drillbar"><button class="primary" type="button" id="tStart">Start 5-minute timer</button><button type="button" id="tShow">Show outline</button><button type="button" id="tNext">Another question</button></div></div><div id="eOut"></div>';
+  document.getElementById('tStart').addEventListener('click',startTimer);
+  document.getElementById('tShow').addEventListener('click',showOutline);
+  document.getElementById('tNext').addEventListener('click',newEssay);
+}
+function startTimer(){
+  stopTimer();tLeft=300;var el=document.getElementById('tm');el.classList.remove('done');el.textContent=fmt(tLeft);
+  document.getElementById('tStart').textContent='Restart timer';
+  tId=setInterval(function(){tLeft--;el.textContent=fmt(tLeft);if(tLeft<=0){stopTimer();el.classList.add('done');el.textContent='Time!';document.getElementById('tmMsg').textContent='Pens down. Now compare your plan with the outline.';showOutline();}},1000);
+}
+function showOutline(){
+  var o=OUTLINE[eQ[1]];
+  document.getElementById('eOut').innerHTML='<div class="outline">'+outlineHTML(o)+'</div>'+
+   '<div class="box eli5"><span class="lbl">Check your plan</span><ul class="check">'+
+   ['My intro says who, when and where','I have at least 5 separate points','Each point has a name, place or date as an example','Each point links back to how Buddhism spread or survived','I answered the exact angle of the question, not just the topic','My conclusion says why it mattered'].map(function(t,i){return '<li><label><input type="checkbox" id="ck'+i+'"> '+t+'</label></li>';}).join('')+'</ul></div>';
+}
+chipRow(document.getElementById('essayChips'),eSlots,eSlot,function(k){eSlot=k;newEssay();});
+newEssay();
+
+var savedTab=load('gebTab'); if(savedTab&&PANES.indexOf(savedTab)>-1) showTab(savedTab);
+})();
+</script>
+</body>
+</html>
+</body>
+</html>
