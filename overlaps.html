@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Overlaps Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a slide deck in one study column. Part 1 = one mind map + memory tricks per overlap topic; Part 2 = one master model answer per topic with per-paper angles. Slides mode shows one slide at a time; Scroll mode shows all. */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#1d2a2e; --muted:#5b6b70; --rule:#d5dedc;
+  --robe:#b8640f; --robe-soft:#f8ead8; --teal:#1f5c63; --teal-soft:#e2eeee;
+  --eb:#1f5c63; --sd:#2f7d4a; --pl:#b8640f; --co:#7a4f9a; --ge:#a33b4a;
+  --eb-soft:#e2eeee; --sd-soft:#e1f1e6; --pl-soft:#f8ead8; --co-soft:#eee6f4; --ge-soft:#f6e2e5;
+  --pali:"Gentium Book Plus","Noto Serif",Georgia,serif;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#352717; --teal:#7cc3c9; --teal-soft:#1c3336;
+  --eb:#7cc3c9; --sd:#7fcf98; --pl:#eea04f; --co:#c4a2e0; --ge:#ee8f9c;
+  --eb-soft:#1c3336; --sd-soft:#18301f; --pl-soft:#352717; --co-soft:#2b2236; --ge-soft:#3a1d22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#352717; --teal:#7cc3c9; --teal-soft:#1c3336;
+  --eb:#7cc3c9; --sd:#7fcf98; --pl:#eea04f; --co:#c4a2e0; --ge:#ee8f9c;
+  --eb-soft:#1c3336; --sd-soft:#18301f; --pl-soft:#352717; --co-soft:#2b2236; --ge-soft:#3a1d22; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:0 72px;margin:0}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:32px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--robe);font-weight:600}
+h1{font-family:var(--pali);font-size:clamp(30px,6vw,42px);line-height:1.1;margin:6px 0 8px;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.pali{font-family:var(--pali)}
+
+/* Deck controls */
+.deckbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);padding-block:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select{font:inherit;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px;padding:8px 12px;border:1px solid var(--rule);background:var(--surface);color:var(--ink)}
+button:hover,select:hover{border-color:var(--teal)}
+button:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--robe);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.deckbar select{flex:1 1 220px;min-width:0;font-weight:500}
+.deckbar .count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:52px;text-align:center}
+.mode{margin-left:auto;display:flex;gap:0}
+.mode button{border-radius:0;font-size:13px;padding:7px 10px}
+.mode button:first-child{border-radius:8px 0 0 8px}
+.mode button:last-child{border-radius:0 8px 8px 0;border-left:0}
+.mode button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.progress{height:4px;background:var(--rule);border-radius:999px;overflow:hidden;flex-basis:100%}
+.progress i{display:block;height:100%;background:var(--robe);width:0;transition:width .2s}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+
+/* Slides */
+.slide{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:24px 22px;margin-block:18px;scroll-margin-top:110px}
+body.slides .slide{display:none}
+body.slides .slide.on{display:block}
+.slide h2{font-family:var(--pali);font-size:clamp(24px,4.6vw,30px);line-height:1.2;margin:0 0 10px;text-wrap:balance}
+.slide h2 small{display:block;font-family:var(--ui);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--robe);font-weight:600;margin-bottom:2px}
+.slide h3{font-size:16px;margin:20px 0 6px}
+.slide p,.slide li{max-width:68ch}
+.part{background:var(--teal-soft);border-color:transparent;text-align:center;padding-block:40px}
+.part h2{font-size:clamp(28px,6vw,38px)}
+.part p{margin-inline:auto;color:var(--muted)}
+.nextnav{display:flex;justify-content:space-between;gap:8px;margin-top:22px;border-top:1px solid var(--rule);padding-top:14px}
+body:not(.slides) .nextnav{display:none}
+
+/* Paper chips */
+.papers{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.chip{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.03em;border-radius:999px;padding:3px 10px;border:1px solid}
+.eb{color:var(--eb);border-color:var(--eb);background:var(--eb-soft)}
+.sd{color:var(--sd);border-color:var(--sd);background:var(--sd-soft)}
+.pl{color:var(--pl);border-color:var(--pl);background:var(--pl-soft)}
+.co{color:var(--co);border-color:var(--co);background:var(--co-soft)}
+.ge{color:var(--ge);border-color:var(--ge);background:var(--ge-soft)}
+
+/* Mind map */
+.mm{display:grid;grid-template-columns:1fr minmax(150px,210px) 1fr;gap:12px 30px;align-items:center;margin-block:16px}
+.mm .core{grid-column:2;grid-row:1 / span 3;background:var(--teal);color:var(--bg);border-radius:16px;padding:18px 14px;text-align:center;font-family:var(--pali);font-size:20px;line-height:1.25;font-weight:700}
+.mm .core small{display:block;font-family:var(--ui);font-size:12px;font-weight:500;opacity:.85;margin-top:4px}
+.br{position:relative;background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.45}
+.br b{display:block;font-size:14px;color:var(--teal);margin-bottom:2px}
+.br ul{margin:0;padding-left:16px}
+.br li{margin-block:1px}
+.br.l{grid-column:1}
+.br.r{grid-column:3}
+.mm>:nth-child(2),.mm>:nth-child(5){grid-row:1}
+.mm>:nth-child(3),.mm>:nth-child(6){grid-row:2}
+.mm>:nth-child(4),.mm>:nth-child(7){grid-row:3}
+.br.l::after,.br.r::before{content:"";position:absolute;top:50%;width:30px;border-top:2px solid var(--rule)}
+.br.l::after{right:-31px}
+.br.r::before{left:-31px}
+@media (max-width:680px){
+  .mm{grid-template-columns:1fr;gap:10px}
+  .mm .core{grid-column:1;grid-row:auto}
+  .mm>*{grid-row:auto !important}
+  .br.l,.br.r{grid-column:1;margin-left:18px}
+  .br.l::after{display:none}
+  .br.r::before,.br.l::before{content:"";position:absolute;left:-12px;top:-10px;bottom:50%;width:10px;border-left:2px solid var(--rule);border-bottom:2px solid var(--rule);border-radius:0 0 0 6px}
+}
+
+/* Boxes */
+.box{border-radius:10px;padding:14px 16px;margin-block:12px}
+.box .lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.box p{margin:4px 0}
+.box ul,.box ol{margin:4px 0;padding-left:20px}
+.trick{background:var(--robe-soft)} .trick .lbl{color:var(--robe)}
+.trick .big{font-family:var(--pali);font-size:21px;line-height:1.35;display:block;margin-block:2px 6px}
+.eli5{background:var(--teal-soft)} .eli5 .lbl{color:var(--teal)}
+.letters{list-style:none;padding:0 !important}
+.letters b.l{display:inline-block;min-width:1.7em;font-family:var(--pali);font-size:19px;color:var(--robe)}
+.angle{border-left:4px solid;border-radius:0 10px 10px 0;padding:10px 14px;margin-block:10px}
+.angle.eb{background:var(--eb-soft);border-color:var(--eb);color:var(--ink)}
+.angle.sd{background:var(--sd-soft);border-color:var(--sd);color:var(--ink)}
+.angle.pl{background:var(--pl-soft);border-color:var(--pl);color:var(--ink)}
+.angle.co{background:var(--co-soft);border-color:var(--co);color:var(--ink)}
+.angle.ge{background:var(--ge-soft);border-color:var(--ge);color:var(--ink)}
+.angle .lbl{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin-bottom:2px}
+.angle.eb .lbl{color:var(--eb)} .angle.sd .lbl{color:var(--sd)} .angle.pl .lbl{color:var(--pl)} .angle.co .lbl{color:var(--co)} .angle.ge .lbl{color:var(--ge)}
+.angle p,.angle ul{margin:2px 0}
+.angle ul{padding-left:18px}
+
+/* Model answer */
+.answer h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 4px}
+.answer p{margin:4px 0 8px}
+.answer ol{padding-left:22px}
+.answer li{margin-block:6px}
+.tw{overflow-x:auto;background:var(--bg);border:1px solid var(--rule);border-radius:10px;margin-block:10px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+thead th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.grid6{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-block:12px}
+.grid6 a{display:block;text-decoration:none;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:12px 14px}
+.grid6 a:hover{border-color:var(--teal)}
+.grid6 a b{display:block;font-family:var(--pali);font-size:18px;color:var(--teal)}
+.grid6 .papers{margin:6px 0 0}
+.cheat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.cheat div{background:var(--robe-soft);border-radius:10px;padding:12px 14px;font-size:14px}
+.cheat b{display:block;color:var(--robe);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.cheat .big{display:block;font-family:var(--pali);font-size:18px;line-height:1.3;margin-block:2px 4px}
+.kbd{font-size:12px;color:var(--muted)}
+@media print{.deckbar,.nextnav{display:none!important} body.slides .slide{display:block!important} .slide{break-inside:avoid-page}}
+</style>
+<style>
+.site{margin-inline:-16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.site .brand{font-family:var(--pali);font-weight:700;font-size:18px;color:var(--ink);text-decoration:none;margin-right:auto}
+.site .links{display:flex;gap:6px;flex-wrap:wrap}
+.site .links a{font-family:var(--ui);font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 10px;border-radius:8px;border:1px solid transparent}
+.site .links a:hover{color:var(--teal);border-color:var(--rule)}
+.site .links a[aria-current="page"]{color:var(--teal);background:var(--bg);border-color:var(--rule)}
+</style>
+</head>
+<body>
+<nav class="site" aria-label="Site">
+  <a class="brand" href="./">Diploma Exam Prep</a>
+  <span class="links"><a href="./">Pali Charts</a><a href="coach.html">Pali Coach</a><a href="geo.html">Geo Expansion</a><a href="overlaps.html" aria-current="page">Overlaps</a></span>
+</nav>
+</head>
+<body class="slides">
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Buddhism Diploma · Cross-paper revision</div>
+  <h1>Overlaps Deck</h1>
+  <p class="lede">Six topics that come up in more than one paper. Prepare each once and it covers two or three papers. Part 1 is mind maps and memory tricks; Part 2 is a full model answer per topic, with what to add for each paper.</p>
+</header>
+
+<div class="deckbar" role="toolbar" aria-label="Deck controls">
+  <button type="button" id="prev" aria-label="Previous slide">‹ Prev</button>
+  <select id="jump" aria-label="Jump to slide"></select>
+  <span class="count" id="count" aria-live="polite"></span>
+  <button type="button" id="next" aria-label="Next slide">Next ›</button>
+  <span class="mode" role="group" aria-label="View">
+    <button type="button" id="mSlides" aria-pressed="true">Slides</button>
+    <button type="button" id="mScroll" aria-pressed="false">Scroll</button>
+  </span>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+</div>
+
+<main id="deck">
+
+<!-- ================= 0. START ================= -->
+<section class="slide" id="s-start" data-title="Start: the six overlaps">
+  <h2><small>Start here</small>One preparation, two papers</h2>
+  <p>These six topics turn up in more than one paper. Learn each one properly once, then just change the <b>angle</b> to suit whichever paper asks it.</p>
+  <div class="papers" aria-label="Paper key">
+    <span class="chip eb">EB · Early Buddhism</span><span class="chip sd">SD · Social Dimensions</span><span class="chip pl">PL · Pāli</span><span class="chip co">CO · Counselling</span><span class="chip ge">GE · Geo Expansion</span>
+  </div>
+  <div class="grid6">
+    <a href="#s-mm1"><b>1 · Five precepts</b>Meaning, benefits, the Pāli<div class="papers"><span class="chip eb">EB Q3</span><span class="chip sd">SD Q5</span><span class="chip pl">PL Q9</span></div></a>
+    <a href="#s-mm2"><b>2 · Ten deeds &amp; kamma</b>3 body · 4 speech · 3 mind; intention<div class="papers"><span class="chip eb">EB Q4–5</span><span class="chip co">CO Q4</span></div></a>
+    <a href="#s-mm3"><b>3 · Four Truths &amp; the Path</b>Doctor's model; why "noble"<div class="papers"><span class="chip eb">EB Q7–8</span><span class="chip co">CO Q1–2</span></div></a>
+    <a href="#s-mm4"><b>4 · Five aggregates</b>What a "person" is made of<div class="papers"><span class="chip eb">EB Q9</span><span class="chip co">CO Q3</span></div></a>
+    <a href="#s-mm5"><b>5 · Second Council split</b>Elders vs Mahāsāṅghikas<div class="papers"><span class="chip eb">EB Q1</span><span class="chip ge">GE Q2</span></div></a>
+    <a href="#s-mm6"><b>6 · Mindfulness</b>Calm, insight, mental health<div class="papers"><span class="chip eb">EB Q2</span><span class="chip sd">SD Q8</span><span class="chip co">CO</span></div></a>
+  </div>
+  <div class="box eli5"><span class="lbl">How to use this deck</span>
+    <ol>
+      <li><b>Part 1:</b> read the mind map, then say the memory trick aloud until you can rebuild the map from memory.</li>
+      <li><b>Part 2:</b> read the master answer, then the coloured "angle" boxes, which tell you what to add for each paper.</li>
+      <li><b>Last slide:</b> all the memory tricks on one page for the night before.</li>
+    </ol>
+    <p class="kbd">Tip: use ← → keys to move between slides, or switch to Scroll to see everything.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the six overlaps, in order</span>
+    <span class="big">"Precious Deeds Truly Add Some Mindfulness"</span>
+    <ul class="letters">
+      <li><b class="l">P</b> Precepts</li>
+      <li><b class="l">D</b> Deeds (ten) &amp; kamma</li>
+      <li><b class="l">T</b> Truths (four) &amp; the Path</li>
+      <li><b class="l">A</b> Aggregates (five)</li>
+      <li><b class="l">S</b> Second Council split</li>
+      <li><b class="l">M</b> Mindfulness</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= PART 1 ================= -->
+<section class="slide part" id="s-p1" data-title="Part 1 · Mind maps & memory tricks">
+  <h2><small>Part 1</small>Mind maps &amp; memory tricks</h2>
+  <p>One slide per topic. Picture the map, learn the trick, and know which papers ask it.</p>
+</section>
+
+<!-- MM1 Precepts -->
+<section class="slide" id="s-mm1" data-title="1 · Five precepts: mind map">
+  <h2><small>Mind map 1</small>The five precepts</h2>
+  <div class="papers"><span class="chip eb">EB Q3 · meaning &amp; benefits</span><span class="chip sd">SD Q5 · in society</span><span class="chip pl">PL Q9 · Pāli 5 &amp; 8 precepts</span></div>
+  <div class="mm">
+    <div class="core">Five precepts<small>pañca-sīla</small></div>
+    <div class="br l"><b>What they are</b><ul><li>Training rules (sikkhāpada)</li><li>"I undertake" (samādiyāmi)</li><li>Voluntary, not commandments</li></ul></div>
+    <div class="br l"><b>The five</b><ul><li>No killing · no stealing</li><li>No sexual misconduct</li><li>No lying · no intoxicants</li></ul></div>
+    <div class="br l"><b>Why: the golden rule</b><ul><li>"What I dislike, others dislike"</li><li>Veḷudvāreyya S. · Dhp 130</li><li>Works for non-Buddhists too</li></ul></div>
+    <div class="br r"><b>Responsibility, not rules</b><ul><li>No one is expelled</li><li>Correct yourself, start again</li><li>Aṅgulimāla accepted</li></ul></div>
+    <div class="br r"><b>Benefits</b><ul><li>Self: clear conscience, trust, calm mind</li><li>Others: "gift of fearlessness" (AN 8.39)</li></ul></div>
+    <div class="br r"><b>8 precepts (uposatha)</b><ul><li>3rd → full celibacy</li><li>+ no food after noon</li><li>+ no shows/adornment · no high beds</li></ul></div>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the five in English</span>
+    <span class="big">"Kind Souls Seldom Lie Drunk"</span>
+    <p><b>K</b>illing · <b>S</b>tealing · <b>S</b>exual misconduct · <b>L</b>ying · <b>D</b>rink and drugs</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the Pāli opening words</span>
+    <span class="big">"Please Always Keep My Sīla"</span>
+    <p><b>P</b>āṇātipātā · <b>A</b>dinnādānā · <b>K</b>āmesu micchācārā · <b>M</b>usāvādā · <b>S</b>urāmeraya…</p>
+    <p>Each ends "…veramaṇī sikkhāpadaṃ samādiyāmi" = "I undertake the training rule to abstain from…"</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: what the 8 precepts add</span>
+    <span class="big">"Five, then a Very Nice Upgrade"</span>
+    <p>Keep the five (but 3rd becomes <b>Abrahmacariyā</b>, full celibacy), then add <b>V</b>ikālabhojanā (no food after noon) · <b>N</b>acca-gīta… (no dancing, shows, perfume) · <b>U</b>ccāsayana-mahāsayanā (no high, luxurious beds).</p>
+  </div>
+  <div class="box eli5"><span class="lbl">What each precept protects: "LP-FTM"</span>
+    <p><b>L</b>ife · <b>P</b>roperty · <b>F</b>amily · <b>T</b>ruth · <b>M</b>ind. Use this line for the Social Dimensions angle.</p>
+  </div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MM2 Ten deeds & kamma -->
+<section class="slide" id="s-mm2" data-title="2 · Ten deeds & kamma: mind map">
+  <h2><small>Mind map 2</small>Ten wholesome &amp; unwholesome deeds, and kamma</h2>
+  <div class="papers"><span class="chip eb">EB Q4 · ten deeds</span><span class="chip eb">EB Q5 · kamma &amp; intention</span><span class="chip co">CO Q4 · responsibility, three purities</span></div>
+  <div class="mm">
+    <div class="core">Kamma = intention<small>cetanā</small></div>
+    <div class="br l"><b>Body (3)</b><ul><li>Killing</li><li>Stealing</li><li>Sexual misconduct</li></ul></div>
+    <div class="br l"><b>Speech (4)</b><ul><li>Lying · slander</li><li>Harsh speech</li><li>Idle chatter</li></ul></div>
+    <div class="br l"><b>Mind (3)</b><ul><li>Covetousness</li><li>Ill will</li><li>Wrong view</li></ul></div>
+    <div class="br r"><b>The key quote</b><ul><li>"Cetanāhaṃ bhikkhave kammaṃ vadāmi"</li><li>"Intention, monks, I call kamma" (AN 6.63)</li></ul></div>
+    <div class="br r"><b>vs Jainism</b><ul><li>Jains: the body's act counts most</li><li>(sweep paths, filter water)</li><li>Buddha: intention counts most (MN 56)</li></ul></div>
+    <div class="br r"><b>Not fate</b><ul><li>Kamma = action, not "bad luck"</li><li>Responsibility + freedom to change</li><li>Not everything is past kamma</li></ul></div>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the shape</span>
+    <span class="big">"3 – 4 – 3, like a phone number"</span>
+    <p>3 by <b>body</b>, 4 by <b>speech</b>, 3 by <b>mind</b>. Speech gets the most because words do so much harm.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the ten, in order</span>
+    <span class="big">"KSS · Little Snakes Hiss Idly · 3 Cs"</span>
+    <ul class="letters">
+      <li><b class="l">KSS</b> Kill, Steal, Sex (body = the first 3 precepts)</li>
+      <li><b class="l">LSHI</b> Lie, Slander, Harsh, Idle (speech)</li>
+      <li><b class="l">CCC</b> Covet, Curse (ill will), Confused view (mind)</li>
+    </ul>
+    <p>The wholesome ten = abstaining from these, plus their opposites (generosity, truth, kindness, right view).</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: Buddha vs Jains</span>
+    <span class="big">"Jains watch the feet; the Buddha watches the heart."</span>
+    <p>And the principal's example: secretly moving someone's <b>10-cent coin</b> with the intention to take it is already stealing. Accidentally stepping on an ant is not killing.</p>
+  </div>
+  <div class="box eli5"><span class="lbl">The counselling link</span>
+    <p>The counsellor's code of ethics, the <b>three purities</b>, is the ten wholesome deeds applied to the job: pure <b>body</b> (no harm, no exploitation), pure <b>speech</b> (truthful, no harsh or idle talk), pure <b>mind</b> (no longing, no ill will, right view).</p>
+  </div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MM3 4NT & 8FP -->
+<section class="slide" id="s-mm3" data-title="3 · Four Truths & Path: mind map">
+  <h2><small>Mind map 3</small>The Four Noble Truths &amp; the Noble Eightfold Path</h2>
+  <div class="papers"><span class="chip eb">EB Q7 · the Path</span><span class="chip eb">EB Q8 · Truths, why noble</span><span class="chip co">CO Q1 · framework</span><span class="chip co">CO Q2 · treatment</span></div>
+  <div class="mm">
+    <div class="core">The Buddha as doctor<small>illness → cause → cure → medicine</small></div>
+    <div class="br l"><b>1 · Dukkha</b><ul><li>Suffering → <i>understand</i></li><li>Counselling: <b>Diagnosis</b></li></ul></div>
+    <div class="br l"><b>2 · Samudaya</b><ul><li>Craving (3 kinds) → <i>abandon</i></li><li>Counselling: <b>Aetiology</b></li></ul></div>
+    <div class="br l"><b>3 · Nirodha</b><ul><li>Cessation = Nibbāna → <i>realise</i></li><li>Counselling: <b>Prognosis</b></li></ul></div>
+    <div class="br r"><b>4 · Magga</b><ul><li>The Eightfold Path → <i>develop</i></li><li>Counselling: <b>Treatment</b></li></ul></div>
+    <div class="br r"><b>Why "noble"?</b><ul><li>True any time, anyone, anywhere</li><li>Not relative ("white", "tall")</li><li>Taught by the Noble One</li></ul></div>
+    <div class="br r"><b>Path's purpose</b><ul><li>Final: enlightenment</li><li>Now: a peaceful, happy life</li><li>"Until the goal, we still have to live"</li></ul></div>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: why "noble"</span>
+    <span class="big">"Triple A: Any time, Anyone, Anywhere"</span>
+    <p>True in America, in Japan, in the Buddha's time and today. Compare "white": only white next to something darker. That's a relative truth; the noble truths aren't relative.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the counselling stages</span>
+    <span class="big">"Doctors Always Prescribe Treatment"</span>
+    <p><b>D</b>iagnosis (1st) · <b>A</b>etiology (2nd) · <b>P</b>rognosis (3rd) · <b>T</b>reatment (4th)</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the four tasks</span>
+    <span class="big">"U-A-R-D: You Are Really Done"</span>
+    <p><b>U</b>nderstand suffering · <b>A</b>bandon craving · <b>R</b>ealise cessation · <b>D</b>evelop the path</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the eight factors, in order</span>
+    <span class="big">"Very Important Salads Always Leave Everyone Mindful &amp; Calm"</span>
+    <ul class="letters">
+      <li><b class="l">V I</b> View, Intention → <b>Wisdom</b> (2)</li>
+      <li><b class="l">S A L</b> Speech, Action, Livelihood → <b>Morality</b> (3)</li>
+      <li><b class="l">E M C</b> Effort, Mindfulness, Concentration → <b>Concentration</b> (3)</li>
+    </ul>
+    <p>Groups = <b>2 · 3 · 3</b>. The three kinds of craving: "<b>Have, Be, Not-be</b>" (sense pleasures, existence, non-existence).</p>
+  </div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MM4 Aggregates -->
+<section class="slide" id="s-mm4" data-title="4 · Five aggregates: mind map">
+  <h2><small>Mind map 4</small>The five aggregates</h2>
+  <div class="papers"><span class="chip eb">EB Q9 · analysis of the person</span><span class="chip co">CO Q3 · psychological concepts</span></div>
+  <div class="mm">
+    <div class="core">"A person" = 5 heaps<small>pañcakkhandha · no fixed self</small></div>
+    <div class="br l"><b>Form (rūpa)</b><ul><li>Body: 4 elements</li><li>earth, water, fire, air</li><li>Simile: lump of <b>foam</b></li></ul></div>
+    <div class="br l"><b>Feeling (vedanā)</b><ul><li>Pleasant / painful / neutral</li><li>Simile: water <b>bubble</b></li></ul></div>
+    <div class="br l"><b>Perception (saññā)</b><ul><li>Recognising, labelling</li><li>Simile: <b>mirage</b></li></ul></div>
+    <div class="br r"><b>Formations (saṅkhāra)</b><ul><li>Intentions, habits, reactions</li><li>Kamma is made here</li><li>Simile: <b>banana trunk</b> (no core)</li></ul></div>
+    <div class="br r"><b>Consciousness (viññāṇa)</b><ul><li>Knowing via 6 senses</li><li>Simile: <b>magic trick</b></li></ul></div>
+    <div class="br r"><b>So what?</b><ul><li>Clinging to them = suffering (1st Truth)</li><li>None can be controlled → not-self</li><li>Counselling: thoughts are events, not "me"</li></ul></div>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the five, in order</span>
+    <span class="big">"Funny Frogs Paint Fancy Castles"</span>
+    <p><b>F</b>orm · <b>F</b>eeling · <b>P</b>erception · <b>F</b>ormations · <b>C</b>onsciousness</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the similes (Pheṇapiṇḍūpama Sutta, SN 22.95)</span>
+    <span class="big">"Foam Bubbles Make Bananas Magic"</span>
+    <p><b>F</b>oam (form) · <b>B</b>ubble (feeling) · <b>M</b>irage (perception) · <b>B</b>anana trunk (formations) · <b>M</b>agic trick (consciousness)</p>
+    <p>All look solid from far away but have no core up close. The principal's picture: a lump of foam floating down the river looks solid, but it's hollow inside.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: how the mind spirals (counselling)</span>
+    <span class="big">"Contact → Feel → Perceive → Think → Spiral"</span>
+    <p>Madhupiṇḍika Sutta (MN 18). The spiral is <b>papañca</b> (mental proliferation). Mindfulness at the <b>feeling</b> step stops it.</p>
+  </div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MM5 Second Council -->
+<section class="slide" id="s-mm5" data-title="5 · Second Council split: mind map">
+  <h2><small>Mind map 5</small>The Second Council and the first split</h2>
+  <div class="papers"><span class="chip eb">EB Q1 · timeline of Early Buddhism</span><span class="chip ge">GE Q2 · the councils</span></div>
+  <div class="mm">
+    <div class="core">Second Council<small>Vesālī · c. 100 years after the Buddha</small></div>
+    <div class="br l"><b>Cause</b><ul><li>Vajjian monks' 10 points</li><li>Worst: accepting gold &amp; silver</li><li>Ven. Yasa protests</li></ul></div>
+    <div class="br l"><b>Details</b><ul><li>Vālukārāma, Vesālī</li><li>King Kālāsoka · 700 arahants</li><li>8-monk committee (4 E + 4 W)</li></ul></div>
+    <div class="br l"><b>Outcome</b><ul><li>All 10 points rejected</li><li>Dhamma &amp; Vinaya recited again</li></ul></div>
+    <div class="br r"><b>The split</b><ul><li><b>Sthaviras</b> (elders): keep the tradition</li><li><b>Mahāsāṅghikas</b> ("great assembly"): change, popularise</li><li>→ later 18 schools</li></ul></div>
+    <div class="br r"><b>⚠ Common mistake</b><ul><li>NOT Theravāda vs Mahāyāna</li><li>Those names came much later</li></ul></div>
+    <div class="br r"><b>Why EB cares</b><ul><li>Rituals (lights, flowers, chanting, images) began after it</li><li>One view: Early Buddhism ends here</li></ul></div>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the numbers</span>
+    <span class="big">"100 years, 700 monks, 10 points, 8 judges"</span>
+    <p>Say it as a countdown in your head: 1-7-10-8. Place: <b>V</b>esālī. King: <b>K</b>ālāsoka. "<b>V</b>ery <b>K</b>een elders."</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the split</span>
+    <span class="big">"Elders kept it; the Many changed it."</span>
+    <p>Sthavira = elders (→ later called Theravāda). Mahā-saṅgha = the great/many assembly. <b>Second Council = Split council, not Mahāyāna council.</b></p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the four timeline views of Early Buddhism (EB Q1)</span>
+    <span class="big">"No Rules · No Abhidhamma · No Rituals · No Rival vehicles"</span>
+    <ol>
+      <li><b>First 20 years</b> of the Buddha's teaching: before any Vinaya <b>rules</b>.</li>
+      <li><b>Up to the 1st Council:</b> only Dhamma &amp; Vinaya, no <b>Abhidhamma</b> yet (first mentioned at the 3rd).</li>
+      <li><b>Up to the 2nd Council:</b> before the <b>rituals</b> and before the first split.</li>
+      <li><b>Up to the Theravāda / Mahāyāna division:</b> before the <b>rival "vehicles"</b>.</li>
+    </ol>
+    <p>Whichever you pick, <b>give the reason</b>. That's the principal's rule.</p>
+  </div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MM6 Mindfulness -->
+<section class="slide" id="s-mm6" data-title="6 · Mindfulness: mind map">
+  <h2><small>Mind map 6</small>Mindfulness and meditation</h2>
+  <div class="papers"><span class="chip eb">EB Q2 · key elements of meditation</span><span class="chip sd">SD Q8 · mindfulness &amp; mental health</span><span class="chip co">CO · interventions, case study</span></div>
+  <div class="mm">
+    <div class="core">Mindfulness<small>sati · present-moment awareness</small></div>
+    <div class="br l"><b>Samatha (calm)</b><ul><li>One object → one-pointed mind</li><li>Existed before the Buddha</li><li>(Āḷāra Kālāma, Uddaka Rāmaputta)</li></ul></div>
+    <div class="br l"><b>Vipassanā (insight)</b><ul><li>The Buddha's own discovery</li><li>Sees impermanence, suffering, not-self</li></ul></div>
+    <div class="br l"><b>4 foundations</b><ul><li>Body · feelings</li><li>Mind · mental objects</li><li>Satipaṭṭhāna S. (MN 10)</li></ul></div>
+    <div class="br r"><b>Mental health suttas</b><ul><li>Roga S.: 2 illnesses, body &amp; mind</li><li>Nakulapitā: "body sick, mind not sick"</li><li>Salla S.: don't fire the 2nd arrow</li></ul></div>
+    <div class="br r"><b>Breath</b><ul><li>Ānāpānasati S. (MN 118)</li><li>"Calming the body, I breathe in"</li><li>First aid for anxiety</li></ul></div>
+    <div class="br r"><b>Modern use</b><ul><li>MBSR (Kabat-Zinn, 1979)</li><li>MBCT (depression relapse)</li><li>CBT shares the thought–feeling link</li></ul></div>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the two meditations</span>
+    <span class="big">"S is for Still; V is for View."</span>
+    <p><b>S</b>amatha makes the mind <b>still</b> (was around before the Buddha). <b>V</b>ipassanā lets you <b>view</b> things as they really are (the Buddha's own). Both together = the full Buddhist meditation.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: what insight sees</span>
+    <span class="big">"I Don't Own it" → Impermanent · Dukkha · nOt-self</span>
+    <p>Anicca, dukkha, anattā: the three characteristics.</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the four foundations</span>
+    <span class="big">"Big Feelings Mess Minds"</span>
+    <p><b>B</b>ody · <b>F</b>eelings · <b>M</b>ind (citta) · <b>M</b>ental objects (dhammā)</p>
+  </div>
+  <div class="box trick"><span class="lbl">Memory trick: the two arrows</span>
+    <span class="big">"Pain is the 1st arrow; panic is the 2nd."</span>
+    <p>The first arrow (the event) can't always be avoided. The second (worry, resistance, despair) is self-made, and mindfulness stops it.</p>
+  </div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="slide part" id="s-p2" data-title="Part 2 · Full model answers">
+  <h2><small>Part 2</small>Full model answers</h2>
+  <p>One master answer per topic (intro → body → conclusion, about a page), then coloured boxes telling you what to add or stress for each paper. Diploma level: clear and simple beats long and deep.</p>
+</section>
+
+<!-- MA1 Precepts -->
+<section class="slide answer" id="s-ma1" data-title="1 · Five precepts: model answer">
+  <h2><small>Model answer 1</small>The five precepts: meaning and benefits</h2>
+  <div class="papers"><span class="chip eb">EB Q3</span><span class="chip sd">SD Q5</span><span class="chip pl">PL Q9</span></div>
+
+  <h4>Introduction</h4>
+  <p>The five precepts (pañca-sīla) are the basic ethical training of every Buddhist lay person. They are chanted as "<span class="pali">Pāṇātipātā veramaṇī sikkhāpadaṃ samādiyāmi</span>…", "I undertake the training rule to abstain from…". The key words are <i>sikkhāpada</i> (training rule) and <i>samādiyāmi</i> (I undertake). So the precepts are not commandments from a god or laws enforced by punishment. They are a voluntary moral and ethical responsibility that each person takes on.</p>
+
+  <h4>Body</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Pāli</th><th>Abstain from…</th><th>Protects</th></tr></thead>
+    <tbody>
+      <tr><td class="pali">Pāṇātipātā</td><td>killing living beings</td><td>life</td></tr>
+      <tr><td class="pali">Adinnādānā</td><td>taking what is not given</td><td>property</td></tr>
+      <tr><td class="pali">Kāmesu micchācārā</td><td>sexual misconduct</td><td>family, trust</td></tr>
+      <tr><td class="pali">Musāvādā</td><td>false speech</td><td>truth</td></tr>
+      <tr><td class="pali">Surā-meraya-majja-pamādaṭṭhānā</td><td>intoxicants causing heedlessness</td><td>a clear mind, health, safety</td></tr>
+    </tbody>
+  </table></div>
+  <ol>
+    <li><b>An ethical responsibility, not rules.</b> In many religions a follower must obey rules and can be rejected for breaking them: Jains must be strict vegetarians; Muslims must not drink alcohol. Buddhism has no such enforcement. If someone breaks a precept, they are not thrown out. They can recognise the mistake, correct themselves and take the precepts again. Aṅgulimāla had killed many people, yet the Buddha accepted him and he became an arahant.</li>
+    <li><b>Self-restraint from harm.</b> At heart the precepts mean restraining oneself from harmful actions. Anyone can see these acts are harmful, so the precepts don't depend on being a Buddhist. The Buddha's reasoning: "I want to live and don't want to die… what is not pleasing to me is not pleasing to others" (Veḷudvāreyya Sutta). "All fear the rod, all love life" (Dhp 130).</li>
+    <li><b>Intention decides.</b> Accidentally stepping on an insect is not breaking the first precept. Moving someone's ten cents with the intention of taking it is already stealing.</li>
+    <li><b>Benefits for oneself.</b> A clear conscience and freedom from fear and remorse; a good reputation and trust; health and wealth protected (especially by the 5th precept); a calm mind, the foundation for meditation; dying without confusion and a good rebirth.</li>
+    <li><b>Benefits for others.</b> Others are safe from violence, theft, betrayal, lies and drunken behaviour. The Buddha called the precepts "great gifts" that give "freedom from fear, hostility and oppression to countless beings" (AN 8.39).</li>
+  </ol>
+
+  <h4>Conclusion</h4>
+  <p>The five precepts are voluntary training rules: a personal responsibility to restrain oneself from harming others. A person who fails can always correct themselves and begin again. Because the precepts rest on universal reasoning, they benefit both the person who keeps them and everyone around them, Buddhist or not.</p>
+
+  <div class="angle eb"><span class="lbl">Early Buddhism Q3: stress</span>
+    <p>"Not rules but ethical responsibility", the comparison with other religions, Aṅgulimāla, intention, and benefits <b>for you and for others</b>. Those are the principal's exact cues.</p></div>
+  <div class="angle sd"><span class="lbl">Social Dimensions Q5: add</span>
+    <ul>
+      <li>What each precept protects in <b>society</b> (Life, Property, Family, Truth, Mind) and what society would look like if people kept them: less violence and terrorism, theft and corruption, broken families, fraud and fake news, drug crime and drunk driving.</li>
+      <li>"Protecting oneself, one protects others" (Sedaka Sutta, SN 47.19).</li>
+      <li>One or two other social ethics: the four ways of showing favour (generosity, kind speech, helpful action, equal treatment) or Sigālovāda Sutta duties.</li>
+    </ul></div>
+  <div class="angle pl"><span class="lbl">Pāli Q9: write the Pāli</span>
+    <ul>
+      <li>All five in full: <span class="pali">Pāṇātipātā / Adinnādānā / Kāmesu micchācārā / Musāvādā / Surāmerayamajjapamādaṭṭhānā veramaṇī sikkhāpadaṃ samādiyāmi.</span></li>
+      <li>Eight precepts: 3rd becomes <span class="pali">Abrahmacariyā</span>; add <span class="pali">Vikālabhojanā</span>, <span class="pali">Nacca-gīta-vādita-visūkadassana-mālā-gandha-vilepana-dhāraṇa-maṇḍana-vibhūsanaṭṭhānā</span>, <span class="pali">Uccāsayana-mahāsayanā</span>.</li>
+      <li>Glosses: veramaṇī = abstention · sikkhāpadaṃ = training rule · samādiyāmi = I undertake.</li>
+    </ul></div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MA2 Ten deeds & kamma -->
+<section class="slide answer" id="s-ma2" data-title="2 · Ten deeds & kamma: model answer">
+  <h2><small>Model answer 2</small>Kamma, intention and the ten wholesome &amp; unwholesome deeds</h2>
+  <div class="papers"><span class="chip eb">EB Q4</span><span class="chip eb">EB Q5</span><span class="chip co">CO Q4</span></div>
+
+  <h4>Introduction</h4>
+  <p>In modern usage "karma" often means bad luck or punishment. In Buddhism, kamma simply means <b>action</b>, good or bad, and more precisely <b>intentional</b> action. The Buddha defined it: "<span class="pali">Cetanāhaṃ bhikkhave kammaṃ vadāmi. Cetayitvā kammaṃ karoti kāyena vācāya manasā</span>": "Monks, it is intention that I call kamma. Having intended, one acts through body, speech and mind" (Nibbedhika Sutta, AN 6.63). The Buddha summarised moral action as the ten wholesome and unwholesome courses of action, grouped by these three doors.</p>
+
+  <h4>Body</h4>
+  <ol>
+    <li><b>Intention is the essence of kamma.</b> Without intention there is no kamma. Stepping on an ant by accident is not the kamma of killing. But even a tiny act with a wrong intention is kamma: moving someone's ten-cent coin a short way, intending to take it, is already stealing.</li>
+    <li><b>The ten unwholesome deeds (3 – 4 – 3).</b>
+      <div class="tw"><table>
+        <thead><tr><th>Door</th><th>Unwholesome</th><th>Wholesome</th></tr></thead>
+        <tbody>
+          <tr><td><b>Body (3)</b></td><td>killing · stealing · sexual misconduct</td><td>protecting life · generosity · faithfulness</td></tr>
+          <tr><td><b>Speech (4)</b></td><td>lying · slander · harsh speech · idle chatter</td><td>truth · speech that unites · kind words · meaningful talk</td></tr>
+          <tr><td><b>Mind (3)</b></td><td>covetousness · ill will · wrong view</td><td>contentment (no greed) · loving-kindness (no anger) · right view</td></tr>
+        </tbody>
+      </table></div>
+      The bodily three are the first three precepts and lying is the fourth; the Buddha added three more kinds of harmful speech and three mental actions, because "mind is the forerunner of all things" (Dhp 1).</li>
+    <li><b>Roots and results.</b> Unwholesome deeds come from greed, hatred and delusion and bring suffering and unhappy rebirths. Wholesome deeds come from generosity, loving-kindness and wisdom and bring happiness, trust and a calm mind.</li>
+    <li><b>The difference from Jainism.</b> Jainism, the religion closest to Buddhism in the Buddha's time, also taught kamma. But for the Jains the <b>bodily</b> act counted most, even if unintentional. That is why Jain monks sweep the path and filter their water. The Buddha rejected this: intention counts most. In the Upāli Sutta (MN 56) he showed that mental action is the most powerful.</li>
+    <li><b>Kamma is not fate.</b> Because kamma is intentional, we are responsible for our actions and free to change them. Not everything is due to past kamma; illness, climate and carelessness also play a part (Sīvaka Sutta). Kamma is a natural law of cause and effect, not reward or punishment from a god.</li>
+  </ol>
+
+  <h4>Conclusion</h4>
+  <p>Kamma means intentional action, good or bad, not luck or fate. "It is intention that I call kamma." This sets the Buddhist teaching apart, especially from Jainism. The ten wholesome and unwholesome deeds (three by body, four by speech, three by mind) show that Buddhist ethics covers what we do, say and think, and that by purifying our intentions we shape our own future.</p>
+
+  <div class="angle eb"><span class="lbl">Early Buddhism: two separate questions</span>
+    <ul>
+      <li><b>Q4 (ten deeds):</b> lead with the table and the body/speech/mind categories; keep kamma short.</li>
+      <li><b>Q5 (kamma):</b> lead with the quote, intention, the 10-cent example and Jainism; use the ten deeds as one paragraph. The principal starred <b>intention</b>, so make it the centre.</li>
+    </ul></div>
+  <div class="angle co"><span class="lbl">Counselling Q4: turn it into practice</span>
+    <ul>
+      <li><b>Responsibility:</b> because kamma is intention, clients can change their future through present choices, without blame or fatalism (not everything is past kamma).</li>
+      <li><b>Three purities</b> (the counsellor's code of ethics, built on the ten wholesome deeds): body (no harm or exploitation, confidentiality), speech (no false reassurance, no harsh or shaming words, no idle chatter), mind (no longing for validation, no ill will, right view).</li>
+    </ul></div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MA3 4NT & 8FP -->
+<section class="slide answer" id="s-ma3" data-title="3 · Four Truths & Path: model answer">
+  <h2><small>Model answer 3</small>The Four Noble Truths and the Noble Eightfold Path</h2>
+  <div class="papers"><span class="chip eb">EB Q7</span><span class="chip eb">EB Q8</span><span class="chip co">CO Q1</span><span class="chip co">CO Q2</span></div>
+
+  <h4>Introduction</h4>
+  <p>The Four Noble Truths were the subject of the Buddha's first sermon, the Dhammacakkappavattana Sutta, and are the heart of his teaching. They follow a doctor's method: the illness (suffering), its cause (craving), the cure (cessation) and the medicine (the path). The fourth truth, the Noble Eightfold Path, is the Middle Way between sensual indulgence and self-torment.</p>
+
+  <h4>Body</h4>
+  <ol>
+    <li><b>Suffering (dukkha), to be understood.</b> Birth, ageing, sickness and death; sorrow and grief; being with what we dislike, separated from what we love, not getting what we want; in short, the five aggregates of clinging.</li>
+    <li><b>The cause (samudaya), to be abandoned.</b> Craving (taṇhā) of three kinds: for sense pleasures, for existence and for non-existence.</li>
+    <li><b>Cessation (nirodha), to be realised.</b> When craving ends, suffering ends. This is Nibbāna. It proves freedom is possible.</li>
+    <li><b>The path (magga), to be developed.</b> The eight factors in three groups:
+      <div class="tw"><table>
+        <thead><tr><th>Group</th><th>Factors</th><th>In daily life</th></tr></thead>
+        <tbody>
+          <tr><td><b>Wisdom</b></td><td>right view · right intention</td><td>accept change, take responsibility; goodwill instead of anger</td></tr>
+          <tr><td><b>Morality</b></td><td>right speech · right action · right livelihood</td><td>trust at home and work; clear conscience; honest income</td></tr>
+          <tr><td><b>Concentration</b></td><td>right effort · right mindfulness · right concentration</td><td>good habits; less stress, respond not react; inner calm</td></tr>
+        </tbody>
+      </table></div></li>
+    <li><b>The path's purpose.</b> Its final purpose is enlightenment. But until we reach that goal we still have to live, so the path is also a practical guide for a <b>peaceful and happy life now</b>. The factors are developed together, like the strands of a rope.</li>
+    <li><b>Why "noble" (ariya)?</b> Most of all, because they are <b>true at any time, for anyone, in any place</b>. Many truths are relative: something is "white" only next to something darker; someone is "tall" only next to someone shorter. The Four Noble Truths are true in America and Japan, in the Buddha's time and today. Also: they were taught by the Noble One, and realising them makes a person noble.</li>
+    <li><b>Realistic, not pessimistic.</b> Starting with suffering is like a doctor starting with a diagnosis. The teaching goes on to the cause, the cure and the method.</li>
+  </ol>
+
+  <h4>Conclusion</h4>
+  <p>The Four Noble Truths explain suffering, its cause, its end and the way to its end. They are noble because they hold for anyone, any time, anywhere. The Eightfold Path, as wisdom, morality and concentration, leads finally to Nibbāna, and along the way gives a peaceful, happy life in the present.</p>
+
+  <div class="angle eb"><span class="lbl">Early Buddhism: two separate questions</span>
+    <ul>
+      <li><b>Q8 (Four Truths):</b> the four truths with their tasks, then a full paragraph on <b>why noble</b> (white / tall example). That paragraph is the principal's ☐ box.</li>
+      <li><b>Q7 (Path):</b> the eight factors in the three groups, then the "peaceful, happy life now" paragraph with daily-life examples. The principal said: explain what kind of peaceful life each gives.</li>
+    </ul></div>
+  <div class="angle co"><span class="lbl">Counselling Q1: the Four Truths as a framework</span>
+    <ul>
+      <li>Rename the truths: <b>Diagnosis</b> (the presenting problem: first arrow + second arrow), <b>Aetiology</b> (which craving, aversion, ignorance), <b>Prognosis</b> ("the absence of clinging", not of all pain), <b>Treatment</b>.</li>
+      <li>Why it's a strong framework: verifiable in the client's experience, explains causes, leads to action, gives hope, simple; basis of MBSR/MBCT.</li>
+      <li>Add a short case (e.g. a man who lost his job: clinging to "I am a manager").</li>
+    </ul></div>
+  <div class="angle co"><span class="lbl">Counselling Q2: the Path as treatment</span>
+    <ul>
+      <li>Each factor as an intervention: right view = psychoeducation; right intention = motivation, self-compassion; speech / action / livelihood = communication skills, behaviour change, work-life balance; right effort = the four efforts (like CBT); mindfulness = MBSR/MBCT; concentration = calming practice.</li>
+      <li>The <b>four domains</b>: environment, physical, verbal, mental. Example for anger: avoid triggers · pause and relax · no harsh words · observe anger, cultivate patience.</li>
+    </ul></div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MA4 Aggregates -->
+<section class="slide answer" id="s-ma4" data-title="4 · Five aggregates: model answer">
+  <h2><small>Model answer 4</small>The five aggregates: the Buddhist analysis of the person</h2>
+  <div class="papers"><span class="chip eb">EB Q9</span><span class="chip co">CO Q3</span></div>
+
+  <h4>Introduction</h4>
+  <p>Buddhism teaches that there is no permanent self (anattā). Yet we are clearly living beings, so how does Buddhism explain the individual? The Buddha analysed the person into five groups or aggregates (pañcakkhandha). What we call "I" is only a combination of these five changing processes. This is the Buddhist explanation of empirical existence.</p>
+
+  <h4>Body</h4>
+  <ol>
+    <li><b>The five aggregates.</b>
+      <div class="tw"><table>
+        <thead><tr><th>Aggregate</th><th>Meaning</th><th>Simile (SN 22.95)</th></tr></thead>
+        <tbody>
+          <tr><td><b>Form</b> (rūpa)</td><td>the body: earth (solidity), water (cohesion), fire (heat), air (motion)</td><td>a lump of foam on a river: looks solid, hollow inside</td></tr>
+          <tr><td><b>Feeling</b> (vedanā)</td><td>pleasant, painful or neutral</td><td>a bubble on water: comes and goes fast</td></tr>
+          <tr><td><b>Perception</b> (saññā)</td><td>recognising, labelling</td><td>a mirage: water far away, none up close</td></tr>
+          <tr><td><b>Mental formations</b> (saṅkhāra)</td><td>intentions, thoughts, emotions, habits; kamma is made here</td><td>a banana trunk: peel it, there's no core</td></tr>
+          <tr><td><b>Consciousness</b> (viññāṇa)</td><td>knowing through the six senses</td><td>a magician's trick: seems real, isn't</td></tr>
+        </tbody>
+      </table></div>
+      Form is the material side (rūpa); the other four are the mental side (nāma): together, nāmarūpa.</li>
+    <li><b>The aggregates of clinging.</b> When we cling to them as "this is mine, this is I, this is my self", they become the five aggregates of clinging, which the First Noble Truth calls suffering.</li>
+    <li><b>No self in them.</b> Each aggregate changes and can't be controlled. If the body were the self, we could say "let my body be like this" (Anattalakkhaṇa Sutta). Just as "chariot" is a name for assembled parts, "being" is a name for the aggregates together (Vajirā Sutta).</li>
+    <li><b>Why it matters.</b> Seeing the person as five changing processes reduces selfishness, pride and clinging, and is the basis of insight meditation.</li>
+  </ol>
+
+  <h4>Conclusion</h4>
+  <p>Buddhism explains the individual as five changing aggregates, not a permanent self. The similes of foam, bubble, mirage, banana trunk and magic trick show that each seems solid but has no core. Understanding this reduces clinging and leads to liberation.</p>
+
+  <div class="angle eb"><span class="lbl">Early Buddhism Q9: keep it at "surface level"</span>
+    <p>The principal said a surface understanding is enough: name the five, explain each in a line, give the similes, link to not-self. Mention the Abhidhamma's 28 kinds of matter only in passing, if at all.</p></div>
+  <div class="angle co"><span class="lbl">Counselling Q3: add the psychology</span>
+    <ul>
+      <li><b>Process of perception</b> (Madhupiṇḍika Sutta, MN 18): sense + object + consciousness = contact → feeling → perception → thinking → <b>proliferation (papañca)</b>. Example: a phone buzz → unpleasant feeling → "another message" → "I'm falling behind" → "my future is hopeless".</li>
+      <li>Mindfulness at the <b>feeling</b> step stops the spiral.</li>
+      <li>Other concepts to list: the three roots, the three types of craving, the two arrows (Salla Sutta), the mind as "luminous but defiled by passing defilements" (AN 1.51).</li>
+      <li>For clients: thoughts and feelings are events, not facts and not "me".</li>
+    </ul></div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MA5 Second Council -->
+<section class="slide answer" id="s-ma5" data-title="5 · Second Council: model answer">
+  <h2><small>Model answer 5</small>The Second Council and the first split in the Saṅgha</h2>
+  <div class="papers"><span class="chip ge">GE Q2</span><span class="chip eb">EB Q1</span></div>
+
+  <h4>Introduction</h4>
+  <p>Before he passed away, the Buddha appointed no successor: "The Dhamma and Vinaya will be your teacher." To protect them, the Saṅgha held councils. The First Council (three months after the Parinibbāna, at Rājagaha) recited the Dhamma and Vinaya. About 100 years later, a dispute over discipline led to the Second Council, which protected the Vinaya but also saw the first division of the Saṅgha.</p>
+
+  <h4>Body</h4>
+  <ol>
+    <li><b>Cause.</b> The Vajjian monks of Vesālī practised ten points that broke the Vinaya, the most serious being accepting gold and silver (money). Ven. Yasa Kākaṇḍakaputta protested, was punished for it, and sought the support of senior monks: Sambhūta, Revata and Sabbakāmī, the most senior monk alive.</li>
+    <li><b>Details.</b> Held at the Vālukārāma in Vesālī, about 100 years after the Parinibbāna, under King Kālāsoka, with 700 arahants.</li>
+    <li><b>Method.</b> To avoid endless argument, a committee of eight monks, four from the east and four from the west, examined the points. Revata asked the questions and Sabbakāmī answered. This shows a democratic way of settling disputes.</li>
+    <li><b>Outcome.</b> All ten points were rejected as against the Vinaya, and the Dhamma and Vinaya were recited again. The rule against handling money was protected.</li>
+    <li><b>The first split.</b> The Saṅgha divided into two groups: the <b>Sthaviras</b> (elders), who accepted the elders' decision and wanted to keep the tradition as it was, and the <b>Mahāsāṅghikas</b> ("great assembly", the larger group), who wanted change and to make Buddhism more popular. Over time they divided into about 18 schools.</li>
+    <li><b>Not Theravāda vs Mahāyāna.</b> This is a common misunderstanding. The terms Mahāyāna ("great vehicle") and Hīnayāna came much later, when some taught the aim of becoming a Buddha. The elders' tradition later called itself Theravāda, "the teaching of the elders". This developed gradually, not at one council.</li>
+    <li><b>Rituals began after it.</b> After the Second Council, ritual practices (offering lights and flowers, chanting, worshipping images) were gradually introduced. Before it, there were no such practices.</li>
+  </ol>
+
+  <h4>Conclusion</h4>
+  <p>The Second Council protected the purity of the Vinaya and showed a fair way of settling disputes, but it also marked the first division of the Saṅgha into elders and Mahāsāṅghikas. Theravāda's strict, conservative character comes from these elders. The later Theravāda/Mahāyāna division should not be confused with this split.</p>
+
+  <div class="angle ge"><span class="lbl">Geo Expansion Q2: put it in the councils story</span>
+    <ul>
+      <li>The principal said: "pay more attention to the Second Council: what happened, the reasons, the result." So give it the most space.</li>
+      <li>Frame it with the others: <b>1st</b> (Rājagaha, Mahākassapa, Upāli Vinaya, Ānanda Dhamma, 500) → <b>2nd</b> → <b>3rd</b> (Pāṭaliputta, Asoka, Moggaliputta Tissa, Vibhajjavāda, Kathāvatthu, nine missions) → <b>4th</b> (Theravāda: Āluvihāra, Sri Lanka, Tipiṭaka written on palm leaves; the northern one in Kashmir under Kaniṣka).</li>
+      <li>Link back to spread: the elders' strict tradition is what reached Sri Lanka and South-East Asia.</li>
+    </ul></div>
+  <div class="angle eb"><span class="lbl">Early Buddhism Q1: use it as one view of the timeline</span>
+    <ul>
+      <li>Give all four views, each with its reason: first 20 years (no Vinaya rules yet) · up to the 1st Council (only Dhamma &amp; Vinaya; Abhidhamma first mentioned at the 3rd) · <b>up to the 2nd Council</b> (before rituals and before the first split) · up to the Theravāda/Mahāyāna division.</li>
+      <li>Then say clearly: the 2nd Council split was elders vs Mahāsāṅghikas, <b>not</b> Theravāda vs Mahāyāna.</li>
+      <li>Keep council details short here; the EB question is about what Early Buddhism is.</li>
+    </ul></div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- MA6 Mindfulness -->
+<section class="slide answer" id="s-ma6" data-title="6 · Mindfulness: model answer">
+  <h2><small>Model answer 6</small>Mindfulness and meditation: from calm to mental health</h2>
+  <div class="papers"><span class="chip eb">EB Q2</span><span class="chip sd">SD Q8</span><span class="chip co">CO</span></div>
+
+  <h4>Introduction</h4>
+  <p>Meditation (bhāvanā) means "mental cultivation". Meditation is not unique to Buddhism; in the Buddha's time almost every tradition had its own. What makes Buddhist meditation distinctive is that it combines <b>samatha</b> (calm) with <b>vipassanā</b> (insight), and aims at wisdom and freedom from suffering. Running through both is mindfulness (sati), present-moment awareness, which today is also a major tool for mental health.</p>
+
+  <h4>Body</h4>
+  <ol>
+    <li><b>Samatha: calm and concentration.</b> The mind rests on one object (the breath, loving-kindness) until it becomes calm and one-pointed, suppressing the five hindrances. Samatha was <b>not</b> introduced by the Buddha: before his enlightenment he practised it under Āḷāra Kālāma and Uddaka Rāmaputta and reached high attainments, but saw they were temporary and did not end suffering.</li>
+    <li><b>Vipassanā: insight.</b> "Seeing clearly". This is what the Buddha himself discovered and taught. The meditator observes body, feelings, mind and mental objects (the four foundations, Satipaṭṭhāna Sutta, MN 10) and sees the three characteristics: impermanence, suffering and not-self. This removes ignorance and craving and leads to Nibbāna.</li>
+    <li><b>Supporting elements.</b> Right effort; morality as the foundation (a clear conscience makes concentration easier); and both meditations working together, calm giving stability and insight giving wisdom.</li>
+    <li><b>Mind and body are one system.</b> The Roga Sutta (AN 4.157) speaks of two illnesses, bodily and mental; people may be free of bodily illness for years, but rarely free of mental illness even for a moment. The Buddha told the sick old Nakulapitā: "Though your body is sick, let your mind not be sick" (SN 22.1).</li>
+    <li><b>Mindfulness for mental health.</b>
+      <ul>
+        <li><b>Breath:</b> the Ānāpānasati Sutta (MN 118), "calming the bodily formation, I breathe in". It slows the body and settles anxiety.</li>
+        <li><b>The two arrows:</b> in the Salla Sutta (SN 36.6) pain is the first arrow; worry, resistance and despair are a self-made second arrow. Mindfulness lets us feel the first without firing the second.</li>
+        <li><b>Thoughts and emotions:</b> observing them without attachment prevents chronic stress (Dvedhāvitakka Sutta, MN 19); loving-kindness reduces anger.</li>
+      </ul></li>
+    <li><b>Modern applications.</b> Mindfulness-Based Stress Reduction (MBSR, Jon Kabat-Zinn, 1979) and Mindfulness-Based Cognitive Therapy (MBCT, for depression relapse) show measurable benefits for anxiety, depression and chronic pain. CBT shares Buddhism's focus on the link between thoughts, feelings and behaviour.</li>
+  </ol>
+
+  <h4>Conclusion</h4>
+  <p>Buddhist meditation joins samatha, which calms the mind and existed before the Buddha, with vipassanā, the Buddha's own insight into impermanence, suffering and not-self. Mindfulness links them, and its value for mental health, from the two arrows to MBSR, is now confirmed by modern psychology.</p>
+
+  <div class="angle eb"><span class="lbl">Early Buddhism Q2: key elements of meditation</span>
+    <p>Use points 1–3 fully. The principal's cues: "meditation is not only for Buddhism", start with the <b>two types</b>, say samatha existed before (the Buddha's earlier teachers), vipassanā = insight into anicca, dukkha, anattā. Keep points 4–6 to a line or skip them.</p></div>
+  <div class="angle sd"><span class="lbl">Social Dimensions Q8: mindfulness &amp; mental health</span>
+    <p>Lead with points 4–6. Open with the problem (stress, anxiety, depression today) and "the Buddha as the great physician". Add the Sigālovāda Sutta as a "layperson's code of health" (no intoxicants, balanced sleep and work, money and friends) and the Maṅgala Sutta's 38 blessings.</p></div>
+  <div class="angle co"><span class="lbl">Counselling: as an intervention</span>
+    <ul>
+      <li>Kabat-Zinn's definition: "paying attention on purpose, in the present moment, non-judgementally". It changes the client's <b>relationship</b> to thoughts, not their content.</li>
+      <li>Calming an anxious client: calm presence → slow breathing, longer out-breath → grounding (feet, five senses) → name it ("this is anxiety") → separate 1st and 2nd arrow → "May I be at ease" → refer if severe.</li>
+    </ul></div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+
+<!-- CHEAT SHEET -->
+<section class="slide" id="s-cheat" data-title="Cheat sheet: all memory tricks">
+  <h2><small>The night before</small>All the memory tricks on one page</h2>
+  <div class="cheat">
+    <div><b>The six overlaps</b><span class="big">Precious Deeds Truly Add Some Mindfulness</span>Precepts · Deeds · Truths · Aggregates · Second Council · Mindfulness</div>
+    <div><b>Five precepts (English)</b><span class="big">Kind Souls Seldom Lie Drunk</span>Kill · Steal · Sex · Lie · Drink</div>
+    <div><b>Five precepts (Pāli)</b><span class="big">Please Always Keep My Sīla</span>Pāṇā · Adinnā · Kāmesu · Musā · Surā</div>
+    <div><b>Eight precepts</b><span class="big">Five, then a Very Nice Upgrade</span>3rd → Abrahmacariyā; + Vikāla · Nacca · Uccāsayana</div>
+    <div><b>What precepts protect</b><span class="big">LP-FTM</span>Life · Property · Family · Truth · Mind</div>
+    <div><b>Ten deeds: shape</b><span class="big">3 – 4 – 3</span>body · speech · mind</div>
+    <div><b>Ten deeds: list</b><span class="big">KSS · Little Snakes Hiss Idly · 3 Cs</span>Kill Steal Sex · Lie Slander Harsh Idle · Covet Curse Confused</div>
+    <div><b>Kamma vs Jainism</b><span class="big">Jains watch the feet; the Buddha watches the heart</span>Cetanāhaṃ bhikkhave kammaṃ vadāmi</div>
+    <div><b>Why "noble"</b><span class="big">Triple A</span>Any time · Anyone · Anywhere</div>
+    <div><b>Truths in counselling</b><span class="big">Doctors Always Prescribe Treatment</span>Diagnosis · Aetiology · Prognosis · Treatment</div>
+    <div><b>Four tasks</b><span class="big">You Are Really Done</span>Understand · Abandon · Realise · Develop</div>
+    <div><b>Eightfold Path</b><span class="big">Very Important Salads Always Leave Everyone Mindful &amp; Calm</span>VI · SAL · EMC = wisdom 2 · morality 3 · concentration 3</div>
+    <div><b>Three cravings</b><span class="big">Have · Be · Not-be</span>sense pleasures · existence · non-existence</div>
+    <div><b>Five aggregates</b><span class="big">Funny Frogs Paint Fancy Castles</span>Form · Feeling · Perception · Formations · Consciousness</div>
+    <div><b>Aggregate similes</b><span class="big">Foam Bubbles Make Bananas Magic</span>foam · bubble · mirage · banana trunk · magic trick</div>
+    <div><b>Mind spiral</b><span class="big">Contact → Feel → Perceive → Think → Spiral</span>stop it at "feel"</div>
+    <div><b>Second Council</b><span class="big">100 · 700 · 10 · 8</span>years · monks · points · judges; Vesālī, Kālāsoka</div>
+    <div><b>The split</b><span class="big">Elders kept it; the Many changed it</span>Sthavira vs Mahāsāṅghika, NOT Theravāda vs Mahāyāna</div>
+    <div><b>EB timeline</b><span class="big">No Rules · No Abhidhamma · No Rituals · No Rival vehicles</span>20 yrs · 1st Council · 2nd Council · T/M division</div>
+    <div><b>Two meditations</b><span class="big">S is for Still; V is for View</span>samatha (pre-Buddha) · vipassanā (the Buddha's)</div>
+    <div><b>Insight sees</b><span class="big">I Don't Own it</span>Impermanence · Dukkha · nOt-self</div>
+    <div><b>Four foundations</b><span class="big">Big Feelings Mess Minds</span>Body · Feelings · Mind · Mental objects</div>
+    <div><b>Two arrows</b><span class="big">Pain is the 1st; panic is the 2nd</span>Salla Sutta, SN 36.6</div>
+  </div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="0">Back to start</button></div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var jump=document.getElementById('jump'),count=document.getElementById('count'),bar=document.getElementById('bar');
+  var prev=document.getElementById('prev'),next=document.getElementById('next');
+  var mS=document.getElementById('mSlides'),mC=document.getElementById('mScroll');
+  var cur=0;
+  function load(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+  function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+
+  slides.forEach(function(s,i){var o=document.createElement('option');o.value=i;o.textContent=(i+1)+'. '+s.getAttribute('data-title');jump.appendChild(o);});
+
+  function show(i,fromHash){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,j){s.classList.toggle('on',j===cur);});
+    jump.value=cur;count.textContent=(cur+1)+' / '+slides.length;
+    bar.style.width=((cur+1)/slides.length*100)+'%';
+    prev.disabled=cur===0;next.disabled=cur===slides.length-1;
+    store('ov-slide',String(cur));
+    if(!fromHash&&history.replaceState){history.replaceState(null,'','#'+slides[cur].id);}
+    if(document.body.classList.contains('slides')){window.scrollTo({top:0});}
+    else{slides[cur].scrollIntoView({block:'start'});}
+  }
+  function setMode(m){
+    var sl=m!=='scroll';
+    document.body.classList.toggle('slides',sl);
+    mS.setAttribute('aria-pressed',sl?'true':'false');mC.setAttribute('aria-pressed',sl?'false':'true');
+    store('ov-mode',sl?'slides':'scroll');
+    show(cur,true);
+  }
+  prev.addEventListener('click',function(){show(cur-1);});
+  next.addEventListener('click',function(){show(cur+1);});
+  jump.addEventListener('change',function(){show(parseInt(jump.value,10));});
+  mS.addEventListener('click',function(){setMode('slides');});
+  mC.addEventListener('click',function(){setMode('scroll');});
+  document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){var g=parseInt(b.getAttribute('data-go'),10);show(g===0?0:cur+g);});});
+  document.querySelectorAll('a[href^="#s-"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href').slice(1);var i=slides.findIndex(function(s){return s.id===id;});if(i>-1){e.preventDefault();show(i);}});});
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest&&e.target.closest('select,input,textarea'))return;
+    if(!document.body.classList.contains('slides'))return;
+    if(e.key==='ArrowRight'){show(cur+1);}else if(e.key==='ArrowLeft'){show(cur-1);}
+  });
+  /* swipe on phones */
+  var sx=null;
+  document.getElementById('deck').addEventListener('touchstart',function(e){sx=e.touches[0].clientX;},{passive:true});
+  document.getElementById('deck').addEventListener('touchend',function(e){if(sx===null||!document.body.classList.contains('slides'))return;var dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>70){show(cur+(dx<0?1:-1));}},{passive:true});
+
+  var start=0,h=location.hash.slice(1);
+  var hi=slides.findIndex(function(s){return s.id===h;});
+  if(hi>-1){start=hi;}else{var saved=parseInt(load('ov-slide'),10);if(!isNaN(saved))start=saved;}
+  cur=start;
+  setMode(load('ov-mode')==='scroll'?'scroll':'slides');
+})();
+</script>
+</body>
+</html>
+</body>
+</html>
