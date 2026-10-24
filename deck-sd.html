@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Social Dimensions Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a slide deck in one study column. One slide per exam question: mind map, memory tricks, answer skeleton. Slides mode shows one slide at a time; Scroll mode shows all. */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#1d2a2e; --muted:#5b6b70; --rule:#d5dedc;
+  --robe:#b8640f; --robe-soft:#f8ead8; --teal:#1f5c63; --teal-soft:#e2eeee;
+  --eb:#1f5c63; --sd:#2f7d4a; --pl:#b8640f; --co:#7a4f9a; --ge:#a33b4a;
+  --eb-soft:#e2eeee; --sd-soft:#e1f1e6; --pl-soft:#f8ead8; --co-soft:#eee6f4; --ge-soft:#f6e2e5;
+  --pali:"Gentium Book Plus","Noto Serif",Georgia,serif;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#352717; --teal:#7cc3c9; --teal-soft:#1c3336;
+  --eb:#7cc3c9; --sd:#7fcf98; --pl:#eea04f; --co:#c4a2e0; --ge:#ee8f9c;
+  --eb-soft:#1c3336; --sd-soft:#18301f; --pl-soft:#352717; --co-soft:#2b2236; --ge-soft:#3a1d22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a1c; --surface:#192427; --ink:#e3ebe9; --muted:#9aaba9; --rule:#2e3d40;
+  --robe:#eea04f; --robe-soft:#352717; --teal:#7cc3c9; --teal-soft:#1c3336;
+  --eb:#7cc3c9; --sd:#7fcf98; --pl:#eea04f; --co:#c4a2e0; --ge:#ee8f9c;
+  --eb-soft:#1c3336; --sd-soft:#18301f; --pl-soft:#352717; --co-soft:#2b2236; --ge-soft:#3a1d22; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:0 72px;margin:0}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:32px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--robe);font-weight:600}
+h1{font-family:var(--pali);font-size:clamp(30px,6vw,42px);line-height:1.1;margin:6px 0 8px;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.pali{font-family:var(--pali)}
+
+/* Deck controls */
+.deckbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);padding-block:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select{font:inherit;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px;padding:8px 12px;border:1px solid var(--rule);background:var(--surface);color:var(--ink)}
+button:hover,select:hover{border-color:var(--teal)}
+button:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--robe);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.deckbar select{flex:1 1 220px;min-width:0;font-weight:500}
+.deckbar .count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:52px;text-align:center}
+.mode{margin-left:auto;display:flex;gap:0}
+.mode button{border-radius:0;font-size:13px;padding:7px 10px}
+.mode button:first-child{border-radius:8px 0 0 8px}
+.mode button:last-child{border-radius:0 8px 8px 0;border-left:0}
+.mode button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.progress{height:4px;background:var(--rule);border-radius:999px;overflow:hidden;flex-basis:100%}
+.progress i{display:block;height:100%;background:var(--robe);width:0;transition:width .2s}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+
+/* Slides */
+.slide{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:24px 22px;margin-block:18px;scroll-margin-top:110px}
+body.slides .slide{display:none}
+body.slides .slide.on{display:block}
+.slide h2{font-family:var(--pali);font-size:clamp(24px,4.6vw,30px);line-height:1.2;margin:0 0 10px;text-wrap:balance}
+.slide h2 small{display:block;font-family:var(--ui);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--robe);font-weight:600;margin-bottom:2px}
+.slide h3{font-size:16px;margin:20px 0 6px}
+.slide p,.slide li{max-width:68ch}
+.part{background:var(--teal-soft);border-color:transparent;text-align:center;padding-block:40px}
+.part h2{font-size:clamp(28px,6vw,38px)}
+.part p{margin-inline:auto;color:var(--muted)}
+.nextnav{display:flex;justify-content:space-between;gap:8px;margin-top:22px;border-top:1px solid var(--rule);padding-top:14px}
+body:not(.slides) .nextnav{display:none}
+
+/* Paper chips */
+.papers{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.chip{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.03em;border-radius:999px;padding:3px 10px;border:1px solid}
+.eb{color:var(--eb);border-color:var(--eb);background:var(--eb-soft)}
+.sd{color:var(--sd);border-color:var(--sd);background:var(--sd-soft)}
+.pl{color:var(--pl);border-color:var(--pl);background:var(--pl-soft)}
+.co{color:var(--co);border-color:var(--co);background:var(--co-soft)}
+.ge{color:var(--ge);border-color:var(--ge);background:var(--ge-soft)}
+
+/* Mind map */
+.mm{display:grid;grid-template-columns:1fr minmax(150px,210px) 1fr;gap:12px 30px;align-items:center;margin-block:16px}
+.mm .core{grid-column:2;grid-row:1 / span 3;background:var(--teal);color:var(--bg);border-radius:16px;padding:18px 14px;text-align:center;font-family:var(--pali);font-size:20px;line-height:1.25;font-weight:700}
+.mm .core small{display:block;font-family:var(--ui);font-size:12px;font-weight:500;opacity:.85;margin-top:4px}
+.br{position:relative;background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.45}
+.br b{display:block;font-size:14px;color:var(--teal);margin-bottom:2px}
+.br ul{margin:0;padding-left:16px}
+.br li{margin-block:1px}
+.br.l{grid-column:1}
+.br.r{grid-column:3}
+.mm>:nth-child(2),.mm>:nth-child(5){grid-row:1}
+.mm>:nth-child(3),.mm>:nth-child(6){grid-row:2}
+.mm>:nth-child(4),.mm>:nth-child(7){grid-row:3}
+.br.l::after,.br.r::before{content:"";position:absolute;top:50%;width:30px;border-top:2px solid var(--rule)}
+.br.l::after{right:-31px}
+.br.r::before{left:-31px}
+@media (max-width:680px){
+  .mm{grid-template-columns:1fr;gap:10px}
+  .mm .core{grid-column:1;grid-row:auto}
+  .mm>*{grid-row:auto !important}
+  .br.l,.br.r{grid-column:1;margin-left:18px}
+  .br.l::after{display:none}
+  .br.r::before,.br.l::before{content:"";position:absolute;left:-12px;top:-10px;bottom:50%;width:10px;border-left:2px solid var(--rule);border-bottom:2px solid var(--rule);border-radius:0 0 0 6px}
+}
+
+/* Boxes */
+.box{border-radius:10px;padding:14px 16px;margin-block:12px}
+.box .lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.box p{margin:4px 0}
+.box ul,.box ol{margin:4px 0;padding-left:20px}
+.trick{background:var(--robe-soft)} .trick .lbl{color:var(--robe)}
+.trick .big{font-family:var(--pali);font-size:21px;line-height:1.35;display:block;margin-block:2px 6px}
+.eli5{background:var(--teal-soft)} .eli5 .lbl{color:var(--teal)}
+.letters{list-style:none;padding:0 !important}
+.letters b.l{display:inline-block;min-width:1.7em;font-family:var(--pali);font-size:19px;color:var(--robe)}
+.angle{border-left:4px solid;border-radius:0 10px 10px 0;padding:10px 14px;margin-block:10px}
+.angle.eb{background:var(--eb-soft);border-color:var(--eb);color:var(--ink)}
+.angle.sd{background:var(--sd-soft);border-color:var(--sd);color:var(--ink)}
+.angle.pl{background:var(--pl-soft);border-color:var(--pl);color:var(--ink)}
+.angle.co{background:var(--co-soft);border-color:var(--co);color:var(--ink)}
+.angle.ge{background:var(--ge-soft);border-color:var(--ge);color:var(--ink)}
+.angle .lbl{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin-bottom:2px}
+.angle.eb .lbl{color:var(--eb)} .angle.sd .lbl{color:var(--sd)} .angle.pl .lbl{color:var(--pl)} .angle.co .lbl{color:var(--co)} .angle.ge .lbl{color:var(--ge)}
+.angle p,.angle ul{margin:2px 0}
+.angle ul{padding-left:18px}
+
+/* Model answer */
+.answer h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 4px}
+.answer p{margin:4px 0 8px}
+.answer ol{padding-left:22px}
+.answer li{margin-block:6px}
+.tw{overflow-x:auto;background:var(--bg);border:1px solid var(--rule);border-radius:10px;margin-block:10px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+thead th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.grid6{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-block:12px}
+.grid6 a{display:block;text-decoration:none;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:12px 14px}
+.grid6 a:hover{border-color:var(--teal)}
+.grid6 a b{display:block;font-family:var(--pali);font-size:18px;color:var(--teal)}
+.grid6 .papers{margin:6px 0 0}
+.cheat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.cheat div{background:var(--robe-soft);border-radius:10px;padding:12px 14px;font-size:14px}
+.cheat b{display:block;color:var(--robe);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.cheat .big{display:block;font-family:var(--pali);font-size:18px;line-height:1.3;margin-block:2px 4px}
+.kbd{font-size:12px;color:var(--muted)}
+@media print{.deckbar,.nextnav{display:none!important} body.slides .slide{display:block!important} .slide{break-inside:avoid-page}}
+</style>
+<style>
+.site{margin-inline:-16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.site .brand{font-family:var(--pali);font-weight:700;font-size:18px;color:var(--ink);text-decoration:none;margin-right:auto}
+.site .links{display:flex;gap:6px;flex-wrap:wrap}
+.site .links a{font-family:var(--ui);font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 10px;border-radius:8px;border:1px solid transparent}
+.site .links a:hover{color:var(--teal);border-color:var(--rule)}
+.site .links a[aria-current="page"]{color:var(--teal);background:var(--bg);border-color:var(--rule)}
+</style>
+</head>
+<body>
+<nav class="site" aria-label="Site">
+  <a class="brand" href="./">Diploma Exam Prep</a>
+  <span class="links"><a href="./">Pali Charts</a><a href="coach.html">Pali Coach</a><a href="geo.html">Geo Expansion</a><a href="decks.html" aria-current="page">Decks</a></span>
+</nav>
+</head>
+<body class="slides">
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Buddhism Diploma · Buddhist Social Dimensions (DBUSF 33026)</div>
+  <h1>Social Dimensions Deck</h1>
+  <p class="lede">The principal's 10 questions on Buddhism in society, each summarised as a mind map, memory tricks and an answer skeleton.</p>
+</header>
+
+<div class="deckbar" role="toolbar" aria-label="Deck controls">
+  <button type="button" id="prev" aria-label="Previous slide">‹ Prev</button>
+  <select id="jump" aria-label="Jump to slide"></select>
+  <span class="count" id="count" aria-live="polite"></span>
+  <button type="button" id="next" aria-label="Next slide">Next ›</button>
+  <span class="mode" role="group" aria-label="View">
+    <button type="button" id="mSlides" aria-pressed="true">Slides</button>
+    <button type="button" id="mScroll" aria-pressed="false">Scroll</button>
+  </span>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+</div>
+
+<main id="deck">
+
+<section class="slide" id="s-start" data-title="Start: the 10 questions">
+  <h2><small>Start here</small>The 10 questions</h2>
+  <p>One slide per question: a <b>mind map</b> to picture it, <b>memory tricks</b> to recall it, and an <b>answer skeleton</b> (intro, body points, conclusion) summarising the full model answer.</p>
+  <div class="grid6"><a href="#s-q1"><b>Q1 · Aggañña Sutta</b>DN 27 · to Vāseṭṭha & Bhāradvāja</a><a href="#s-q2"><b>Q2 · Environment</b>not its masters</a><a href="#s-q3"><b>Q3 · Family</b>DN 31 · the householder's Vinaya</a><a href="#s-q4"><b>Q4 · Ten duties of the king</b>rule by Dhamma, not force</a><a href="#s-q5"><b>Q5 · Ethics: five precepts</b>protect yourself, protect others</a><a href="#s-q6"><b>Q6 · Gender equality</b>in a 6th-century BCE world</a><a href="#s-q7"><b>Q7 · Supporting the disadvantaged</b>all are equal, all deserve care</a><a href="#s-q8"><b>Q8 · Mindfulness & mental health</b>the Buddha as the great physician</a><a href="#s-q9"><b>Q9 · Buddhist economics</b>earn · protect · use · share</a><a href="#s-q10"><b>Q10 · Social & political conflict</b>roots: greed · hatred · delusion</a></div>
+  <div class="box trick"><span class="lbl">Memory trick: the 10 questions in order</span><span class="big">“All Elephants Find King Elephant's Gold; Dancing Mice Eat Cheese”</span><ul class="letters"><li><b class="l">A</b> Aggañña Sutta: origin of society</li><li><b class="l">E</b> Environment</li><li><b class="l">F</b> Family (Sigālovāda)</li><li><b class="l">K</b> King's ten duties</li><li><b class="l">E</b> Ethics: five precepts in society</li><li><b class="l">G</b> Gender equality</li><li><b class="l">D</b> Disadvantaged: poverty & support</li><li><b class="l">M</b> Mindfulness & mental health</li><li><b class="l">E</b> Economics (Vyagghapajja, Parābhava)</li><li><b class="l">C</b> Conflict: social & political</li></ul></div>
+  <div class="box eli5"><span class="lbl">The principal's advice for this paper</span><ul><li>This year the paper is <b>more practical</b>: basic teachings and how we live them.</li><li>Write in your own way, from experience. Use a sutta only where it's relevant.</li><li>Problem questions: <b>root cause first</b> (greed, hatred, delusion), then <b>one or two</b> Buddhist solutions. “It's enough.”</li><li>Relationships, family, duties: take the points from the <b>Sigālovāda Sutta</b>.</li><li>Gender: go back to the <b>6th-century BCE context</b> before judging.</li></ul>
+    <p class="kbd">Tip: use ← → keys or swipe to move between slides, or switch to Scroll to see everything.</p></div>
+</section>
+<section class="slide answer" id="s-q1" data-title="Q1 · Aggañña Sutta">
+  <h2><small>Question 1</small>The origin of society and social institutions (Aggañña Sutta)</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>★ Class system and origin of society; social institutions; how the first house was built. Defilements started when social structure appeared. Don't focus only on caste: explain from the beginning.</p></div>
+  <div class="mm"><div class="core">Aggañña Sutta<small>DN 27 · to Vāseṭṭha & Bhāradvāja</small></div><div class="br l"><b>1 · Beginning</b><ul><li>Radiant, mind-made beings</li><li>No gender, no hierarchy</li></ul></div><div class="br l"><b>2 · Craving & food</b><ul><li>Tasty earth-essence</li><li>Coarser food → solid bodies</li></ul></div><div class="br l"><b>3 · Looks → pride</b><ul><li>Good-looking become arrogant</li><li>Others jealous: 1st discrimination</li></ul></div><div class="br r"><b>4 · Gender → house</b><ul><li>Sex appears, others criticise</li><li>Houses built to hide → family</li></ul></div><div class="br r"><b>5 · Rice → property → crime</b><ul><li>Hoarding, fields divided</li><li>Theft → lies → violence</li></ul></div><div class="br r"><b>6 · King & classes</b><ul><li>Mahāsammata elected</li><li>4 classes from occupation, not Brahmā</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: the story in order</span><span class="big">“Food → Looks → Love → House → Field → Thief → King → Class”</span><p>Each step is caused by craving. That's the moral: society's problems start in the mind.</p></div><div class="box trick"><span class="lbl">Memory trick: the first king's three names</span><span class="big">“Elected, Field-lord, Pleaser”</span><p>Mahāsammata (Great Elect) · Khattiya (lord of the fields) · Rājā (pleases others by Dhamma).</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>The Aggañña Sutta (DN 27) is the Buddha's account of how society began, told to two young brahmins mocked for joining the Saṅgha. Against the claim that brahmins were born from Brahmā's mouth, he gave a gradual account: society arose from human craving and need, not divine creation.</p>
+  <h4>Body</h4><ol><li><b>The beginning:</b> radiant, mind-made beings with no gender and no hierarchy.</li><li><b>Craving and food:</b> a greedy being tasted the earth-essence; as food became coarser, radiance faded and bodies became solid.</li><li><b>Pride and jealousy:</b> the good-looking became arrogant and the others jealous: the first defilements in social life.</li><li><b>Family and the first house:</b> gender and sexual relations appeared; criticised by others, couples built houses to hide, giving the household and family.</li><li><b>Property and crime:</b> people stored rice, the rice stopped regrowing, fields were divided (private property), then theft, lies and violence began.</li><li><b>Government and classes:</b> the people elected Mahāsammata to keep order for a share of rice (an early social contract). The four classes arose from occupations, not birth: “Dhamma is the best thing for people”.</li></ol>
+  
+  <h4>Conclusion</h4><p>The Aggañña Sutta shows social institutions (family, property, government, class) are human creations shaped by craving, so they can be reformed, and that conduct, not birth, makes a person noble.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q2" data-title="Q2 · Environment">
+  <h2><small>Question 2</small>Buddhist views on nature and ecological interdependence</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>★ Highlighted: “Buddhist teaching on the environment: views on nature and ecological interdependence.” The teachers' focus: dependent origination (interdependence).</p></div>
+  <div class="mm"><div class="core">Humans are part of nature<small>not its masters</small></div><div class="br l"><b>Interdependence</b><ul><li>Dependent origination</li><li>Desire → consumerism → production</li><li>→ extraction → emissions → climate change</li></ul></div><div class="br l"><b>Root cause</b><ul><li>Greed, hatred, delusion</li><li>Moral decline harms nature (Aggañña, Cakkavatti)</li></ul></div><div class="br l"><b>Gratitude</b><ul><li>Born, enlightened, passed away under trees</li><li>Week gazing at the Bodhi tree</li></ul></div><div class="br r"><b>All beings</b><ul><li>1st precept</li><li>Metta to “all living beings”</li><li>Asoka's animal hospitals</li></ul></div><div class="br r"><b>Vinaya rules</b><ul><li>No cutting trees, no forest fires</li><li>No polluting water</li><li>Robes reused → recycling</li></ul></div><div class="br r"><b>Simple living</b><ul><li>Bee & flower (Dhp 49)</li><li>“Cut the forest of craving” (Dhp 283)</li><li>Vanaropa S.: planting = merit</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: the chain</span><span class="big">“Want → Buy → Make → Dig → Burn → Heat”</span><p>Sense desire → consumerism → production → resource extraction → greenhouse gases → climate change. Dependent origination applied to ecology.</p></div><div class="box trick"><span class="lbl">Memory trick: the ideal</span><span class="big">“Live like the bee and the flower”</span><p>Take the nectar without harming the flower's colour or scent (Dhp 49).</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>The world faces global warming, pollution, deforestation and species loss. Buddhism sees the root as moral: greed, hatred and delusion. Born in the forest (Lumbinī, the Bodhi tree, Kusinārā's sāla trees), Buddhism treats humans as part of nature, not its masters.</p>
+  <h4>Body</h4><ol><li><b>Interdependence:</b> “When this exists, that comes to be.” Because of sense desire, consumerism; because of consumerism, production; then extraction, emissions and climate change. Harming one part harms the whole.</li><li><b>Impermanent nature, sped up by greed:</b> nature always changes, but moral decline speeds harmful change (Aggañña; Cakkavatti-sīhanāda).</li><li><b>Gratitude and friendship:</b> the Buddha gazed at the Bodhi tree for a week in gratitude; don't break the branch that gave you shade.</li><li><b>Precepts and mettā for all beings:</b> the first precept; the Karaṇīya Metta Sutta; Asoka's hospitals for animals and tree planting.</li><li><b>Vinaya rules:</b> no cutting trees, no forest fires, no polluting water; robes reused down to plaster: early recycling.</li><li><b>Simple, mindful living:</b> the bee and the flower (Dhp 49); “cut the forest of craving, not the trees” (Dhp 283); planting trees is merit (Vanaropa Sutta). In practice: buy what you need, recycle, save energy, eat more plants.</li></ol>
+  
+  <h4>Conclusion</h4><p>Buddhism sees people and nature as interdependent. The crisis is caused by craving, so the solution starts with less craving and simple, mindful, compassionate living.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q3" data-title="Q3 · Family">
+  <h2><small>Question 3</small>The role of the family in Buddhism (Sigālovāda Sutta)</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>“Role of family in Buddhism: Sigālovāda Sutta. Discuss marriage, parents, children.” Take all the points from the Sigālovāda Sutta.</p></div>
+  <div class="mm"><div class="core">Sigālovāda Sutta<small>DN 31 · the householder's Vinaya</small></div><div class="br l"><b>The six directions</b><ul><li>East = parents</li><li>West = spouse</li><li>+ teachers, friends, workers, monks</li></ul></div><div class="br l"><b>Children → parents</b><ul><li>Support them</li><li>Do their duties, keep the lineage</li><li>Be worthy, honour them after death</li></ul></div><div class="br l"><b>Parents → children</b><ul><li>Restrain from evil, encourage good</li><li>Train in a skill</li><li>Suitable marriage, inheritance</li></ul></div><div class="br r"><b>Husband → wife</b><ul><li>Honour, don't look down</li><li>Be faithful, give authority</li><li>Gifts and ornaments</li></ul></div><div class="br r"><b>Wife → husband</b><ul><li>Do duties well, hospitable</li><li>Faithful, protect earnings</li><li>Skilled and diligent</li></ul></div><div class="br r"><b>More teachings</b><ul><li>Parents = Brahmā (AN 4.63)</li><li>Samajīvi: same faith, virtue, generosity, wisdom</li><li>7 kinds of wives (Sujātā)</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: which direction</span><span class="big">“East = where life rises; West = where the day settles”</span><p>The East (sunrise) is parents, where life begins. The West (sunset) is your spouse, who you settle down with.</p></div><div class="box trick"><span class="lbl">Memory trick: parents' five duties</span><span class="big">“Stop · Start · Skill · Spouse · Share”</span><p>Stop them from evil · start them on good · teach a skill · arrange a spouse · share the inheritance.</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>The family is the basic unit of society. In the Sigālovāda Sutta, the “householder's Vinaya”, the Buddha reinterpreted the six directions Sigāla worshipped as six relationships with <b>mutual</b> duties, the most important being family.</p>
+  <h4>Body</h4><ol><li><b>Children to parents (East):</b> support them, do their duties, keep the family tradition, be worthy of the inheritance, make offerings in their memory.</li><li><b>Parents to children:</b> restrain them from evil, encourage good, train them in a profession, arrange a suitable marriage, hand over the inheritance. Parents are called “Brahmā” and “first teachers” (AN 4.63); supporting them is a highest blessing (Maṅgala Sutta).</li><li><b>Husband to wife (West):</b> honour her, don't look down on her, be faithful, give her authority at home, give her gifts.</li><li><b>Wife to husband:</b> do her duties well, be hospitable to both families, be faithful, protect the earnings, be skilled and hard-working. Reciprocal duties = partnership and equality.</li><li><b>Lasting marriage:</b> same faith, virtue, generosity and wisdom (Samajīvi Sutta); seven kinds of wives (Sujātā); the third precept protects trust.</li><li><b>Today:</b> elderly parents neglected, divorce, screen-addicted children: the same duties still apply.</li></ol>
+  
+  <h4>Conclusion</h4><p>Buddhism gives the family a central role. When parents, children and spouses fulfil the Sigālovāda Sutta's mutual duties, the family is happy and society is peaceful.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q4" data-title="Q4 · Ten duties of the king">
+  <h2><small>Question 4</small>The ten duties of the king (dasa rāja-dhamma)</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>Dāna, sīla, pariccāga… Name the ten, then explain a little. If you don't remember the Pāli, write it in English.</p></div>
+  <div class="mm"><div class="core">Dasa rāja-dhamma<small>rule by Dhamma, not force</small></div><div class="br l"><b>1–3</b><ul><li>Dāna: generosity</li><li>Sīla: morality</li><li>Pariccāga: self-sacrifice</li></ul></div><div class="br l"><b>4–6</b><ul><li>Ajjava: honesty</li><li>Maddava: gentleness</li><li>Tapa: self-control</li></ul></div><div class="br l"><b>7–10</b><ul><li>Akkodha: no anger</li><li>Avihiṃsā: non-violence</li><li>Khanti: patience</li><li>Avirodhana: not opposing the people</li></ul></div><div class="br r"><b>Origin</b><ul><li>Mahāsammata elected (Aggañña)</li><li>Rājā = pleases by Dhamma</li></ul></div><div class="br r"><b>Support</b><ul><li>Cakkavatti S.: help the poor</li><li>Kūṭadanta S.: jobs, not punishment</li><li>Avoid 4 biases</li></ul></div><div class="br r"><b>Example & today</b><ul><li>Asoka after Kalinga</li><li>= good governance today</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: the ten in order</span><span class="big">“Dear Sir, Please Act Mildly, Take Anger Away; Keep Agreeing”</span><p><b>D</b>āna · <b>S</b>īla · <b>P</b>ariccāga · <b>A</b>jjava · <b>M</b>addava · <b>T</b>apa · <b>A</b>kkodha · <b>A</b>vihiṃsā · <b>K</b>hanti · <b>A</b>virodhana.</p></div><div class="box trick"><span class="lbl">Memory trick: the first three</span><span class="big">“Give · Be good · Give up”</span><p>Dāna (give wealth), sīla (be moral), pariccāga (give up your own comfort for the people).</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>In Buddhism the ruler is a servant of the people who rules by Dhamma, not force. The first king, Mahāsammata, was elected and called rājā because he “pleases others by Dhamma” (Aggañña Sutta). The Jātakas list ten duties for every righteous ruler.</p>
+  <h4>Body</h4><ol><li><b>Dāna</b> (generosity: use wealth for the people) · <b>Sīla</b> (morality: be an example) · <b>Pariccāga</b> (self-sacrifice for the people).</li><li><b>Ajjava</b> (honesty, no corruption) · <b>Maddava</b> (gentleness, approachable) · <b>Tapa</b> (self-control, simple living).</li><li><b>Akkodha</b> (free from anger) · <b>Avihiṃsā</b> (non-violence, peace not war) · <b>Khanti</b> (patience, tolerance) · <b>Avirodhana</b> (not opposing the people's will; following the law).</li><li><b>Supporting teachings:</b> the Universal Monarch protects all and gives to the poor (Cakkavatti-sīhanāda); crime falls with livelihoods, not punishment (Kūṭadanta); avoid the four biases (desire, hatred, delusion, fear).</li><li><b>Example:</b> Asoka governed by Dhamma after Kalinga: hospitals, wells, tolerance, Dhamma officers.</li><li><b>Today:</b> welfare, integrity, accountability, non-violence: modern good governance.</li></ol>
+  
+  <h4>Conclusion</h4><p>A ruler with the ten duties is generous, moral, self-sacrificing, honest, gentle, disciplined, calm, non-violent, patient and with the people, and creates a just, peaceful society.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q5" data-title="Q5 · Ethics: five precepts">
+  <h2><small>Question 5</small>Buddhist ethics: the five precepts in society</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>Highlighted: “Buddhist Ethics: 5 precepts.” One preparation covers this and Early Buddhism Q3. For this paper, stress the <b>social</b> side.</p></div>
+  <div class="mm"><div class="core">Sīla for society<small>protect yourself, protect others</small></div><div class="br l"><b>Five protect</b><ul><li>Life · property</li><li>Family · truth</li><li>A clear mind</li></ul></div><div class="br l"><b>Voluntary</b><ul><li>“I undertake…”</li><li>Not law or punishment</li><li>Aṅgulimāla: start again</li></ul></div><div class="br l"><b>Golden rule</b><ul><li>“What I dislike, others dislike”</li><li>Veḷudvāreyya S.</li></ul></div><div class="br r"><b>If all kept them</b><ul><li>Less violence, theft, corruption</li><li>Fewer broken families</li><li>Less fraud, drunk driving</li></ul></div><div class="br r"><b>Self ↔ others</b><ul><li>Sedaka S.: protecting oneself</li><li>protects others</li></ul></div><div class="br r"><b>Other social ethics</b><ul><li>4 ways of showing favour</li><li>4 sublime states</li><li>Hiri-ottappa: guardians of the world</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: what they protect</span><span class="big">“LP-FTM”</span><p><b>L</b>ife · <b>P</b>roperty · <b>F</b>amily · <b>T</b>ruth · <b>M</b>ind.</p></div><div class="box trick"><span class="lbl">Memory trick: the five</span><span class="big">“Kind Souls Seldom Lie Drunk”</span><p>Killing · Stealing · Sexual misconduct · Lying · Drink and drugs.</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>Buddhist ethics (sīla) is voluntary training based on reason, compassion and kamma, not commandments. Though the first step to Nibbāna, it is also a social ethic: almost every precept is about how we treat others.</p>
+  <h4>Body</h4><ol><li><b>What each precept protects:</b> life and security; property and trust; the family; truth and communication; health, safety and a clear mind.</li><li><b>Responsibility, not law:</b> “I undertake the training rule…”; no punishment; those who fail can start again (Aṅgulimāla).</li><li><b>The golden rule:</b> “What is not pleasing to me is not pleasing to others” (Veḷudvāreyya Sutta): universal, so anyone can accept it.</li><li><b>If people kept them:</b> less violence and terrorism, theft and corruption, family breakdown, fraud and fake news, drug crime and drunk driving: “freedom from fear to countless beings” (AN 8.39).</li><li><b>Self and society:</b> “Protecting oneself, one protects others” (Sedaka Sutta).</li><li><b>Add one or two:</b> the four ways of showing favour (generosity, kind speech, helpful action, equal treatment); Sigālovāda duties; moral shame and fear.</li></ol>
+  
+  <h4>Conclusion</h4><p>The five precepts are simple, universal and practical. By restraining ourselves from harm we protect life, property, families, truth and clear thinking, and society becomes safe and peaceful.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q6" data-title="Q6 · Gender equality">
+  <h2><small>Question 6</small>Gender equality: how the Buddha taught and practised it</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>How he spoke about it and how he practised it. Nuns accepted and given authority. Some criticise the delay in accepting nuns: go back to the 6th century BCE first. In liberation, no difference between men and women. Praised Dhammadinnā, Visākhā, even Ambapālī.</p></div>
+  <div class="mm"><div class="core">Equal potential<small>in a 6th-century BCE world</small></div><div class="br l"><b>Context first</b><ul><li>Women: no Vedas, no rituals</li><li>“Never independent”</li><li>Don't judge by today</li></ul></div><div class="br l"><b>Spiritual equality</b><ul><li>Women can be arahants</li><li>Somā vs Māra (SN 5.2)</li><li>Anattā: gender not fixed</li></ul></div><div class="br l"><b>Bhikkhunī Order</b><ul><li>Mahāpajāpatī Gotamī</li><li>Education, independence</li><li>Hesitation = social context</li></ul></div><div class="br r"><b>Nuns praised</b><ul><li>Dhammadinnā: best teacher (MN 44)</li><li>Khemā, Uppalavaṇṇā: chief</li><li>Therīgāthā</li></ul></div><div class="br r"><b>Lay women</b><ul><li>Visākhā: chief supporter</li><li>Ambapālī's invitation accepted</li><li>No favouritism</li></ul></div><div class="br r"><b>Family</b><ul><li>Daughter “may be better than a son” (SN 3.16)</li><li>Sigālovāda: reciprocal duties</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: the argument</span><span class="big">“Context, Capacity, Community, Credit”</span><p><b>Context</b> (6th c. BCE) · <b>Capacity</b> (equal liberation) · <b>Community</b> (the Bhikkhunī Order) · <b>Credit</b> (praised nuns and lay women).</p></div><div class="box trick"><span class="lbl">Memory trick: the women to name</span><span class="big">“Dhamma-teacher, Wise, Wealthy, Welcomed”</span><p>Dhammadinnā (teacher) · Khemā (wisdom) · Visākhā (supporter) · Ambapālī (welcomed despite her status).</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>Gender equality means equal status and opportunity in family, education, work, politics and religion. In ancient India women couldn't study the Vedas or perform rituals: “a woman is never independent.” Against this, the Buddha's approach was reformative and, for its time, revolutionary.</p>
+  <h4>Body</h4><ol><li><b>Context first:</b> 6th-century BCE society had fixed roles for men and women (as some villages still do). The Buddha's hesitation and the nuns' extra rules must be seen in that society, partly to protect the nuns.</li><li><b>Equal spiritual potential:</b> women can attain arahantship. The nun Somā answered Māra: “What does womanhood matter when the mind is concentrated?” (SN 5.2). Not-self means gender is secondary.</li><li><b>The Bhikkhunī Order:</b> founded at Mahāpajāpatī Gotamī's request, giving women religious life, education and independence.</li><li><b>Women given authority:</b> Dhammadinnā, foremost Dhamma teacher (her discourse is in the Tipiṭaka); Khemā and Uppalavaṇṇā, chief female disciples; the Therīgāthā.</li><li><b>Lay women:</b> Visākhā, chief female supporter; Ambapālī the courtesan, whose invitation he accepted over the princes'.</li><li><b>In the family:</b> “A daughter may be better than a son” (SN 3.16, to King Pasenadi); reciprocal duties between spouses.</li></ol>
+  
+  <h4>Conclusion</h4><p>Seen in its context, the Buddha's approach was revolutionary: equal spiritual potential, the Order of nuns, praise for women teachers and supporters, and respect for women in the family.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q7" data-title="Q7 · Supporting the disadvantaged">
+  <h2><small>Question 7</small>How Buddhism addresses poverty and supports the disadvantaged</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>“How the Buddha supports the disadvantaged in society: what teaching, what advice he gave them.” From Lesson 14, Social Justice.</p></div>
+  <div class="mm"><div class="core">Social justice<small>all are equal, all deserve care</small></div><div class="br l"><b>Poverty has social causes</b><ul><li>Cakkavatti: poverty → theft → violence</li><li>Kūṭadanta: livelihoods, not punishment</li></ul></div><div class="br l"><b>No caste</b><ul><li>“By action one is a brahmin”</li><li>Upāli the barber, Sunīta the scavenger</li><li>Ambedkarites today</li></ul></div><div class="br l"><b>Buddha's example</b><ul><li>Washed sick Pūtigatta Tissa</li><li>Kisā Gotamī, Aṅgulimāla</li></ul></div><div class="br r"><b>How to help</b><ul><li>4 ways of showing favour</li><li>Dāna, sīla, bhāvanā</li><li>Mettā & karuṇā</li></ul></div><div class="br r"><b>Help them help themselves</b><ul><li>Vyagghapajja: diligence, saving</li><li>Sigālovāda: avoid waste</li></ul></div><div class="br r"><b>Examples</b><ul><li>Anāthapiṇḍika = “feeder of the helpless”</li><li>Asoka's hospitals</li><li>Free clinics, food banks</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: the four ways of showing favour</span><span class="big">“Give, Speak kindly, Help, Treat equally”</span><p>Dāna · piya-vācā · attha-cariyā · samānattatā (saṅgahavatthu).</p></div><div class="box trick"><span class="lbl">Memory trick: the Buddha's example</span><span class="big">“Whoever would care for me should care for the sick”</span><p>He washed the neglected monk Pūtigatta Tissa with his own hands.</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>Every society has disadvantaged people: the poor, sick, elderly, low-caste and marginalised. Buddhism teaches all are equal under the same law of cause and effect, and recognises social causes of poverty, not only individual kamma.</p>
+  <h4>Body</h4><ol><li><b>Social causes, state responsibility:</b> in the Cakkavatti-sīhanāda Sutta a king's failure to help the poor led to theft, violence and decline; the Kūṭadanta Sutta says crime falls when people get seed, capital and wages.</li><li><b>Against discrimination:</b> “Not by birth is one a brahmin; by action” (Vāseṭṭha Sutta). Upāli the barber and Sunīta the scavenger were ordained; Ambedkarite Buddhists fight caste today.</li><li><b>The Buddha's example:</b> he washed the neglected sick monk Pūtigatta Tissa, comforted Kisā Gotamī and gave Aṅgulimāla a second chance.</li><li><b>Teachings for helping:</b> the four ways of showing favour; dāna, sīla and bhāvanā; service to others as a meritorious deed; mettā and karuṇā as motivation.</li><li><b>Helping people help themselves:</b> diligence, saving and good friends (Vyagghapajja); avoiding drink, gambling and bad company (Sigālovāda).</li><li><b>Examples:</b> Anāthapiṇḍika, “feeder of the helpless”; Asoka's hospitals and wells; Buddhist clinics, schools and food banks today.</li></ol>
+  
+  <h4>Conclusion</h4><p>Buddhism supports the disadvantaged by naming the social causes of poverty, making rulers responsible, rejecting discrimination and encouraging generosity and service, as the Buddha himself did.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q8" data-title="Q8 · Mindfulness &amp; mental health">
+  <h2><small>Question 8</small>Mindfulness and mental health</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>“Health and well-being, including mindfulness and mental health: pay more attention to those things.” From Lesson 15 and the team presentations.</p></div>
+  <div class="mm"><div class="core">Mindfulness<small>the Buddha as the great physician</small></div><div class="br l"><b>Mind & body</b><ul><li>Roga S.: 2 illnesses</li><li>Nakulapitā: “body sick, mind not sick”</li></ul></div><div class="br l"><b>4 foundations</b><ul><li>Body · feelings</li><li>Mind · mental objects</li><li>Satipaṭṭhāna S. (MN 10)</li></ul></div><div class="br l"><b>Breath</b><ul><li>Ānāpānasati S. (MN 118)</li><li>Calms body → calms mind</li></ul></div><div class="br r"><b>Two arrows</b><ul><li>Salla S. (SN 36.6)</li><li>Pain vs added worry</li></ul></div><div class="br r"><b>Thoughts & lifestyle</b><ul><li>Dvedhāvitakka: good vs bad thoughts</li><li>Metta reduces anger</li><li>Sigālovāda: balanced living</li></ul></div><div class="br r"><b>Modern</b><ul><li>MBSR (Kabat-Zinn)</li><li>MBCT · CBT</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: the four foundations</span><span class="big">“Big Feelings Mess Minds”</span><p>Body · Feelings · Mind · Mental objects.</p></div><div class="box trick"><span class="lbl">Memory trick: the two arrows</span><span class="big">“Pain is the 1st arrow; panic is the 2nd”</span><p>The event is the first arrow; worry and despair are the self-made second. Mindfulness stops the second.</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>Stress, anxiety and depression are widespread today. Buddhism has always placed the mind at the centre of health: the Buddha is “the great physician”. Health is harmony of body, mind and environment, and mindfulness is the main tool.</p>
+  <h4>Body</h4><ol><li><b>Mind and body together:</b> two kinds of illness, bodily and mental; rare is anyone free of mental illness even for a moment (Roga Sutta). “Though your body is sick, let your mind not be sick” (to Nakulapitā).</li><li><b>What mindfulness is:</b> present-moment, non-judging awareness of body, feelings, mind and mental objects: “the direct path… for overcoming sorrow” (Satipaṭṭhāna Sutta).</li><li><b>Breathing:</b> the Ānāpānasati Sutta: mindful breathing calms the body and settles anxiety.</li><li><b>Two arrows:</b> feel the pain without adding worry and despair (Salla Sutta).</li><li><b>Thoughts and lifestyle:</b> wholesome thoughts → well-being (Dvedhāvitakka); mettā reduces anger; the Sigālovāda Sutta as a layperson's health code (no intoxicants, balanced sleep and work).</li><li><b>Modern:</b> MBSR and MBCT help anxiety, depression and chronic pain; CBT shares the thought–feeling link.</li></ol>
+  
+  <h4>Conclusion</h4><p>Mindfulness of body, breath, feelings and thoughts, not firing the second arrow, and balanced, kind living reduce stress and suffering, and modern psychology confirms it.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q9" data-title="Q9 · Buddhist economics">
+  <h2><small>Question 9</small>The Buddhist approach to economic life</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>“A few questions about the economy: the Buddhist concept of economy.” Suttas: Vyagghapajja, Parābhava, Sigālovāda, Cakkavatti, Kūṭadanta. The teacher likes sutta ideas.</p></div>
+  <div class="mm"><div class="core">Right wealth<small>earn · protect · use · share</small></div><div class="br l"><b>Vyagghapajja: now</b><ul><li>Diligence · protection</li><li>Good friends · balanced living</li></ul></div><div class="br l"><b>Vyagghapajja: later</b><ul><li>Faith · virtue</li><li>Generosity · wisdom</li></ul></div><div class="br l"><b>4 leaks</b><ul><li>Womanising · drinking</li><li>Gambling · bad friends</li></ul></div><div class="br r"><b>Sigālovāda</b><ul><li>Bee gathering nectar</li><li>Income in 4 parts</li><li>6 ways of wasting wealth</li></ul></div><div class="br r"><b>Parābhava: downfall</b><ul><li>Laziness</li><li>Not supporting parents</li><li>Drink, gambling, greed</li></ul></div><div class="br r"><b>Right livelihood</b><ul><li>No weapons, people, meat,</li><li>intoxicants, poison</li><li>Happiness of blamelessness</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: present welfare</span><span class="big">“Work, Watch, Win friends, Weigh spending”</span><p>Diligence · protecting wealth · good friends · balanced living (Vyagghapajja).</p></div><div class="box trick"><span class="lbl">Memory trick: the four-part budget</span><span class="big">“1 to live, 2 to grow, 1 to save”</span><p>One part daily needs, two parts business, one part saved for emergencies (Sigālovāda).</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>Buddhism doesn't reject wealth for lay people: poverty is suffering for a householder. The Buddha taught how to earn, protect, use and enjoy wealth righteously, on the Middle Path between greed and deprivation.</p>
+  <h4>Body</h4><ol><li><b>Vyagghapajja Sutta:</b> welfare now through diligence, protecting wealth, good friends and balanced living; avoid the four leaks (womanising, drinking, gambling, bad friends); welfare hereafter through faith, virtue, generosity and wisdom.</li><li><b>Sigālovāda Sutta:</b> gather wealth like a bee gathers nectar; split income into four parts; avoid the six ways of wasting it.</li><li><b>Parābhava Sutta:</b> downfall through laziness, not supporting aged parents, drinking and gambling, and greed beyond one's means.</li><li><b>Right livelihood:</b> earn honestly; avoid trading weapons, people, meat, intoxicants and poison.</li><li><b>Using wealth:</b> for family, workers and friends, protection, taxes and offerings, supporting good causes; the four householder happinesses: owning, enjoying, being debt-free and, highest, being blameless.</li><li><b>The state:</b> poverty causes crime, so rulers must provide livelihoods (Kūṭadanta, Cakkavatti).</li></ol>
+  
+  <h4>Conclusion</h4><p>Buddhist economics encourages work, saving and honest livelihood while keeping wealth under morality, generosity and wisdom, bringing happiness now and support for spiritual progress.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide answer" id="s-q10" data-title="Q10 · Social &amp; political conflict">
+  <h2><small>Question 10</small>Resolving social and political conflict</h2>
+  <div class="box eli5"><span class="lbl">Principal's cue</span><p>“What is the basis of the problem? Greed, hatred, delusion. Explain the reason first, then the solutions.” Use mettā, the precepts, the seven conditions of welfare, the Middle Path, the four ways of showing favour. “Use one or two; it's enough.”</p></div>
+  <div class="mm"><div class="core">Conflict<small>roots: greed · hatred · delusion</small></div><div class="br l"><b>Root causes</b><ul><li>Greed: land, power</li><li>Hatred: revenge, prejudice</li><li>Delusion: “my view is right”</li></ul></div><div class="br l"><b>Non-hatred</b><ul><li>“Hatred is never appeased by hatred” (Dhp 5)</li><li>Mettā & karuṇā</li></ul></div><div class="br l"><b>7 conditions of welfare</b><ul><li>Meet often, in harmony</li><li>Respect laws and elders</li><li>Protect women, shrines, holy people</li></ul></div><div class="br r"><b>Showing favour</b><ul><li>Generosity, kind speech</li><li>Helpful action, equal treatment</li></ul></div><div class="br r"><b>Precepts & Middle Path</b><ul><li>Remove violence and distrust</li><li>Avoid extremes, compromise</li></ul></div><div class="br r"><b>Buddha as peacemaker</b><ul><li>Rohiṇī river dispute</li><li>“Water or the blood of warriors?”</li><li>Rulers: 10 duties</li></ul></div></div>
+  <div class="box trick"><span class="lbl">Memory trick: the answer formula</span><span class="big">“Root first, then remedy”</span><p>Start with greed, hatred and delusion as the cause. Then give one or two teachings as the solution.</p></div><div class="box trick"><span class="lbl">Memory trick: the peacemaker</span><span class="big">“Water or blood?”</span><p>At the Rohiṇī river the Buddha asked the Sakyas and Koliyas which was worth more. Both laid down their weapons.</p></div>
+  <h3>Answer skeleton</h3>
+  <h4>Introduction</h4><p>Society faces wars, riots, political division and racial and religious tension. Buddhism first looks for the root: every conflict rests on greed, hatred and delusion. Once the cause is clear, Buddhist teachings offer practical solutions.</p>
+  <h4>Body</h4><ol><li><b>Root causes:</b> greed for land, wealth and power; hatred, revenge and prejudice; delusion and clinging to “my group is right”. Mental proliferation leads to “taking up weapons” (Madhupiṇḍika Sutta).</li><li><b>Non-hatred:</b> “Hatred is never appeased by hatred; by non-hatred alone” (Dhp 5); mettā breaks the cycle of revenge.</li><li><b>Seven conditions of welfare</b> (Mahāparinibbāna Sutta): meet often and in harmony, respect laws and elders, protect women, shrines and holy people: a model of dialogue and unity.</li><li><b>Four ways of showing favour:</b> generosity, kind speech, helpful action and equal treatment build trust between groups.</li><li><b>Precepts and the Middle Path:</b> remove violence and distrust; avoid extremes.</li><li><b>The Buddha as peacemaker:</b> the Rohiṇī river: “Which is more valuable, water or the blood of warriors?” Rulers following the ten duties prevent conflict.</li></ol>
+  
+  <h4>Conclusion</h4><p>Conflict is rooted in greed, hatred and delusion. Buddhism resolves it at the root through non-hatred, harmony and dialogue, generosity and equal treatment, the precepts and the Middle Path.</p>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="1">Next ›</button></div>
+</section>
+<section class="slide" id="s-cheat" data-title="Cheat sheet: all memory tricks">
+  <h2><small>The night before</small>All the memory tricks on one page</h2>
+  <div class="cheat"><div><b>The questions</b><span class="big">“All Elephants Find King Elephant's Gold; Dancing Mice Eat Cheese”</span>Aggañña Sutta: origin of society · Environment · Family (Sigālovāda) · King's ten duties · Ethics: five precepts in society · Gender equality · Disadvantaged: poverty & support · Mindfulness & mental health · Economics (Vyagghapajja, Parābhava) · Conflict: social & political</div><div><b>Q1 · the story in order</b><span class="big">“Food → Looks → Love → House → Field → Thief → King → Class”</span>Each step is caused by craving. That&#x27;s the moral: society&#x27;s problems start in the mind.</div><div><b>Q1 · the first king's three names</b><span class="big">“Elected, Field-lord, Pleaser”</span>Mahāsammata (Great Elect) · Khattiya (lord of the fields) · Rājā (pleases others by Dhamma).</div><div><b>Q2 · the chain</b><span class="big">“Want → Buy → Make → Dig → Burn → Heat”</span>Sense desire → consumerism → production → resource extraction → greenhouse gases → climate change. Dependent origination applied to ecology.</div><div><b>Q2 · the ideal</b><span class="big">“Live like the bee and the flower”</span>Take the nectar without harming the flower&#x27;s colour or scent (Dhp 49).</div><div><b>Q3 · which direction</b><span class="big">“East = where life rises; West = where the day settles”</span>The East (sunrise) is parents, where life begins. The West (sunset) is your spouse, who you settle down with.</div><div><b>Q3 · parents' five duties</b><span class="big">“Stop · Start · Skill · Spouse · Share”</span>Stop them from evil · start them on good · teach a skill · arrange a spouse · share the inheritance.</div><div><b>Q4 · the ten in order</b><span class="big">“Dear Sir, Please Act Mildly, Take Anger Away; Keep Agreeing”</span>Dāna · Sīla · Pariccāga · Ajjava · Maddava · Tapa · Akkodha · Avihiṃsā · Khanti · Avirodhana.</div><div><b>Q4 · the first three</b><span class="big">“Give · Be good · Give up”</span>Dāna (give wealth), sīla (be moral), pariccāga (give up your own comfort for the people).</div><div><b>Q5 · what they protect</b><span class="big">“LP-FTM”</span>Life · Property · Family · Truth · Mind.</div><div><b>Q5 · the five</b><span class="big">“Kind Souls Seldom Lie Drunk”</span>Killing · Stealing · Sexual misconduct · Lying · Drink and drugs.</div><div><b>Q6 · the argument</b><span class="big">“Context, Capacity, Community, Credit”</span>Context (6th c. BCE) · Capacity (equal liberation) · Community (the Bhikkhunī Order) · Credit (praised nuns and lay women).</div><div><b>Q6 · the women to name</b><span class="big">“Dhamma-teacher, Wise, Wealthy, Welcomed”</span>Dhammadinnā (teacher) · Khemā (wisdom) · Visākhā (supporter) · Ambapālī (welcomed despite her status).</div><div><b>Q7 · the four ways of showing favour</b><span class="big">“Give, Speak kindly, Help, Treat equally”</span>Dāna · piya-vācā · attha-cariyā · samānattatā (saṅgahavatthu).</div><div><b>Q7 · the Buddha's example</b><span class="big">“Whoever would care for me should care for the sick”</span>He washed the neglected monk Pūtigatta Tissa with his own hands.</div><div><b>Q8 · the four foundations</b><span class="big">“Big Feelings Mess Minds”</span>Body · Feelings · Mind · Mental objects.</div><div><b>Q8 · the two arrows</b><span class="big">“Pain is the 1st arrow; panic is the 2nd”</span>The event is the first arrow; worry and despair are the self-made second. Mindfulness stops the second.</div><div><b>Q9 · present welfare</b><span class="big">“Work, Watch, Win friends, Weigh spending”</span>Diligence · protecting wealth · good friends · balanced living (Vyagghapajja).</div><div><b>Q9 · the four-part budget</b><span class="big">“1 to live, 2 to grow, 1 to save”</span>One part daily needs, two parts business, one part saved for emergencies (Sigālovāda).</div><div><b>Q10 · the answer formula</b><span class="big">“Root first, then remedy”</span>Start with greed, hatred and delusion as the cause. Then give one or two teachings as the solution.</div><div><b>Q10 · the peacemaker</b><span class="big">“Water or blood?”</span>At the Rohiṇī river the Buddha asked the Sakyas and Koliyas which was worth more. Both laid down their weapons.</div></div>
+  <div class="nextnav"><button type="button" data-go="-1">‹ Prev</button><button type="button" data-go="0">Back to start</button></div>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var jump=document.getElementById('jump'),count=document.getElementById('count'),bar=document.getElementById('bar');
+  var prev=document.getElementById('prev'),next=document.getElementById('next');
+  var mS=document.getElementById('mSlides'),mC=document.getElementById('mScroll');
+  var cur=0;
+  function load(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+  function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+
+  slides.forEach(function(s,i){var o=document.createElement('option');o.value=i;o.textContent=(i+1)+'. '+s.getAttribute('data-title');jump.appendChild(o);});
+
+  function show(i,fromHash){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,j){s.classList.toggle('on',j===cur);});
+    jump.value=cur;count.textContent=(cur+1)+' / '+slides.length;
+    bar.style.width=((cur+1)/slides.length*100)+'%';
+    prev.disabled=cur===0;next.disabled=cur===slides.length-1;
+    store('sd-slide',String(cur));
+    if(!fromHash&&history.replaceState){history.replaceState(null,'','#'+slides[cur].id);}
+    if(document.body.classList.contains('slides')){window.scrollTo({top:0});}
+    else{slides[cur].scrollIntoView({block:'start'});}
+  }
+  function setMode(m){
+    var sl=m!=='scroll';
+    document.body.classList.toggle('slides',sl);
+    mS.setAttribute('aria-pressed',sl?'true':'false');mC.setAttribute('aria-pressed',sl?'false':'true');
+    store('sd-mode',sl?'slides':'scroll');
+    show(cur,true);
+  }
+  prev.addEventListener('click',function(){show(cur-1);});
+  next.addEventListener('click',function(){show(cur+1);});
+  jump.addEventListener('change',function(){show(parseInt(jump.value,10));});
+  mS.addEventListener('click',function(){setMode('slides');});
+  mC.addEventListener('click',function(){setMode('scroll');});
+  document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){var g=parseInt(b.getAttribute('data-go'),10);show(g===0?0:cur+g);});});
+  document.querySelectorAll('a[href^="#s-"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href').slice(1);var i=slides.findIndex(function(s){return s.id===id;});if(i>-1){e.preventDefault();show(i);}});});
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest&&e.target.closest('select,input,textarea'))return;
+    if(!document.body.classList.contains('slides'))return;
+    if(e.key==='ArrowRight'){show(cur+1);}else if(e.key==='ArrowLeft'){show(cur-1);}
+  });
+  /* swipe on phones */
+  var sx=null;
+  document.getElementById('deck').addEventListener('touchstart',function(e){sx=e.touches[0].clientX;},{passive:true});
+  document.getElementById('deck').addEventListener('touchend',function(e){if(sx===null||!document.body.classList.contains('slides'))return;var dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>70){show(cur+(dx<0?1:-1));}},{passive:true});
+
+  var start=0,h=location.hash.slice(1);
+  var hi=slides.findIndex(function(s){return s.id===h;});
+  if(hi>-1){start=hi;}else{var saved=parseInt(load('sd-slide'),10);if(!isNaN(saved))start=saved;}
+  cur=start;
+  setMode(load('sd-mode')==='scroll'?'scroll':'slides');
+})();
+</script>
+</body>
+</html>
+</body>
+</html>
